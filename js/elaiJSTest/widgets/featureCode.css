@@ -1,0 +1,39 @@
+.featureCode {
+  background-color: transparent;
+  margin: 12em auto;
+  min-width: 40%;
+  max-width: 80%;
+  display: inline-block;
+  overflow: hidden;
+  text-align: left;
+}
+
+.featureCode .featureCode_label {
+  text-transform: capitalize;
+  font-size: 2em;
+  padding: 0.4em 0;
+  margin: 0;
+  border-radius: 4px 4px 0 0;
+}
+
+.featureCode .featureCodeBody {
+  background-color: white;
+  font-size: 1.4em;
+  font-family: Arial;
+  padding: 0.5em 0.5em;
+  border: 1px solid;
+  border-top: none;
+}
+
+.featureCode .featureCodeBody .errorMessage {
+  padding: 0.5em 0.5em;
+  border-bottom: 4px solid;
+}
+
+.featureCode .featureCodeBody .code {
+  padding: 0.5em 0.5em;
+  overflow: auto;
+}
+
+.featureCode .code .space {
+}

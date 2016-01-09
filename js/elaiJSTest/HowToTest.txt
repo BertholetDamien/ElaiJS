@@ -1,0 +1,47 @@
+Basic:
+  Chager la page principale (elaiJSTest/index.html).
+  Ouvrir/fermer les boites de modules
+  Chager la page principale et ouvrir/fermer une boite de module en meme temps.
+
+Relance Module:
+  Relancer le test d'un module.
+  Relancer le test d'un module et le canceller.
+  Relancer le test cancellé.
+
+Boite de code:
+  Ouvrir la boite de code d'un Test.
+  Fermer la boite de code.
+  Ouvrir un autre code d'un test.
+  Fermer la boite de code.
+  Rouvrir le même code d'un test.
+
+Page Modue:
+  Aller dans la page d'un module.
+  Sélectionner un Test.
+  Relancer le test du module.
+  Faire 'Boite de code'.
+  Faire 'Relance Module'.
+
+Navigation:
+  Faire back.
+  Aller dans la page d'un autre module.
+  Changer l'url pour aller sur un autre module (sauf navigator).
+  Faire back.
+  Faire Forward.
+  Appuyer sur le titre pour revenir à la page d'accueil.
+  Ouvrir la page d'un module dans un nouvel onglet.
+
+Theme:
+  Changer le theme deux fois dans un onglet.
+  Changer le theme deux fois dans l'autre onglet
+  Fermer l'onglet 2.
+
+Langues:
+  Changer la langue deux fois.
+  Relancer la page d'accueil et changer la langue durant le chargement.
+
+Mode:
+  Changer le mode deux fois.
+  Relancer la page d'accueil et changer le mode durant le chargement.
+  Regarder le comportement d'ouvrir une boite de code dans les deux modes.
+  Relancer le test d'un module.

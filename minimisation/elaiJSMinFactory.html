@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        textarea {
+            width: 100%;
+            height: 15em;
+        }
+    </style>
+    <script src="r.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function (evt) {
+        document.getElementById('build').addEventListener('click', function (evt) {
+            minimize();
+        }, false);
+    }, false);
+    
+    function minimize() {
+      document.getElementById('buildMessages').value = "";
+      document.getElementById('output').value = "";
+      
+      minRequireElaiJS(function(minRequireElaiJSText) {
+        document.getElementById('output').value = minRequireElaiJSText;
+        minModules(function(minModulesText) {
+          document.getElementById('output').value += "\n" + minModulesText;
+          minElaiJSMain(function(minElaiJSMainText) {
+            document.getElementById('output').value += "\n" + minElaiJSMainText;
+          });
+        });
+      });
+    }
+    
+    function minRequireElaiJS(callback) {
+      optimize(['elaiJS/requireElaiJS'], function(text) {
+        text = text.replace(',define("elaiJS/requireElaiJS",function(){});', ';');
+        callback(text);
+      });
+    }
+    
+    function minModules(callback) {
+      optimize([  
+                      'elaiJS/binder',
+                      'elaiJS/cascadeCaller',
+                      'elaiJS/configuration',
+                      'elaiJS/debugManager',
+                      'elaiJS/defaultConfiguration',
+                      'elaiJS/defaultWebservices',
+                      'elaiJS/helper',
+                      'elaiJS/language',
+                      'elaiJS/localisation',
+                      'elaiJS/mode',
+                      'elaiJS/multicallback',
+                      'elaiJS/mustacherend',
+                      'elaiJS/navigator',
+                      'elaiJS/plugin',
+                      'elaiJS/primaryWidget',
+                      'elaiJS/propertiesManagerFactory',
+                      'elaiJS/ressources',
+                      'elaiJS/theme',
+                      'elaiJS/webservice',
+                      'elaiJS/widget'
+                    ], callback);
+    }
+    
+    function minElaiJSMain(callback) {
+      optimize(['elaiJS/elaiJSMain'], callback);
+    }
+    
+    function optimize(modules, callback) {
+      requirejs.optimize({
+          baseUrl: './../js/',
+          include: modules,
+          out: function (text) {
+            callback(text);
+          }
+      }, function (buildText) {
+          document.getElementById('buildMessages').value += buildText;
+      });
+    }
+    </script>
+</head>
+<body>
+    <p>
+        <button id="build">Build it</button>
+    </p>
+
+    <h2>Build Messages</h2>
+    <textarea id="buildMessages"></textarea>
+
+    <h2>Output</h2>
+    <textarea id="output"></textarea>
+</body>
+</html>

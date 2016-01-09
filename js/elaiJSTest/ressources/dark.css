@@ -1,0 +1,12 @@
+body {
+  background-color: #303034;
+}
+
+#page .module:not(.collapsed) {
+  background-color: white;
+}
+
+.header > *,
+.header .title a {
+  color: white;
+}

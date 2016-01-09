@@ -1,0 +1,78 @@
+.module {
+  border: 1px solid;
+  border-radius: 4px;
+  padding: 0.4em;
+  margin: 0.3em;
+  text-align: left;
+}
+
+.module .moduleTitle {
+  font-size: 1.8em;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.module .moduleTitle .module_name {
+  font-size: 1.2em;
+  text-align: center;
+  text-transform: capitalize;
+  font-family: Arial, serif;
+}
+
+.module .moduleTitle .up .right * {
+  font-size: 0.9em;
+  line-height: 0.9em;
+  vertical-align: middle;
+}
+
+.module .moduleTitle .reload_icon,
+.module .moduleTitle .cancel_icon,
+.module .moduleTitle .open_icon {
+  display: none;
+}
+
+.module.failed:not(.collapsed) .moduleTitle .reload_icon,
+.module.tested:hover .moduleTitle .reload_icon,
+.module.cancelled:hover .moduleTitle .reload_icon,
+.module.waiting:hover .moduleTitle .cancel_icon,
+.module.loading:hover .moduleTitle .cancel_icon,
+.module.testing:hover .moduleTitle .cancel_icon,
+.module:hover .moduleTitle .open_icon {
+  display: inline-block;
+}
+
+.module:not(.collapsed) .moduleTitle {
+  margin-bottom: 0.6em;
+}
+
+.module .moduleTitle .time {
+  padding-left: 0.3em;
+}
+
+.module .features_area .features_label,
+.featureCode .featureCode_label {
+  font-size: 1.4em;
+  text-align: center;
+  color: white;
+  font-weight: bold;
+  border-radius: 4px;
+  margin: 0.6em 0;
+  padding: 0.2em 0;
+  font-family: Arial;
+}
+
+.module .features_area .features {
+  min-height: 18em;
+  max-height: 18em;
+  overflow: auto;
+  overflow-y: scroll;
+  padding-left: 0.25em;
+}
+
+.module .features_area .feature.selected {
+  background-color: #E8EAF6;
+}
+
+.module.selectable .features_area .feature {
+  cursor: pointer;
+}

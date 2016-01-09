@@ -1,0 +1,244 @@
+html {font-size: 100%;}
+
+* {
+  sfont-family: Helvetica, sans-serif;
+}
+
+body {
+  min-width: 600px;
+  overflow-y: scroll;
+  padding: 0;
+  margin: 0;
+}
+
+.header {
+  display: inline-block;
+  text-align: center;
+  width: 100%;
+}
+
+.header .title {
+  font-size: 5em;
+  text-align: center;
+  font-family: arial;
+  margin-bottom: 0.2em;
+  display: inline-block;
+}
+
+.header .title a {
+  text-decoration: none;
+  color: black;
+}
+
+.header .title:hover {
+  cursor: pointer;
+}
+
+.header .rightArea, .header .leftArea {
+  width: 200px;
+  min-height: 1px;
+}
+
+.header .leftArea {
+  float: left;
+}
+
+.header .rightArea {
+  float: right;
+}
+
+.center {
+  text-align: center;
+}
+
+
+
+
+.hide, .invisible {
+  display: none !important;
+  opacity: 0;
+}
+
+.right {
+  float: right;
+}
+
+.left {
+  float: left;
+}
+
+.inline > * {
+  display: inline-block;
+}
+
+.icon {
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  
+  background-position: center;
+  background-size: 24px;
+  background-repeat: no-repeat;
+  display: inline-block;
+  transition: all 200ms ease-out;
+}
+
+.icon.code_black_icon {
+  background-image: url(../ressources/images/ic_code_black_24dp.png);
+}
+
+.icon.reload_icon {
+  background-image: url(../ressources/images/ic_refresh_black_24dp.png);
+}
+
+.icon.cancel_icon {
+  background-image: url(../ressources/images/ic_close_black_24dp.png);
+}
+
+.icon.open_icon {
+  background-image: url(../ressources/images/ic_open_in_browser_black_24dp.png);
+}
+
+.icon:hover {
+  opacity: 0.3;
+}
+
+.colorable {
+  transition: all 500ms ease-out;
+}
+
+
+.feature .feature_label,
+.module .module_label,
+.module.collapsed:hover .moduleTitle .module_label {
+  color: #9E9E9E;
+}
+
+.feature.testing .feature_label,
+.module.testing .module_label,
+.module.testing.collapsed:hover .moduleTitle .module_label,
+.module.testing.collapsed:hover .moduleTitle .errors_label:not(.error),
+.module.testing:not(.collapsed) .moduleTitle .errors_label:not(.error) {
+  color: #FF9800;
+}
+
+.feature.failed .feature_label, .module.failed .module_label,
+.module.failed.collapsed:hover .module_label,
+.module.failed.collapsed:hover .time,
+.module.failed .moduleTitle .time,
+.module .feature.failed .time,
+.module > .moduleTitle .errors_label.error,
+.module.collapsed:hover > .moduleTitle .errors_label.error,
+.module.testing > .moduleTitle .errors_label.error,
+.module.testing .moduleTitle .errors_label.error,
+.featureCode .featureCodeBody .errorMessage {
+  color: #F44336;
+}
+
+.feature.succeed .feature_label,
+.module.succeed .module_label,
+.module.succeed .moduleTitle .time,
+.module .feature.succeed .time,
+.module.succeed.collapsed:hover .module_label,
+.module.succeed .moduleTitle .errors_label {
+  color: #4CAF50;
+}
+
+.feature.cancelled .feature_label,
+.module.cancelled .module_label,
+.module.cancelled.collapsed:hover .module_label,
+.module.cancelled .moduleTitle .errors_label {
+  color: #FF8A65;
+}
+
+.module.collapsed:not(:hover) .moduleTitle .module_label,
+.module.collapsed:not(:hover) .moduleTitle .time,
+.module.collapsed:not(:hover) > .moduleTitle .errors_label:not(.error),
+.module.collapsed.failed:not(:hover) > .moduleTitle .errors_label.error {
+  color: white;
+}
+
+
+.module.collapsed,
+.module .features_area .features_label,
+.featureCode .featureCode_label {
+  background-color: #9E9E9E;
+}
+
+.module.testing.collapsed,
+.module.testing .features_area .features_label,
+.featureCode.testing .featureCode_label {
+  background-color: #FF9800;
+}
+
+.module.failed.collapsed,
+.module.failed .features_area .features_label,
+.featureCode.failed .featureCode_label {
+  background-color: #F44336;
+}
+
+.module.succeed.collapsed,
+.module.succeed .features_area .features_label,
+.featureCode.succeed .featureCode_label {
+  background-color: #4CAF50;
+}
+
+.module.cancelled.collapsed,
+.module.cancelled .features_area .features_label,
+.featureCode.cancelled .featureCode_label {
+  background-color: #FF8A65;
+}
+
+.module.collapsed:hover {
+  background-color: white;
+}
+
+.features .feature:hover {
+  background-color: #F5F5F5;
+}
+
+.features .feature.testing:hover {
+  background-color: #FFE0B2;
+}
+
+.features .feature.failed:hover {
+  background-color: #FFCDD2;
+}
+
+.features .feature.succeed:hover {
+  background-color: #C8E6C9;
+}
+
+.features .feature.cancelled:hover {
+  background-color: #FF8A65;
+}
+
+
+.module,
+.featureCode.widget .featureCodeBody {
+  border-color: #9E9E9E;
+}
+
+.module.testing,
+.featureCode.testing .featureCodeBody {
+  border-color: #FF9800;
+}
+
+.module.failed,
+.featureCode.failed .featureCodeBody {
+  border-color: #F44336;
+}
+
+.module.succeed,
+.featureCode.succeed .featureCodeBody {
+  border-color: #4CAF50;
+}
+
+.module.cancelled,
+.featureCode.cancelled .featureCodeBody {
+  border-color: #FF8A65;
+}
+
+.module.collapsed:not(:hover) {
+  border-color: black;
+}

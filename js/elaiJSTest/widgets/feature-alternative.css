@@ -1,0 +1,8 @@
+.feature.mode-alternative {
+  padding: 0.3em 0.6em;
+}
+
+.feature.mode-alternative .feature_label span.label {
+  font-size: 1.1em;
+  height: 1em;
+}

@@ -1,0 +1,20 @@
+.moduleDetail {
+  margin: 0 1em;
+}
+
+.moduleDetail .module,
+.moduleDetail .featureCode {
+  width: calc(50% - 4px - 0.8em);
+  display: inline-block;
+  margin: 0;
+  padding: 0 0.4em;
+  vertical-align: top;
+}
+
+.moduleDetail .module .moduleTitle {
+  cursor: inherit;
+}
+
+.moduleDetail .module .moduleTitle .open_icon {
+  display: none !important;
+}

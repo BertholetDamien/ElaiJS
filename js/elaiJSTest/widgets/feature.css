@@ -1,0 +1,45 @@
+.feature {
+  padding: 0.1em 0.4em;
+}
+
+.feature .feature_label span.label {
+  font-size: 1.3em;
+  height: 1.2em;
+  text-transform: capitalize;
+}
+
+.feature.tested.failed .feature_label {
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.feature .feature_message {
+  padding-left: 1em;
+  font-size: 1.2em;
+  font-family: arial;
+  color: #212121;
+}
+
+.feature .feature_label .icon,
+.feature .feature_label .time {
+  text-align: right;
+  float: right;
+}
+
+.feature .feature_label .time {
+  margin-left: 0.5em;
+}
+
+.feature .feature_label .time span {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.feature:not(.failed) .feature_label .icon {
+  display: none;
+}
+
+.feature .feature_label:hover .icon {
+  display: inherit;
+}

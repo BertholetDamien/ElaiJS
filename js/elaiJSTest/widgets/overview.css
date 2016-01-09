@@ -1,0 +1,11 @@
+.overview .modules {
+  margin: auto;
+  text-align: center;
+}
+
+.overview .module {
+  display: inline-block;
+  min-width: 600px;
+  max-width: 600px;
+  vertical-align: top;
+}
