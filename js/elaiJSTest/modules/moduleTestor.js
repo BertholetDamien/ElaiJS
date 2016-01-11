@@ -1,4 +1,4 @@
-define([  "elaiJS/binder", "elaiJS/ressources", "elaiJS/widget", 
+define([  "elaiJS/binder", "elaiJS/ressources", "elaiJS/widget",
           "elaiJSTest/modules/featureTestor"],
           function(binder, res, widgetManager, FeatureTestor) {
 	return function (index, name) {

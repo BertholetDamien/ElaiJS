@@ -7,6 +7,7 @@ define([  "elaiJS/webservice", "elaiJS/ressources", "elaiJS/helper",
 	
 	self.addDefaultWebservices = function addDefaultWebservices() {
     webservice.addService("call", callHTTPRequest);
+    webservice.addService("ajax", callAjaxHTTPRequest);
     webservice.addService("loadTextFile", loadTextFile);
     webservice.addService("loadCSS", loadCSS, true);
     webservice.addService("loadJSONFile", loadJSONFile);
@@ -135,21 +136,25 @@ define([  "elaiJS/webservice", "elaiJS/ressources", "elaiJS/helper",
 	}
 	
 	function callHTTPRequest(params, callback) {
+	  if(!helper.isObject(params))
+      params = {url: params};
+    
     var url = params.url;
 		var req = getXMLHttpRequest();
 		var async = (params.async === false) ? false : true;
-		var method = (params.method) ? params.method.toUpperCase() : "POST";
+		var method = (params.method) ? params.method.toUpperCase() : "GET";
     req.open(method, url, async);
     
     for(var key in params.requestHeader)
       req.setRequestHeader(key, params.requestHeader[key]);
     
-    req.onreadystatechange = function(response) {
+    req.onreadystatechange = function() {
       if(req.readyState != 4)
         return;
       
       req.isSuccess = req.status === 200;
       req.isError = !req.isSuccess;
+      req.responseJSON = helper.parseJSON(req.responseText);
       
       if(req.isSuccess && helper.isFunction(params.onSuccess))
         params.onSuccess(req);
@@ -161,6 +166,15 @@ define([  "elaiJS/webservice", "elaiJS/ressources", "elaiJS/helper",
 
     var data = (params.data) ? JSON.stringify(params.data) : null;
     req.send(data);
+	}
+	
+	function callAjaxHTTPRequest(params, callback) {
+	  params.method = params.method || "POST";
+    params.requestHeader = params.requestHeader || {};
+    if(!params.requestHeader["Content-Type"])
+      params.requestHeader["Content-Type"] = "application/json;charset=UTF-8";
+    
+    callHTTPRequest(params, callback);
 	}
 
 	function getXMLHttpRequest() {

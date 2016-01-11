@@ -73,6 +73,14 @@ define([], function() {
     return JSON.parse(JSON.stringify(obj));
 	};
 	
+	self.parseJSON = function parseJSON(string) {
+	  try {
+	    return JSON.parse(string);
+	  } catch(e) {
+	    return undefined;
+	  }
+	};
+	
 	self.capitalize = function capitalize(string) {
     return string.charAt(0).toUpperCase() + string.substring(1);
 	};
