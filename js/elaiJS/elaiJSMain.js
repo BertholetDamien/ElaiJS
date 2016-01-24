@@ -86,13 +86,13 @@ define([], function() {
 });
 
 /*
+  Test helper.isEmail
+  
   IE/Edge
     StorageEvent don't work
-  Create ElaiJS git repo
-  Install nodejs
   
   DefaultWebService
-    Tester call Service
+    Error management
   
   Integrate one of this View:
     Google Polymere

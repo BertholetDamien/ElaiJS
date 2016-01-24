@@ -80,32 +80,32 @@ define( ["elaiJS/binder", "elaiJS/helper", "elaiJS/configuration"],
   
   self.bindTab = function(name, callback, path, params, scope, bindOne) {
     var itemName = getItemName(name, path) + TAB;
-    binder.bind.call(self, itemName, callback, params, scope, bindOne);
+    return binder.bind.call(self, itemName, callback, params, scope, bindOne);
   };
   
   self.bindOneTab = function(name, callback, path, params, scope) {
     var itemName = getItemName(name, path) + TAB;
-    binder.bindOne.call(self, itemName, callback, params, scope);
+    return binder.bindOne.call(self, itemName, callback, params, scope);
   };
   
   self.unbindTab = function(name, callback, path) {
     var itemName = getItemName(name, path) + TAB;
-    binder.unbind.call(self, itemName);
+    return binder.unbind.call(self, itemName);
   };
   
   self.bind = function(name, callback, path, params, scope, bindOne) {
     var itemName = getItemName(name, path);
-    binder.bind.call(self, itemName, callback, params, scope, bindOne);
+    return binder.bind.call(self, itemName, callback, params, scope, bindOne);
   };
   
   self.bindOne = function(name, callback, path, params, scope) {
     var itemName = getItemName(name, path);
-    binder.bindOne.call(self, itemName, callback, params, scope);
+    return binder.bindOne.call(self, itemName, callback, params, scope);
   };
   
   self.unbind = function(name, callback, path) {
     var itemName = getItemName(name, path);
-    binder.unbind.call(self, itemName, callback);
+    return binder.unbind.call(self, itemName, callback);
   };
   
   self.unbindAll = binder.unbindAll;

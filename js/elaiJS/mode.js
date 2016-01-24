@@ -14,6 +14,9 @@ define([  "elaiJS/configuration", "elaiJS/helper",
 	};
 	
 	self.setMode = function setMode(newMode) {
+	  if(newMode === mode)
+	    return;
+    
 	  var params = {oldMode: mode, newMode: newMode};
 	  mode = newMode;
 	  self.fire(EVENT.modeChanged, params);

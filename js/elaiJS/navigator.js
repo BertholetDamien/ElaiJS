@@ -12,7 +12,7 @@ define(['elaiJS/configuration', 'elaiJS/binder'],
   };
 	self.EVENT = EVENT;
 
-  var ignoreHasChange = false;	
+  var ignoreHasChange = false;
   var beforeUnloadCallback;
 	var beforeUnloadMessage;
 	var currentPageInfo;
@@ -167,6 +167,7 @@ define(['elaiJS/configuration', 'elaiJS/binder'],
       cookieStr += "path=" + params.path + ";";
     
     document.cookie = cookieStr;
+    return self;
 	};
 	
 	self.getCookie = function(name) {
@@ -177,7 +178,7 @@ define(['elaiJS/configuration', 'elaiJS/binder'],
 	  var date = new Date();
 	  date.setTime(date.getTime() - 1);
 	  
-    self.addCookie({name: name, value: "", expires: date, remove: false});
+    return self.addCookie({name: name, value: "", expires: date, remove: false});
 	};
 	
 	self.getCookies = function() {

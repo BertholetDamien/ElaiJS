@@ -33,6 +33,7 @@ define(["elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper"],
     config.defaultLanguage = "en";
     config.autoFindLanguage = true;
     config.mustacheLib = "lib/mustache.min";
+    config.polymereLib = "../bower_components/webcomponentsjs/webcomponents-lite.min";
     
     config.defaultLocalisation = "en-US";
     config.autoFindLocalisation = true;
@@ -45,50 +46,50 @@ define(["elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper"],
     config.ressources = {
       ressources: "ressources",
       javascript: "js",
-      css: "css",
+      css:        "css",
       
-      themes: "{{css}}/themes",
-      theme: "{{themes}}/{{name}}.css",
-      languages: "{{ressources}}/languages",
-      language: "{{languages}}/language_{{name}}.properties",
-      localisations: "{{ressources}}/localisations",
-      localisation: "{{localisations}}/localisation_{{name}}.json",
+      themes:         "{{css}}/themes",
+      theme:          "{{themes}}/{{name}}.css",
+      languages:      "{{ressources}}/languages",
+      language:       "{{languages}}/language_{{name}}.properties",
+      localisations:  "{{ressources}}/localisations",
+      localisation:   "{{localisations}}/localisation_{{name}}.json",
       
-      plugins: "plugins",
-      plugin: "{{plugins}}/{{name}}",
+      plugins:    "plugins",
+      plugin:     "{{plugins}}/{{name}}",
       pluginMode: "{{plugins}}/{{name}}-{{mode}}",
       
-      widgets: "widgets",
-      widget: "{{widgets}}/{{name}}",
+      widgets:    "widgets",
+      widget:     "{{widgets}}/{{name}}",
       widgetMode: "{{widgets}}/{{name}}-{{mode}}",
       
-      templates: "templates",
-      template: "{{templates}/{{name}}.tpl",
-      templateMode: "{{templates}}/{{name}}-{{mode}}.tpl",
-      widgetsCSS: "{{css}}/widgets",
-      widgetCSS: "{{widgetsCSS}}/{{name}}.css",
-      widgetCSSMode: "{{widgetsCSS}}/{{name}}-{{mode}}.css"
+      templates:      "templates",
+      template:       "{{templates}}/{{name}}.tpl",
+      templateMode:   "{{templates}}/{{name}}-{{mode}}.tpl",
+      widgetsCSS:     "{{css}}/widgets",
+      widgetCSS:      "{{widgetsCSS}}/{{name}}.css",
+      widgetCSSMode:  "{{widgetsCSS}}/{{name}}-{{mode}}.css"
     };
     
     config.debugModules = {
-      "elaiJS/binder": "binder",
-      "elaiJS/cascadeCaller": "cascadeCaller",
-      "elaiJS/configuration": "config",
-      "elaiJS/defaultConfiguration": "defaultConfiguration",
-      "elaiJS/defaultWebservices": "defaultWebservices",
-      "elaiJS/helper": "helper",
-      "elaiJS/language": "lang",
-      "elaiJS/localisation": "localisation",
-      "elaiJS/mode": "modeManager",
-      "elaiJS/multicallback": "multicallback",
-      "elaiJS/navigator": "historyNavigator",
-      "elaiJS/plugin": "pluginManager",
-      "elaiJS/propertiesManagerFactory": "propertiesManagerFactory",
-      "elaiJS/ressources": "ressources",
-      "elaiJS/localStorage": "elaiStorage",
-      "elaiJS/theme": "themeManager",
-      "elaiJS/webservice": "webservice",
-      "elaiJS/widget": "widgetManager"
+      "elaiJS/binder":                    "binder",
+      "elaiJS/cascadeCaller":             "cascadeCaller",
+      "elaiJS/configuration":             "config",
+      "elaiJS/defaultConfiguration":      "defaultConfiguration",
+      "elaiJS/defaultWebservices":        "defaultWebservices",
+      "elaiJS/helper":                    "helper",
+      "elaiJS/language":                  "lang",
+      "elaiJS/localisation":              "localisation",
+      "elaiJS/mode":                      "modeManager",
+      "elaiJS/multicallback":             "multicallback",
+      "elaiJS/navigator":                 "historyNavigator",
+      "elaiJS/plugin":                    "pluginManager",
+      "elaiJS/propertiesManagerFactory":  "propertiesManagerFactory",
+      "elaiJS/ressources":                "ressources",
+      "elaiJS/localStorage":              "elaiStorage",
+      "elaiJS/theme":                     "themeManager",
+      "elaiJS/webservice":                "webservice",
+      "elaiJS/widget":                    "widgetManager"
   	};
 	}
 	
@@ -114,7 +115,7 @@ define(["elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper"],
     		  if(key != "page")
   	        hash += key + "=" + pageInfo[key] + "&";
   
-    		 hash = hash.substring(0, hash.length - 1);
+		    hash = hash.substring(0, hash.length - 1);
     	}
   
       return hash;
@@ -138,7 +139,7 @@ define(["elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper"],
       if(appConfig)
         config(appConfig);
       
-      callback();	    
+      callback();
     });
   }
 	

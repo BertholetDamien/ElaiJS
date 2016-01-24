@@ -33,6 +33,8 @@ define([  "elaiJS/configuration", "elaiJS/webservice",
   
 	self.get = function get(keyPropertie, params, language) {
     var value = propertiesManager.get(keyPropertie, language);
+    if(!value)
+      return value;
     
     for(var key in params) {
       var regex = new RegExp("\\{\\{" + key + "\\}\\}", "g");

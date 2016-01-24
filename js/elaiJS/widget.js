@@ -90,7 +90,6 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/plugin",
 	}
 
 	function createWidget(widgetInfo, id, params, widgetPrototype, callback) {
-	  
 		var widget = instanciateWidget(widgetInfo, id, widgetPrototype);
     self.add(widget);
     
@@ -192,7 +191,6 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/plugin",
 		widgetsProtoInfo[widgetInfo.name][widgetInfo.mode] = widgetProtoInfo;
     return widgetProtoInfo;
 	}
-	
 	
 	function buildWidgetPrototypeInfoInstance(widgetProtoInfo) {
     var protoInstance = {};

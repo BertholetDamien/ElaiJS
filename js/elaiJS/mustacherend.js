@@ -1,14 +1,27 @@
 define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/language",
-          "elaiJS/localisation", "elaiJS/helper"],
-			    function( config, webservice, lang, loc, helper) {
+          "elaiJS/localisation", "elaiJS/helper", "elaiJS/binder",
+          "elaiJS/rendererFactory"],
+			    function( config, webservice, lang, loc, helper, binder,
+			              rendererFactory) {
 	'use strict';
 	var mustache;
 	
 	return function(widget, pluginInfo) {
+	  var rendererInfo = {
+	    isLibLoaded: function() {return mustache !== undefined;},
+	    getHTML: getDisplayContent,
+	    initializeVariablesBeforeWidget: initializeVariables
+	  };
+	  binder.addAllFunctions(rendererInfo);
+	  
 	  loadMustache();
 	  
+	  var renderer = rendererFactory(rendererInfo, pluginInfo);
+	  renderer.events = {
+		  beforeCreate: beforeCreate
+		};
+		
 		function initializeVariables() {
-			this.elementDOM = undefined;
 			this.templateData = undefined;
 		}
 		
@@ -19,7 +32,7 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/language",
 		}
 		
 		function getCSSWidgetParams() {
-      var css = pluginInfo.css || pluginInfo.CSS;
+      var css = pluginInfo.CSS;
 		  if(css)
         return  { css: css,
                   name: this.name,
@@ -28,42 +41,13 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/language",
       return undefined;
 		}
 	  
-    function render(callback) {
-      if(!mustache)
-        return loadMustache.call(this, callback);
-        
-      var _this = this;
-			getDisplayContent.call(this, function (html) {
-				setElementDOMHTML.call(_this, html);
-		    callback();
-			});
-		}
-		
-		function loadMustache(callback) {
-		  var _this = this;
+		function loadMustache() {
 		  require([config.mustacheLib], function(moduleMustache) {
         mustache = moduleMustache;
-        if(callback)
-          render.call(_this, callback);
+        rendererInfo.fire("libLoaded");
       });
 		}
 		
-		function initDOMELement() {
-			var elementDOM = findDOMElement.call(this);
-			if(!elementDOM)
-				throw new Error("Can't find DOM element for widget: " + this.id);
-
-			this.elementDOM = elementDOM;
-		}
-		
-		function findDOMElement() {
-		  var elem;
-		  if(helper.isFunction(this.findDOMElement))
-		    elem = this.findDOMElement();
-			 
-			 return elem || document.getElementById(this.id);
-		}
-
   /************************************************************************
 	 ************************** Render Template *****************************
 	 ************************************************************************/
@@ -123,7 +107,7 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/language",
           var array;
           if(params.arrayParams)
             array = helper.extractArray(params.arrayParams, true);
-          text = loc[params.fct].apply(loc, array);  
+          text = loc[params.fct].apply(loc, array);
         }
 		    
         return text;
@@ -133,51 +117,13 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/language",
 		function buildHashMustacheFct() {
 		  return function(text, render) {
 		    var params = helper.extractParams(render(text), true);
+		    if(Object.keys(params).length === 1 && !params.page)
+		      params = {page: Object.keys(params)[0]};
+		    
 		    return config.buildHash(params);
 		  };
 		}
-
-  /************************************************************************
-	 ******************************* Set HTML *******************************
-	 ************************************************************************/
-		function setElementDOMHTML(html) {
-			initDOMELement.call(this);
-      if(mustAppendHTML.call(this))
-        return this.elementDOM.insertAdjacentHTML("beforeend", html);
-      
-	    this.elementDOM.innerHTML = html;
-			manageClass.call(this, true);
-		}
 		
-    function removeRender() {
-      if(!this.elementDOM || mustAppendHTML.call(this))
-        return;
-	    
-      this.elementDOM.innerHTML = "";
-      manageClass.call(this, false);
-    }
-	  
-	  function manageClass(add) {
-	    var action = (add) ? "add" : "remove";
-	    var nameClass = this.name.replace(/\//g, "_");
-			this.elementDOM.classList[action](nameClass);
-			this.elementDOM.classList[action]("widget");
-			
-		  if(this.mode)
-  		  this.elementDOM.classList[action]("mode-" + this.mode);
-	  }
-    
-    function mustAppendHTML() {
-      return helper.isFunction(this.mustAppendHTML) && this.mustAppendHTML() === true;
-    }
-
-		return {
-		  events: {
-		    beforeCreate: beforeCreate
-		  },
-		  initializeVariablesBeforeWidget: initializeVariables,
-	    renderBeforeWidget: render,
-      removeRenderBeforeWidget: removeRender
-		};
+		return renderer;
 	};
 });

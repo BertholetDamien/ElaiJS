@@ -54,6 +54,11 @@ define([], function() {
     return object !== null && typeof object === "object";
 	};
 	
+	self.isEmail = function isEmail(email) {
+    var regex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
+    return regex.test(email);
+	};
+	
 	self.getElaiJSAttribute = function getElaiJSAttribute(name) {
     var urlFile;
     var scriptElement = document.getElementsByClassName("elaiJS");

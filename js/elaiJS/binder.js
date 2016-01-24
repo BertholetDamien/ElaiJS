@@ -5,19 +5,19 @@ define(["elaiJS/helper"], function(helper) {
 	var globalEvent = {};
 	
 	self.bindGlobal = function bindGlobal(type, callback, params, scope) {
-    self.bind.call(globalEvent, type, callback, params, scope || this);
+    return self.bind.call(globalEvent, type, callback, params, scope || this);
 	};
 	
 	self.bindOneGlobal = function bindGlobal(type, callback, params, scope) {
-    self.bindOne.call(globalEvent, type, callback, params, scope || this);
+    return self.bindOne.call(globalEvent, type, callback, params, scope || this);
 	};
 	
 	self.unbindGlobal = function unbindGlobal(type, callback) {
-    self.unbind.call(globalEvent, type, callback);
+    return self.unbind.call(globalEvent, type, callback);
 	};
 	
 	self.fireGlobal = function fireGlobal(event, data) {
-    self.fire.call(globalEvent, event, data);
+    return self.fire.call(globalEvent, event, data);
 	};
 	
 	self.buildGlobalFireCallBack = function buildGlobalFireCallBack(event, callback, data) {
@@ -25,7 +25,7 @@ define(["elaiJS/helper"], function(helper) {
 	};
 	
 	self.bindOne = function bindOne(type, callback, params, scope) {
-    self.bind.call(this, type, callback, params, scope, true);
+    return self.bind.call(this, type, callback, params, scope, true);
 	};
 
 	self.bind = function bind(type, callback, params, scope, bindOne) {
@@ -38,15 +38,17 @@ define(["elaiJS/helper"], function(helper) {
     var listener = {  callback: callback, params: params,
                       scope: scope, bindOne: bindOne};
 		this.listeners[type].push(listener);
+		
+		return this;
 	};
 
 	self.unbind = function unbind(type, callback) {
 		if(!this.listeners)
-			return;
+			return this;
 		
 		if(!callback) {
 			this.listeners[type] = [];
-			return;
+			return this;
 		}
 		
 		var listeners = this.listeners[type];
@@ -56,10 +58,13 @@ define(["elaiJS/helper"], function(helper) {
 				return unbind.call(this, type, callback);
 			}
 		}
+		
+		return this;
 	};
 	
 	self.unbindAll = function unbindAll() {
     this.listeners = [];
+    return this;
 	};
 
 	self.fire = function fire(event, data) {
@@ -76,6 +81,7 @@ define(["elaiJS/helper"], function(helper) {
 		}
 		
 		deleteBindOneListeners(listeners);
+		return this;
 	};
 	
 	function deleteBindOneListeners(listeners) {

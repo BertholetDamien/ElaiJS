@@ -117,10 +117,10 @@ define([  "elaiJS/webservice", "elaiJS/ressources", "elaiJS/helper",
 	}
 	
 	function loadJSFile(params, callback) {
-	  var requireParams = {};
     var url = params.url;
+	  var requireParams;
     if(params.addVersion !== false)
-      requireParams.getParams = getVersionURL();
+      requireParams = {getParams: getVersionURL()};
     
     require([url], callback, requireParams);
 	}
@@ -128,7 +128,10 @@ define([  "elaiJS/webservice", "elaiJS/ressources", "elaiJS/helper",
 	function loadTextFile(params, callback) {
 	  if(!helper.isObject(params))
 	    params = {url: params};
-	 
+	    
+    if(params.addVersion === true)
+      params.url += getVersionURL();
+      
     params.method = "GET";
     callHTTPRequest(params, function(response) {
       callback((response.isSuccess) ? response.responseText : undefined);
@@ -169,6 +172,9 @@ define([  "elaiJS/webservice", "elaiJS/ressources", "elaiJS/helper",
 	}
 	
 	function callAjaxHTTPRequest(params, callback) {
+	  if(!helper.isObject(params))
+      params = {url: params};
+    
 	  params.method = params.method || "POST";
     params.requestHeader = params.requestHeader || {};
     if(!params.requestHeader["Content-Type"])

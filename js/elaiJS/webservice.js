@@ -25,6 +25,7 @@ define(["elaiJS/binder", "elaiJS/cascadeCaller", "elaiJS/helper"],
       callback = callback || function() {};
       process(service, params, callback, serviceParams || {});
     };
+    return self;
 	};
 	
 	function createService(name, executeFunction, useCache) {
@@ -46,6 +47,7 @@ define(["elaiJS/binder", "elaiJS/cascadeCaller", "elaiJS/helper"],
 	
 	self.setDefaultUseCache = function setDefaultUseCache(name, defaultUseCache) {
     getService(name).useCache = defaultUseCache;
+    return self;
 	};
 	
 	function getService(name) {
@@ -140,51 +142,52 @@ define(["elaiJS/binder", "elaiJS/cascadeCaller", "elaiJS/helper"],
 	 *************************** Listener *****************************
 	******************************************************************/
 	self.addBeforeListener = function addBeforeListener(name, callback) {
-    addListener("before", name, callback);
+    return addListener("before", name, callback);
 	};
 	
 	self.addAfterListener = function addAfterListener(name, callback) {
-    addListener("after", name, callback);
+    return addListener("after", name, callback);
 	};
 	
 	function addListener(eventCode, name, callback) {
-    binder.bind.call(getService(name), eventCode, callback);
+    return binder.bind.call(getService(name), eventCode, callback);
 	}
 	
 	self.removeBeforeListener = function removeBeforeListener(name, callback) {
-    removeListener("before", name, callback);
+    return removeListener("before", name, callback);
 	};
 	
 	self.removeAfterListener = function removeAfterListener(name, callback) {
-    removeListener("after", name, callback);
+    return removeListener("after", name, callback);
 	};
 	
 	function removeListener(eventCode, name, callback) {
-    binder.unbind.call(getService(name), eventCode, callback);
+    return binder.unbind.call(getService(name), eventCode, callback);
 	}
 	
 	/******************************************************************
 	 ************************** Interceptor ***************************
 	******************************************************************/
 	self.addBeforeInterceptor = function addBeforeInterceptor(name, callback) {
-    addInterceptor("before", name, callback);
+    return addInterceptor("before", name, callback);
 	};
 	
 	self.addAfterInterceptor = function addAfterInterceptor(name, callback) {
-    addInterceptor("after", name, callback);
+    return addInterceptor("after", name, callback);
 	};
 	
 	function addInterceptor(type, name, callback) {
 	  var service = getService(name);
     service.interceptors[type].push(callback);
+    return self;
 	}
 	
 	self.removeBeforeInterceptor = function removeBeforeInterceptor(name, callback) {
-    removeInterceptor("before", name, callback);
+    return removeInterceptor("before", name, callback);
 	};
 	
 	self.removeAfterInterceptor = function removeAfterInterceptor(name, callback) {
-    removeInterceptor("after", name, callback);
+    return removeInterceptor("after", name, callback);
 	};
 	
 	function removeInterceptor(type, name, callback) {
@@ -197,6 +200,8 @@ define(["elaiJS/binder", "elaiJS/cascadeCaller", "elaiJS/helper"],
     else {
       service.interceptors[type] = [];
     }
+    
+    return self;
 	}
 	
 	/******************************************************************

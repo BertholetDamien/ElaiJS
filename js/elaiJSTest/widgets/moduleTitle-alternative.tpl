@@ -1,8 +1,8 @@
 <div class="inline up center">
   <div class="left">
     <a  title="{{#lang}}title_open{{/lang}}"
-    class="icon open_icon"
-    href="{{#buildHash}}page=moduleDetail&name={{w.module.name}}{{/buildHash}}"
+        class="icon open_icon"
+        href="{{#buildHash}}page=moduleDetail&name={{w.module.name}}{{/buildHash}}"
     >
     </a>
     <div title="{{#lang}}title_retest{{/lang}}" class="icon reload_icon"></div>
@@ -80,12 +80,12 @@
       {{/w.module.hasError}}
     </span>
   {{/w.module.tested}}
-  <span class="right errors_label colorable  
-                {{#w.module.hasError}}error{{/w.module.hasError}} 
-                {{#w.module.succeed}}hide{{/w.module.succeed}} 
+  <span class="right errors_label colorable
+                {{#w.module.hasError}}error{{/w.module.hasError}}
+                {{#w.module.succeed}}hide{{/w.module.succeed}}
                 {{#w.module.waiting}}hide{{/w.module.waiting}}
                 {{#w.module.loading}}hide{{/w.module.loading}}">
-    {{#w.module.hasErrors}}  
+    {{#w.module.hasErrors}}
       {{#lang}}key=xerrors&count={{w.module.featuresFailedCount}}{{/lang}}
     {{/w.module.hasErrors}}
     {{^w.module.hasErrors}}
