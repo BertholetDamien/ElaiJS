@@ -15,6 +15,7 @@ define(["elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper"],
     self.resetConfiguration();
     
     setDefaultBasicConfiguration();
+    
     setAppConfigurationFile(function() {
       setDefaultConditionalConfiguration();
       if(callback)
@@ -138,7 +139,6 @@ define(["elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper"],
       applicationConfig = appConfig;
       if(appConfig)
         config(appConfig);
-      
       callback();
     });
   }

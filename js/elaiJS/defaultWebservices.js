@@ -131,7 +131,7 @@ define([  "elaiJS/webservice", "elaiJS/ressources", "elaiJS/helper",
 	    
     if(params.addVersion === true)
       params.url += getVersionURL();
-      
+    
     params.method = "GET";
     callHTTPRequest(params, function(response) {
       callback((response.isSuccess) ? response.responseText : undefined);
@@ -150,7 +150,7 @@ define([  "elaiJS/webservice", "elaiJS/ressources", "elaiJS/helper",
     
     for(var key in params.requestHeader)
       req.setRequestHeader(key, params.requestHeader[key]);
-    
+      
     req.onreadystatechange = function() {
       if(req.readyState != 4)
         return;
