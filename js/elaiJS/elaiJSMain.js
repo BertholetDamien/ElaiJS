@@ -5,7 +5,6 @@ define([], function() {
 	function initialize() {
 	  loadModules(function() {
       defaultWebservices.addDefaultWebservices();
-      
   	  defaultConfiguration.setDefaultConfiguration(function() {
   	    launchDebugMode();
   	    initalizeModules(loadAppMain);
@@ -69,7 +68,10 @@ define([], function() {
     if(console && console.timeEnd && config.debugMode)
       console.timeEnd("ElaiJS Start in");
 	  
-    require([appModuleName]);
+    require([appModuleName], function(appMain) {
+      if(helper.isFunction(appMain.start))
+        appMain.start();
+    });
   }
   
   function launchDebugMode() {
