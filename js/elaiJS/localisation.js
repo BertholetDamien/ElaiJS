@@ -17,7 +17,13 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper",
 	var EVENT = {localisationChanged: "localisationChanged"};
 	self.EVENT = EVENT;
 	
-  self.initialize = propertiesManager.initialize;
+  self.initialize = function(callback) {
+    if(config.dontUseLocalisation === true)
+      return callback();
+    
+  	propertiesManager.initialize(callback);
+  };
+  
 	self.getLocalisation = propertiesManager.getCurrentKey;
 	
   function findFirstKey() {
