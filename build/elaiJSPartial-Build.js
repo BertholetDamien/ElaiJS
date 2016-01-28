@@ -15,6 +15,7 @@
       'elaiJS/mustacherend',
       'elaiJS/navigator',
       'elaiJS/plugin',
+      'elaiJS/polymerend',
       'elaiJS/primaryWidget',
       'elaiJS/propertiesManagerFactory',
       'elaiJS/ressources',

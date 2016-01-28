@@ -23,38 +23,61 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/mode",
 		}
 		
 		function loadPolymer() {
+		  if(window.WebComponents)
+		    return polymerLoaded();
+		  
       require([config.polymereLib]);
-      window.addEventListener('WebComponentsReady', function() {
-        polymerLoaded = true;
-        rendererInfo.fire("libLoaded");
-      });
+      window.addEventListener('WebComponentsReady', polymerLoaded);
+		}
+		
+		function polymerLoaded() {
+		  polymerLoaded = true;
+      rendererInfo.fire("libLoaded");
 		}
 		
   /************************************************************************
 	 ************************** Render Template *****************************
 	 ************************************************************************/
 		function render(callback) {
-			var _this = this;
-
-      var info = getComponentInfo.call(this);
+      var info = getWebComponentInfo.call(this);
       var componentName = mode.getRessource("WebComponent", info);
       
       this.elemPoly = document.createElement(componentName);
       
-      if(this.polyData)
-        this.elemPoly.data = this.polyData;
-      this.elemPoly.widget = this;
+      addAttachedEvent.call(this, callback);
+      addPolyEvents.call(this);
       
       this.elementDOM.appendChild(this.elemPoly);
-      
-			callback();
 		}
 		
-		function getComponentInfo() {
-		  if(!helper.isFunction(this.getComponentInfo))
-		    return {name: "widget-" + this.name, mode: this.mode};
+		function addPolyEvents() {
+		  var _this = this;
+		  for(var key in this.polyEvents) {
+        this.elemPoly.addEventListener(key, function(e) {
+          _this.polyEvents[key].call(_this, e.detail, e);
+        });
+      }
+		}
+		
+		function addAttachedEvent(callback) {
+		  var _this = this;
+      this.elemPoly.addEventListener("attached", polyAttached);
+      
+      function polyAttached() {
+        _this.elemPoly.removeEventListener("attached", polyAttached);
+        
+        if(_this.viewData)
+          _this.elemPoly.data = _this.viewData;
+        _this.elemPoly.widget = _this;
+        callback();
+      }
+		}
+		
+		function getWebComponentInfo() {
+		  if(!helper.isFunction(this.getWebComponentInfo))
+		    return {name: this.name, mode: this.mode};
 		  
-      var info = this.getComponentInfo();
+      var info = this.getWebComponentInfo();
       if(helper.isObject(info))
         return info;
       return {name: info, mode: this.mode};
