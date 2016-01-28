@@ -132,7 +132,7 @@ define(["elaiJS/webservice", "elaiJS/multicallback",
 
 	function createPlugin(pluginInfo, widget, callback) {
 	  getPrototypeOf(pluginInfo, function(pluginPrototype) {
-      var plugin = pluginPrototype(widget, pluginInfo);
+      var plugin = pluginPrototype(widget, pluginInfo) || {};
       callback(plugin);
 	  });
 	}
