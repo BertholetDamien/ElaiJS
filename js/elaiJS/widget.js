@@ -105,15 +105,15 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/plugin",
 	function instanciateWidget(widgetInfo, id, widgetPrototype) {
 		return Object.create(widgetPrototype.proto, {
 			name: {
-				value: widgetInfo.name,
+				value:      widgetInfo.name,
 				enumerable: true
 			},
 			id: {
-				value: id,
+				value:      id,
 				enumerable: true
 			},
 			mode: {
-				value: widgetInfo.mode,
+				value:      widgetInfo.mode,
 				enumerable: true
 			}
 		});
@@ -184,9 +184,9 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/plugin",
     
     var widgetProtoInfo =   {
                               properties: properties,
-                              name: widgetInfo.name,
-                              mode: widgetInfo.mode,
-                              parent: parentPrototypeInfo
+                              name:       widgetInfo.name,
+                              mode:       widgetInfo.mode,
+                              parent:     parentPrototypeInfo
                             };
 		widgetsProtoInfo[widgetInfo.name][widgetInfo.mode] = widgetProtoInfo;
     return widgetProtoInfo;
@@ -216,7 +216,7 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/plugin",
 	  widgetProtoInfo.properties.builder.call(parentInstance, parentInstance);
     return Object.create(parentInstance, {
   		super: {
-		    value: parentInstance,
+		    value:      parentInstance,
 		    enumerable: true
   		}
     });
