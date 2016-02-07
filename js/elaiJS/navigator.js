@@ -19,10 +19,8 @@ define(['elaiJS/configuration', 'elaiJS/binder'],
   
 	function initialize() {
 		window.onhashchange = function() {
-		  if(ignoreHasChange) {
-		    ignoreHasChange = false;
-		    return;
-		  }
+		  if(ignoreHasChange)
+		    return ignoreHasChange = false;
 		  
 		  if(beforeUnloadMessage) {
 		    fire(EVENT.beforeUnload);
