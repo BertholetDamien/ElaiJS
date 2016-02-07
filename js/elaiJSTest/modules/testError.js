@@ -3,14 +3,14 @@ define([], function() {
     window.onerror = function(message, fileName, lineNumber, colNumber, error) {
       var errorInfo = getErrorInfo(message, fileName, lineNumber, colNumber, error);
       callback(feature, findModuleTestSrc(errorInfo));
-      return true; 
+      return true;
     };
   };
   
   function getErrorInfo(message, fileName, lineNumber, colNumber, error) {
     console.error(error);
     
-    if(fileName.indexOf("elaiJSTest/test.js") === -1)
+    if(!isTestFile(fileName))
       return {lineNumber: lineNumber, fileName: reduceFileName(fileName),
               error: error, message: message};
     
@@ -29,7 +29,7 @@ define([], function() {
     var regex = /:(\d+):(?:\d+)[^\d]*$/;
     var lineStr = stack.shift();
     
-    if(lineStr.indexOf("elaiJSTest/test.js") !== -1)
+    if(isTestFile(lineStr))
       return findStackLine(stack);
     
     var lineParse = regex.exec(lineStr);
@@ -41,6 +41,10 @@ define([], function() {
     fileName = (fileName.length === 1) ? fileName[0] : fileName[1];
     
     return {lineNumber: lineParse[1], fileName: reduceFileName(fileName)};
+  }
+  
+  function isTestFile(str) {
+    return str.indexOf("elaiJSTest/test.js") !== -1 || str.indexOf("elaiJSTest/modules/test.js") !== -1;
   }
   
   function reduceFileName(fileName) {

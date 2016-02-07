@@ -36,7 +36,5 @@ define([  "elaiJS/multicallback", "elaiJS/navigator", "elaiJS/language"],
 		this.findDOMElement = function findDOMElement() {
 			return document.getElementsByTagName("body")[0];
 		};
-
-		return proto;
 	};
 });
