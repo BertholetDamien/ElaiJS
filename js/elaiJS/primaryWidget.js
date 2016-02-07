@@ -406,6 +406,13 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder", "elaiJS/helper
           callback.apply(_this, arguments);
       };
     };
+    
+    this.async = function(callback, timeout, params) {
+      var _this = this;
+      setTimeout(function() {
+        callback.apply(_this, params);
+      }, timeout);
+    };
 	};
 
 	return properties;
