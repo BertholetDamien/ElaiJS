@@ -7,20 +7,21 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/language",
 	var mustache;
 	
 	return function(widget, pluginInfo) {
-	  var rendererInfo = {
-	    isLibLoaded: function() {return mustache !== undefined;},
-	    getHTML: getDisplayContent,
-	    initializeVariablesBeforeWidget: initializeVariables
-	  };
-	  binder.addAllFunctions(rendererInfo);
-	  
-	  loadMustache();
-	  
-	  var renderer = rendererFactory(rendererInfo, pluginInfo);
-	  renderer.events = {
-		  beforeCreate: beforeCreate
+    var rendererInfo = {
+      isLibLoaded: function() {return mustache !== undefined;},
+      getHTML: getDisplayContent
+    };
+    binder.addAllFunctions(rendererInfo);
+    loadMustache();
+    
+    var plugin = {
+      events: {
+	      beforeCreate: beforeCreate
+      },
+      initializeVariablesBeforeWidget: initializeVariables
 		};
-		
+	  plugin = rendererFactory(rendererInfo, pluginInfo, plugin);
+	  
 		function initializeVariables() {
 			this.templateData = undefined;
 		}
@@ -42,6 +43,9 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/language",
 		}
 	  
 		function loadMustache() {
+		  if(mustache)
+		    return;
+		  
 		  require([config.mustacheLib], function(moduleMustache) {
         mustache = moduleMustache;
         rendererInfo.fire("libLoaded");
@@ -61,9 +65,9 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/language",
           w: _this,
           data: _this.templateData,
           config: config,
-          lang: getLanguageMustacheFct,
-          loc: getLocalisationMustacheFct,
-          buildHash: buildHashMustacheFct
+          lang: buildMustacheFct(getLanguageMustacheFct),
+          loc: buildMustacheFct(getLocalisationMustacheFct),
+          buildHash: buildMustacheFct(buildHashMustacheFct)
         };
 				
 				var html = mustache.render(template, templateData);
@@ -81,49 +85,49 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/language",
       return {name: info, mode: this.mode};
 		}
 		
-		function getLanguageMustacheFct() {
-		  return function(text, render) {
-		    var params = helper.extractParams(render(text), true);
-		    
-		    if(Object.keys(params).length === 1 && !params.key)
-		      params.key = Object.keys(params)[0];
-		    
-		    text = lang.get(params.key, params, params.lang);
-        return text;
+		function buildMustacheFct(fct) {
+		  return function() {
+		    return fct;
 		  };
 		}
 		
-		function getLocalisationMustacheFct() {
-		  return function(text, render) {
-		    var params = helper.extractParams(render(text), true);
-		    
-		    if(Object.keys(params).length === 1 && !params.key)
-		      params.key = Object.keys(params)[0];
-        
-        if(params.fct === "get" || !params.fct) {
-          text = loc.get(params.key, params.loc);
-        }
-        else {
-          var array;
-          if(params.arrayParams)
-            array = helper.extractArray(params.arrayParams, true);
-          text = loc[params.fct].apply(loc, array);
-        }
-		    
-        return text;
-		  };
+		function getLanguageMustacheFct(text, render) {
+	    var params = helper.extractParams(render(text), true);
+	    
+	    if(Object.keys(params).length === 1 && !params.key)
+	      params.key = Object.keys(params)[0];
+	    
+	    text = lang.get(params.key, params, params.lang);
+      return text;
 		}
 		
-		function buildHashMustacheFct() {
-		  return function(text, render) {
-		    var params = helper.extractParams(render(text), true);
-		    if(Object.keys(params).length === 1 && !params.page)
-		      params = {page: Object.keys(params)[0]};
-		    
-		    return config.buildHash(params);
-		  };
+		function getLocalisationMustacheFct(text, render) {
+	    var params = helper.extractParams(render(text), true);
+	    
+	    if(Object.keys(params).length === 1 && !params.key)
+	      params.key = Object.keys(params)[0];
+      
+      if(params.fct === "get" || !params.fct) {
+        text = loc.get(params.key, params.loc);
+      }
+      else {
+        var array = [];
+        if(params.arrayParams)
+          array = helper.extractArray(params.arrayParams, true);
+        text = loc[params.fct].apply(loc, array);
+      }
+      
+      return text;
 		}
 		
-		return renderer;
+		function buildHashMustacheFct(text, render) {
+	    var params = helper.extractParams(render(text), true);
+	    if(Object.keys(params).length === 1 && !params.page)
+	      params = {page: Object.keys(params)[0]};
+	    
+	    return config.buildHash(params);
+		}
+		
+		return plugin;
 	};
 });

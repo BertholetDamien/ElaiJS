@@ -1,29 +1,27 @@
 define(["elaiJS/helper"], function(helper) {
 	'use strict';
 	
-	return function(rendererInfo, pluginInfo) {
-		function checkLoadedLib(callback) {
+	return function(rendererInfo, pluginInfo, plugin) {
+	  var initializeVariablesBeforeWidget = plugin.initializeVariablesBeforeWidget;
+	  var renderBeforeWidget              = plugin.renderBeforeWidget;
+	  var removeRenderBeforeWidget        = plugin.removeRenderBeforeWidget;
+	  
+		function waitLib(callback) {
 		  if(rendererInfo.isLibLoaded.call(this))
-		    return callback();
+		    return callback.call(this);
 		  
-		  rendererInfo.bindOne("libLoaded", callback);
+		  rendererInfo.bindOne("libLoaded", callback, undefined, this);
 		}
 		
 		function initializeVariables() {
 			this.elementDOM = undefined;
-			if(helper.isFunction(rendererInfo.initializeVariablesBeforeWidget))
-			  rendererInfo.initializeVariablesBeforeWidget();
+			if(helper.isFunction(initializeVariablesBeforeWidget))
+		    initializeVariablesBeforeWidget.call(this);
 		}
 		
     function render(callback) {
-      var _this = this;
-      checkLoadedLib(function() {
-        if(pluginInfo.useQueue)
-          setTimeout(function() {
-            _render.call(_this, callback);
-          });
-        else
-          _render.call(_this, callback);
+      waitLib.call(this, function() {
+        _render.call(this, callback);
       });
 		}
 		
@@ -36,7 +34,11 @@ define(["elaiJS/helper"], function(helper) {
       
 			rendererInfo.getHTML.call(this, function(html) {
 				setElementDOMHTML.call(_this, html);
-		    callback();
+		    
+		    if(helper.isFunction(removeRenderBeforeWidget))
+			    removeRenderBeforeWidget.call(this, callback);
+        else
+		      callback();
 			});
 		}
 		
@@ -44,7 +46,7 @@ define(["elaiJS/helper"], function(helper) {
 			var elementDOM = findDOMElement.call(this);
 			if(!elementDOM)
 				throw new Error("Can't find DOM element for widget: " + this.id);
-
+      
 			this.elementDOM = elementDOM;
 		}
 		
@@ -68,14 +70,17 @@ define(["elaiJS/helper"], function(helper) {
 		}
 		
     function removeRender() {
+      if(helper.isFunction(rendererInfo.removeRender))
+			  return rendererInfo.removeRender.call(this);
+			  
       if(!this.elementDOM || mustAppendHTML.call(this))
         return;
 	    
       this.elementDOM.innerHTML = "";
       manageClass.call(this, false);
       
-      if(helper.isFunction(rendererInfo.removeRenderBeforeWidget))
-			  rendererInfo.removeRenderBeforeWidget();
+      if(helper.isFunction(removeRenderBeforeWidget))
+			  removeRenderBeforeWidget.call(this);
     }
 	  
 	  function manageClass(add) {
@@ -91,11 +96,11 @@ define(["elaiJS/helper"], function(helper) {
     function mustAppendHTML() {
       return helper.isFunction(this.mustAppendHTML) && this.mustAppendHTML() === true;
     }
-
-		return {
-	    initializeVariablesBeforeWidget: initializeVariables,
-      renderBeforeWidget: render,
-      removeRenderBeforeWidget: removeRender
-		};
+    
+    plugin.initializeVariablesBeforeWidget  = initializeVariables;
+    plugin.renderBeforeWidget               = render;
+    plugin.removeRenderBeforeWidget         = removeRender;
+    
+    return plugin;
 	};
 });

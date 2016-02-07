@@ -1,25 +1,22 @@
 define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/mode",
-          "elaiJS/language", "elaiJS/localisation", "elaiJS/helper",
-          "elaiJS/binder", "elaiJS/rendererFactory"],
-			    function( config, webservice, mode, lang, loc, helper,
-			              binder, rendererFactory) {
+          "elaiJS/helper", "elaiJS/binder", "elaiJS/rendererFactory"],
+			    function( config, webservice, mode, helper, binder, rendererFactory) {
 	'use strict';
 	var polymerLoaded;
 	
 	return function(widget, pluginInfo) {
 	  var rendererInfo = {
 	    isLibLoaded: function() {return polymerLoaded;},
-	    render: render,
-	    initializeVariablesBeforeWidget: initializeVariables
+	    render: render
 	  };
 	  binder.addAllFunctions(rendererInfo);
-	  
 	  loadPolymer();
 	  
-	  var renderer = rendererFactory(rendererInfo, pluginInfo);
+	  var plugin = {initializeVariablesBeforeWidget: initializeVariables};
+	  plugin = rendererFactory(rendererInfo, pluginInfo, plugin);
 		
 		function initializeVariables() {
-			this.templateData = undefined;
+			this.viewData = undefined;
 		}
 		
 		function loadPolymer() {
@@ -42,33 +39,35 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/mode",
       var info = getWebComponentInfo.call(this);
       var componentName = mode.getRessource("WebComponent", info);
       
-      this.elemPoly = document.createElement(componentName);
-      
+      this.elementPolymer = document.createElement(componentName);
+      if(this.viewData)
+        this.elementPolymer.data = this.viewData;
+      this.elementPolymer.widget = this;
+        
       addAttachedEvent.call(this, callback);
-      addPolyEvents.call(this);
+      addViewEvents.call(this);
       
-      this.elementDOM.appendChild(this.elemPoly);
+      while(this.elementDOM.children.length > 0)
+        this.elementDOM.removeChild(this.elementDOM.children[0]);
+      
+      this.elementDOM.appendChild(this.elementPolymer);
 		}
 		
-		function addPolyEvents() {
+		function addViewEvents() {
 		  var _this = this;
-		  for(var key in this.polyEvents) {
-        this.elemPoly.addEventListener(key, function(e) {
-          _this.polyEvents[key].call(_this, e.detail, e);
+		  for(var key in this.viewEvents) {
+        this.elementPolymer.addEventListener(key, function(e) {
+          _this.viewEvents[key].call(_this, e.detail, e);
         });
       }
 		}
 		
 		function addAttachedEvent(callback) {
 		  var _this = this;
-      this.elemPoly.addEventListener("attached", polyAttached);
+      this.elementPolymer.addEventListener("attached", polyAttached);
       
       function polyAttached() {
-        _this.elemPoly.removeEventListener("attached", polyAttached);
-        
-        if(_this.viewData)
-          _this.elemPoly.data = _this.viewData;
-        _this.elemPoly.widget = _this;
+        _this.elementPolymer.removeEventListener("attached", polyAttached);
         callback();
       }
 		}
@@ -83,6 +82,6 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/mode",
       return {name: info, mode: this.mode};
 		}
 		
-		return renderer;
+		return plugin;
 	};
 });
