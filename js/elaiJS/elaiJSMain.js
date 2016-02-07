@@ -1,41 +1,23 @@
-define([], function() {
-  var config, defaultConfiguration, defaultWebservices, navigator,
-      themeManager, lang, localisation, multicallback, helper;
+define(["elaiJS/helper", "elaiJS/binder", "elaiJS/cascadeCaller",
+        "elaiJS/multicallback", "elaiJS/propertiesManagerFactory",
+        "elaiJS/configuration", "elaiJS/ressources", "elaiJS/mode",
+        "elaiJS/navigator", "elaiJS/webservice",
+        "elaiJS/defaultWebservices","elaiJS/defaultConfiguration",
+        "elaiJS/theme", "elaiJS/language", "elaiJS/localisation"],
+        function(helper, a, b, multicallback, c, config, d, e, navigator,
+          f, defaultWebservices, defaultConfig, themeManager, lang, loc) {
   
 	function initialize() {
-	  loadModules(function() {
-      defaultWebservices.addDefaultWebservices();
-  	  defaultConfiguration.setDefaultConfiguration(function() {
-  	    launchDebugMode();
-  	    initalizeModules(loadAppMain);
-  	  });
+	  loadWidgetModules();
+	  
+    defaultWebservices.addDefaultWebservices();
+	  defaultConfig.setDefaultConfiguration(function() {
+	    launchDebugMode();
+	    initalizeModules(loadAppMain);
 	  });
 	}
 	
-	function loadModules(callback) {
-	  require([ "elaiJS/helper", "elaiJS/binder", "elaiJS/cascadeCaller",
-	            "elaiJS/multicallback", "elaiJS/propertiesManagerFactory",
-	            "elaiJS/configuration", "elaiJS/ressources", "elaiJS/mode",
-              "elaiJS/navigator", "elaiJS/webservice",
-              "elaiJS/defaultWebservices","elaiJS/defaultConfiguration",
-              "elaiJS/theme", "elaiJS/language", "elaiJS/localisation"
-            ],
-      function( helper2, a, b, multicallback2, c, config2, d, e, navigator2,
-                f, defaultWebservices2, defaultConfig2, themeManager2,
-                lang2, loc2) {
-        config = config2;
-        defaultConfiguration = defaultConfig2;
-        defaultWebservices = defaultWebservices2;
-        navigator = navigator2;
-        themeManager = themeManager2;
-        lang = lang2;
-        localisation = loc2;
-        multicallback = multicallback2;
-        helper = helper2;
-        
-        callback();
-    });
-    
+	function loadWidgetModules() {
     require(["elaiJS/plugin", "elaiJS/widget", "elaiJS/primaryWidget"]);
 	}
 	
@@ -46,8 +28,15 @@ define([], function() {
       navigator.initializeCurrentPage();
     
     var multiCallBackFunction = multicallback(2, callback);
-    lang.initialize(multiCallBackFunction);
-    localisation.initialize(multiCallBackFunction);
+    initializeModule(lang, multiCallBackFunction, config.skipLanguageInitialization);
+    initializeModule(loc, multiCallBackFunction, config.skipLocalisationInitialization);
+	}
+	
+	function initializeModule(module, callback, needInit) {
+	  if(needInit !== true)
+      module.initialize(callback);
+    else
+      callback();
 	}
 	
 	function loadAppMain() {
@@ -55,12 +44,13 @@ define([], function() {
       config.requireElaiJS.setConfig(config);
     
 	  var debug = config.debugMode ? "Debug" : "";
+	  // TODO remove debug ?
     var appModuleName = helper.getElaiJSAttribute("app" + debug);
     if(!appModuleName)
       return;
     
     var baseURL = helper.getElaiJSAttribute("baseurl");
-    if(!baseURL && config.useRequireElaiJS) {
+    if(!baseURL && config.requireElaiJS) {
       var index = appModuleName.lastIndexOf("/");
       appModuleName = appModuleName.substring(index + 1, appModuleName.length);
     }
@@ -69,7 +59,7 @@ define([], function() {
       console.timeEnd("ElaiJS Start in");
 	  
     require([appModuleName], function(appMain) {
-      if(helper.isFunction(appMain.start))
+      if(appMain && helper.isFunction(appMain.start))
         appMain.start();
     });
   }
@@ -88,19 +78,18 @@ define([], function() {
 });
 
 /*
-  Test helper.isEmail
-  
   IE/Edge
     StorageEvent don't work
   
-  DefaultWebService
-    Error management
+  Clean elaiJSMain
+  Utiliser les workers?
   
-  Integrate one of this View:
-    Google Polymere
+  Integrate one or more of this View:
+    Google Polymer
+    Angular 2
+    X-Tag
     Riot
     React
-    X-Tag
 */
 
 /*
