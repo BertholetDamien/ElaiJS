@@ -47,12 +47,12 @@
     return urlFile;
 	}
   
-  function loadScript(moduleName, params) {
-    var node = createNode(moduleName, params);
+  function loadScript(moduleName) {
+    var node = createNode(moduleName);
     document.getElementsByTagName("head")[0].appendChild(node);
   }
   
-  function getScriptURL(moduleName, params) {
+  function getScriptURL(moduleName) {
     if( config && config.require && config.require.paths &&
         config.require.paths[moduleName]) {
       moduleName = config.require.paths[moduleName];
@@ -62,13 +62,13 @@
       return moduleName;
     
     var url = baseURL + "/" + moduleName + ".js";
-    if(params && params.getParams)
-      url += params.getParams;
+    if(config && config.require && config.require.urlArgs)
+      url += "?" + config.require.urlArgs;
     
     return url;
   }
   
-  function createNode(moduleName, params) {
+  function createNode(moduleName) {
     var node = document.createElement('script');
     node.type = 'text/javascript';
     node.charset = 'utf-8';
@@ -79,7 +79,7 @@
     node.setAttribute('data-moduleName', moduleName);
     node.addEventListener('load', onScriptLoad, false);
     node.addEventListener('error', onScriptError, false);
-    node.src = getScriptURL(moduleName, params);
+    node.src = getScriptURL(moduleName);
     
     return node;
   }
@@ -93,8 +93,10 @@
       addModule(moduleName, null);
   }
   
-  function onScriptError() {
+  function onScriptError(error) {
     var moduleName = this.getAttribute("data-moduleName");
+    callErrorListener(error, moduleName);
+    
     throw new Error("Error: Script error during loading module '" + moduleName + "'");
   }
   
@@ -134,7 +136,7 @@
     callShimInit(name);
   }
   
-  function getModule(name, callback, params) {
+  function getModule(name, callback, errCallback) {
     if(modules[name] !== undefined) {
       if(callback)
         callback(modules[name], name);
@@ -147,29 +149,41 @@
     if(name === "exports")
       return (callback) ? callback({}, name) : undefined;
     
-    var newListener = addListener(name, callback);
+    var newListener = addListener(name, callback, errCallback);
     if(newListener)
-      loadScript(name, params);
+      loadScript(name);
   }
   
-  function addListener(name, callback) {
+  function addListener(name, callback, errCallback) {
     var newListener = true;
     if(!listeners[name])
       listeners[name] = [];
     else
       newListener = false;
     
-    listeners[name].push(callback);
+    listeners[name].push({callback: callback, errCallback: errCallback});
     return newListener;
   }
   
   function callListener(moduleName, module) {
     if(!listeners[moduleName])
       return;
-      
+    
     for(var i in listeners[moduleName])
-      listeners[moduleName][i](module, moduleName);
+      listeners[moduleName][i].callback(module, moduleName);
       
+    delete listeners[moduleName];
+  }
+  
+  function callErrorListener(error, moduleName) {
+    if(!listeners[moduleName])
+      return;
+    
+    for(var i in listeners[moduleName]) {
+      if(listeners[moduleName][i].errCallback)
+        listeners[moduleName][i].errCallback(error, moduleName);
+    }
+    
     delete listeners[moduleName];
   }
   
@@ -184,7 +198,7 @@
     config.require.shim[moduleName].init();
   }
   
-  function getModules(modulesName, callback, params) {
+  function getModules(modulesName, callback, errCallback) {
     var modulesDep = {};
     var count = modulesName.length;
     var getModuleCallback = function getModuleCallback(module, name) {
@@ -199,7 +213,7 @@
     };
     
     for(var i in modulesName)
-      getModule(modulesName[i], getModuleCallback, params);
+      getModule(modulesName[i], getModuleCallback, errCallback);
     
     if(modulesName.length === 0)
       callback();
@@ -235,14 +249,14 @@
   /************************************************************
    ********************* Scope functions **********************
   *************************************************************/
-  scope.require = function require(deps, callback, params) {
+  scope.require = function require(deps, callback, errCallback) {
     if(typeof deps === 'string')
       return getModule(deps);
     
     var indirectDeps = getIndirectDeps(deps);
     getModules(indirectDeps, function() {
-      getModules(deps, callback, params);
-    });
+      getModules(deps, callback, errCallback);
+    }, errCallback);
   };
   
   scope.define = function define(name, deps, callback) {

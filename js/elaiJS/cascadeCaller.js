@@ -1,7 +1,7 @@
 define([], function() {
 	'use strict';
 	
-  return function(fcts, initialParams, callback, scope) {
+  return function(fcts, initialParams, callback, errCallback, scope) {
     scope = scope || this;
     var index = -1;
     
@@ -17,7 +17,12 @@ define([], function() {
         return callback.apply(scope, params);
       
       params.push(nextFunction);
-      fcts[index].apply(scope, params);
+      params.push(errCallback);
+      try {
+        fcts[index].apply(scope, params);
+      } catch(exception) {
+        errCallback.call(scope, exception);
+      }
     }
   };
 });

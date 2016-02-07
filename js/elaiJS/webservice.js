@@ -21,9 +21,12 @@ define(["elaiJS/binder", "elaiJS/cascadeCaller", "elaiJS/helper"],
     services[service.name] = service;
     delete cache[service.name];
 	  
-    self[name] = function(params, callback, serviceParams) {
+    self[name] = function(params, callback, errCallback, serviceParams) {
       callback = callback || function() {};
-      process(service, params, callback, serviceParams || {});
+      errCallback = errCallback || function(e) {
+        console.error("Error during execution of service %o: %o", name, e);
+      };
+      process(service, params, callback, errCallback, serviceParams || {});
     };
     return self;
 	};
@@ -58,7 +61,7 @@ define(["elaiJS/binder", "elaiJS/cascadeCaller", "elaiJS/helper"],
     return service;
 	}
 	
-  function process(service, params, callback, serviceParams) {
+  function process(service, params, callback, errCallback, serviceParams) {
     setDefaultServiceParams(service, serviceParams);
     
     var beforeExecuteCallback = function(params2, serviceParams2) {
@@ -66,11 +69,11 @@ define(["elaiJS/binder", "elaiJS/cascadeCaller", "elaiJS/helper"],
       serviceParams = serviceParams2;
       
       binder.fire.call(service, "before", {params: params, serviceParams: serviceParams});
-      execute(service, params, executeCallback, serviceParams);
+      execute(service, params, executeCallback, errCallback, serviceParams);
     };
     
     var executeCallback = function() {
-      executeAfterInterceptor(service, params, afterInterceptorCallback, serviceParams, arguments);
+      executeAfterInterceptor(service, params, afterInterceptorCallback, errCallback, serviceParams, arguments);
     };
     
     var afterInterceptorCallback = function(params, serviceParams, result) {
@@ -78,7 +81,7 @@ define(["elaiJS/binder", "elaiJS/cascadeCaller", "elaiJS/helper"],
       callback.apply(service, result);
     };
     
-    executeBeforeInterceptor(service, params, beforeExecuteCallback, serviceParams);
+    executeBeforeInterceptor(service, params, beforeExecuteCallback, errCallback, serviceParams);
 	}
 	
 	function setDefaultServiceParams(service, serviceParams) {
@@ -89,19 +92,19 @@ define(["elaiJS/binder", "elaiJS/cascadeCaller", "elaiJS/helper"],
       serviceParams.searchInCache = true;
 	}
 	
-	function executeBeforeInterceptor(service, params, callback, serviceParams) {
+	function executeBeforeInterceptor(service, params, callback, errCallback, serviceParams) {
     var interceptors = service.interceptors.before;
-    cascadeCaller(interceptors, [params, serviceParams], callback, service);
+    cascadeCaller(interceptors, [params, serviceParams], callback, errCallback, service);
 	}
 	
-	function executeAfterInterceptor(service, params, callback, serviceParams, result) {
+	function executeAfterInterceptor(service, params, callback, errCallback, serviceParams, result) {
     var interceptors = service.interceptors.after;
-    cascadeCaller(interceptors, [params, serviceParams, result], callback, service);
+    cascadeCaller(interceptors, [params, serviceParams, result], callback, errCallback, service);
 	}
 	
-	function execute(service, params, callback, serviceParams) {
+	function execute(service, params, callback, errCallback, serviceParams) {
     if(serviceParams.searchInCache) {
-      var find = searchInCacheOrFuturCache(service, params, callback);
+      var find = searchInCacheOrFuturCache(service, params, callback, errCallback);
       if(find === true)
         return;
     }
@@ -111,17 +114,25 @@ define(["elaiJS/binder", "elaiJS/cascadeCaller", "elaiJS/helper"],
     if(serviceParams.useCache)
       currentObj = addToCurrent(service, initialParams, callback);
     
-    service.execute(params, function() {
+    function afterExecute() {
       if(serviceParams.useCache) {
         addToCache(service, initialParams, arguments);
         fireCurrentObj(currentObj, arguments);
       }
 	    
       callback.apply(service, arguments);
-    });
+    }
+    
+    try {
+      service.execute(params, afterExecute, errCallback);
+    } catch(exception) {
+      if(serviceParams.useCache)
+        fireErrorCurrentObj(currentObj, exception);
+      errCallback.call(service, exception);
+    }
 	}
 	
-	function searchInCacheOrFuturCache(service, params, callback) {
+	function searchInCacheOrFuturCache(service, params, callback, errCallback) {
     var cacheResult = findInCache(service, params);
     if(cacheResult) {
       callback.apply(service, cacheResult.result);
@@ -132,6 +143,10 @@ define(["elaiJS/binder", "elaiJS/cascadeCaller", "elaiJS/helper"],
     if(currentObj) {
       binder.bind.call(currentObj, "ready", function(event) {
         callback.apply(service, event.data);
+      });
+      
+      binder.bind.call(currentObj, "error", function(event) {
+        errCallback.apply(service, e.data);
       });
       
       return true;
@@ -230,6 +245,11 @@ define(["elaiJS/binder", "elaiJS/cascadeCaller", "elaiJS/helper"],
 	
 	function fireCurrentObj(currentObj, params) {
     binder.fire.call(currentObj, "ready", params);
+    deleteCurrentObj(currentObj);
+	}
+	
+	function fireErrorCurrentObj(currentObj, error) {
+    binder.fire.call(currentObj, "error", error);
     deleteCurrentObj(currentObj);
 	}
 	
