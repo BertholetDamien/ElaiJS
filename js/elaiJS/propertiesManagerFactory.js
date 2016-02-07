@@ -1,4 +1,4 @@
-define([], function() {
+define(["elaiJS/multicallback"], function(multicallback) {
 	'use strict';
 
   function build(definition) {
@@ -8,10 +8,12 @@ define([], function() {
   	var properties = {};
   
     self.initialize = function initialize(callback) {
-      loadProperties(definition.getDefaultKey());
+      var multiCBFct = multicallback(2, callback);
+      
+      loadProperties(definition.getDefaultKey(), multiCBFct);
       
       var key = definition.findFirstKey() || definition.getDefaultKey();
-      self.setKey(key, callback);
+      self.setKey(key, multiCBFct);
     };
     
   	self.get = function get(propertieKey, key) {
@@ -48,8 +50,7 @@ define([], function() {
   	function loadProperties(key, callback) {
       definition.loadProperties(key, function(propertie) {
         properties[key] = propertie;
-        if(callback)
-          callback();
+        callback();
       });
   	}
   

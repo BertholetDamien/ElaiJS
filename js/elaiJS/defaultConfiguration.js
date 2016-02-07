@@ -29,7 +29,7 @@ define(["elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper"],
 	  
 	  config.homePage = "home";
 	  config.defaultParentWidget = "elaiJS/primaryWidget";
-    config.defaultTheme = "default";
+    config.defaultTheme = undefined;
     config.defaultMode = undefined;
     config.defaultLanguage = "en";
     config.autoFindLanguage = true;
@@ -103,6 +103,15 @@ define(["elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper"],
 	function setDefaultConditionalConfiguration() {
 	  if(config.defaultTheme === "undefined")
 	    config.defaultTheme = undefined;
+	    
+    if( config.requireElaiJS
+        && config.version
+        && (!config.require || !config.require.urlArgs)) {
+      if(!config.require)
+        config.require = {};
+      
+      config.require.urlArgs = "v=" + config.version;
+    }
 	  
 	  if(config.setDefaultNavigationFunctions === false)
 	    return;
