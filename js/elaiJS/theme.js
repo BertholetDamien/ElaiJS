@@ -9,37 +9,34 @@ define([  "elaiJS/webservice", "elaiJS/configuration", "elaiJS/ressources",
 	self.EVENT = EVENT;
 	
 	var currentTheme;
-  var currentElement;
 
 	self.getTheme = function getTheme() {
 		return currentTheme;
 	};
 
-	self.initialize = function initialize() {
+	self.initialize = function initialize(callback, errCallback) {
     if(config.defaultTheme)
-      self.setTheme(config.defaultTheme);
+      self.setTheme(config.defaultTheme, callback, errCallback);
 	};
 
-	self.setTheme = function setTheme(theme) {
-		deleteCurremtThemCSS();
-		currentElement = undefined;
-		var params = {oldTheme: currentTheme, newTheme: theme};
+	self.setTheme = function setTheme(theme, callback, errCallback) {
+		webservice.removeTheme({name: currentTheme}, function() {
+		  _setTheme(theme, callback);
+		}, errCallback);
+	};
+	
+	function _setTheme(theme, callback, errCallback) {
+	  var params = {oldTheme: currentTheme, newTheme: theme};
 		currentTheme = theme;
-		self.fire(EVENT.themeChanged, params);
 		
 		if(!theme)
-		  return;
+		  return self.fire(EVENT.themeChanged, params);
 		
-		var url = res.get("theme", {name: theme});
-		webservice.loadCSS(url, function(elemLink) {
-      elemLink.classList.add("theme");
-		  currentElement = elemLink;
-		}, {useCache: false});
-	};
-
-	function deleteCurremtThemCSS() {
-    if(currentElement && currentElement.parentNode)
-      currentElement.parentNode.removeChild(currentElement);
+		webservice.loadTheme({name: theme}, function() {
+		  self.fire(EVENT.themeChanged, params);
+		  if(callback)
+		    callback();
+		}, errCallback);
 	}
 
 	return self;
