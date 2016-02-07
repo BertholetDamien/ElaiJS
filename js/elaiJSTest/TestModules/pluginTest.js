@@ -3,10 +3,11 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper", "elaiJS/plugin
 	'use strict';
   var self = {};
 
-  self.beforeTest = function() {
+  self.beforeTest = function(callback) {
     config.defaultPlugins = undefined;
     config.ressources.widgets = "elaiJSTest/TestModules/TestWidgets";
     config.ressources.plugins = "elaiJSTest/TestModules/TestWidgets";
+    callback();
   };
   
   self.defaultPlugin = function(test) {

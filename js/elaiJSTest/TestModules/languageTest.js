@@ -3,6 +3,10 @@ define(["elaiJS/language", "elaiJS/configuration"],
 	'use strict';
   var self = {};
   
+  self.beforeTest = function(callback) {
+    lang.initialize(callback);
+  };
+  
   self.setLanguage = function () {
     lang.setLanguage("en");
     this.assertEq("en", lang.getLanguage());

@@ -77,7 +77,27 @@ define(["elaiJS/cascadeCaller"],
     cascadeCaller([testA, testA], [""], function(params1) {
       test.assertEq(params1, "aa");
       test.done();
-    }, {value: testValue});
+    }, undefined, {value: testValue});
+  };
+  
+  self.withError = function (test) {
+    var testA = function () {
+      throw new Error();
+    };
+    
+    cascadeCaller([testA, testA], [""], test.fail, test.done);
+  };
+  
+  self.withErrors = function (test) {
+    var testA = function (param1, callback) {
+      callback();
+    };
+    
+    var testB = function () {
+      throw new Error();
+    };
+    
+    cascadeCaller([testA, testB, testA], [""], test.fail, test.done);
   };
   
 	return self;

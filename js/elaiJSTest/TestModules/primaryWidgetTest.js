@@ -3,10 +3,11 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
 	'use strict';
   var self = {};
 
-  self.beforeTest = function() {
+  self.beforeTest = function(callback) {
     config.defaultPlugins = undefined;
     config.ressources.widgets = "elaiJSTest/TestModules/TestWidgets";
     config.ressources.widgetCSS = "elaiJSTest/TestModules/TestWidgets/{{name}}.css";
+    callback();
   };
 
   self.createWidgetWithParams = function(test) {
@@ -54,7 +55,7 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
       test.assertEq(2, widget.count.processRowData);
       
       widget.processRowData();
-      test.assertEq(3, widget.count.processRowData);  
+      test.assertEq(3, widget.count.processRowData);
       
       widget.fetchData();
       test.assertEq(3, widget.count.fetchData);

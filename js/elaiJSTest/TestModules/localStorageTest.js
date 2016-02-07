@@ -7,8 +7,9 @@
   var path2 = "localPathTest2";
   var complexObj = {love: 42, happy: "hope", cute: {misscute: true}};
   
-  self.beforeTest = function() {
+  self.beforeTest = function(callback) {
     localStorage.clearAll();
+    callback();
   };
   
   self.getAndSet = function () {

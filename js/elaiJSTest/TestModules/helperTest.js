@@ -209,5 +209,23 @@ define([  "elaiJS/helper"],
     this.done();
   };
   
+  self.isEmail = function() {
+    this.assertFalse(helper.isEmail());
+    this.assertFalse(helper.isEmail(""));
+    this.assertFalse(helper.isEmail("love"));
+    this.assertFalse(helper.isEmail("love@"));
+    this.assertFalse(helper.isEmail("love@.dq"));
+    this.assertFalse(helper.isEmail("love@love"));
+    this.assertFalse(helper.isEmail("love@love."));
+    this.assertFalse(helper.isEmail("@love.love"));
+    
+    this.assertTrue(helper.isEmail("love@love.love"));
+    this.assertTrue(helper.isEmail("love@love.lovelove"));
+    this.assertTrue(helper.isEmail("e@e.fr"));
+    this.assertTrue(helper.isEmail("love42@love.love"));
+    
+    this.done();
+  };
+  
 	return self;
 });

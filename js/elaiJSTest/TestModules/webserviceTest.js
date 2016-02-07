@@ -111,12 +111,12 @@ define(["elaiJS/webservice", "elaiJS/multicallback"],
     var checkResult = function(result) {
       if(test && resultValue)
         test.assertEq(resultValue, result);
-      multiCallBackFunction(); 
+      multiCallBackFunction();
     };
       
     var multiCallBackFunction = multicallback(count, callback);
     for(var i = 0 ; i < count ; ++i)
-      webservice[name](params, checkResult, serviceParams);
+      webservice[name](params, checkResult, undefined, serviceParams);
   }
   
   self.withUseCache = function (test) {
@@ -559,6 +559,46 @@ define(["elaiJS/webservice", "elaiJS/multicallback"],
       
       test.done();
     });
+  };
+  
+  self.checkErrorHandler = function (test) {
+    webservice.addService("testErrorService", function(params, callback) {
+      throw new Error();
+    });
+    
+    webservice.testErrorService({}, test.fail, test.done);
+  };
+  
+  self.checkErrorHandler2 = function (test) {
+    webservice.addService("testErrorService", function(params, callback, errCallback) {
+      errCallback();
+    });
+    
+    webservice.testErrorService({}, test.fail, test.done);
+  };
+  
+  self.checkErrorHandlerWithInterceptor = function (test) {
+    webservice.addService("testErrorService", function(params, callback, errCallback) {
+      callback();
+    });
+    
+    webservice.addBeforeInterceptor("testErrorService", function(params, serviceParams, callback, errCallback) {
+      throw new Error();
+    });
+    
+    webservice.testErrorService({}, test.fail, test.done);
+  };
+  
+  self.checkErrorHandlerWithInterceptor2 = function (test) {
+    webservice.addService("testErrorService", function(params, callback, errCallback) {
+      callback();
+    });
+    
+    webservice.addBeforeInterceptor("testErrorService", function(params, serviceParams, callback, errCallback) {
+      errCallback();
+    });
+    
+    webservice.testErrorService({}, test.fail, test.done);
   };
   
 	return self;

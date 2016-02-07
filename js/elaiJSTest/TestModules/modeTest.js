@@ -4,8 +4,9 @@ define(["elaiJS/configuration", "elaiJS/mode", "elaiJS/helper"],
   var self = {};
   var saveRessourcesConfig;
   
-  self.beforeTest = function() {
+  self.beforeTest = function(callback) {
     saveRessourcesConfig = helper.clone(config.ressources);
+    callback();
   };
   
   self.afterTest = function() {

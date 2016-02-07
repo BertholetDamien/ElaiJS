@@ -3,6 +3,10 @@ define(["elaiJS/localisation", "elaiJS/configuration"],
 	'use strict';
   var self = {};
   
+  self.beforeTest = function(callback) {
+    loc.initialize(callback);
+  };
+  
   self.findValidLocalisation = function () {
     config.matchValidLocalisation = {
       "en": "en-US",
