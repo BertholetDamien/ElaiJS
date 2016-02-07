@@ -41,9 +41,11 @@ define([  "elaiJSTest/modules/test", "elaiJS/binder", "elaiJS/helper",
   self.run = function(callback) {
     runCallback = callback;
     if(beforeTestFct)
-      beforeTestFct.call(moduleTest);
-    
-    setTimeout(testNextFeature, 10);
+      beforeTestFct.call(moduleTest, function() {
+        setTimeout(testNextFeature, 10);
+      });
+    else
+      setTimeout(testNextFeature, 10);
   };
   
   self.cancel = function() {
