@@ -43,8 +43,7 @@ define(["elaiJS/helper", "elaiJS/binder", "elaiJS/cascadeCaller",
     if(config.requireElaiJS)
       config.requireElaiJS.setConfig(config);
     
-	  var debug = config.debugMode ? "Debug" : "";
-	  // TODO remove debug ?
+	  var debug = config.isDebug ? "Debug" : "";
     var appModuleName = helper.getElaiJSAttribute("app" + debug);
     if(!appModuleName)
       return;
@@ -55,7 +54,7 @@ define(["elaiJS/helper", "elaiJS/binder", "elaiJS/cascadeCaller",
       appModuleName = appModuleName.substring(index + 1, appModuleName.length);
     }
     
-    if(console && console.timeEnd && config.debugMode)
+    if(console && console.timeEnd && config.isDebug)
       console.timeEnd("ElaiJS Start in");
 	  
     require([appModuleName], function(appMain) {
@@ -65,7 +64,7 @@ define(["elaiJS/helper", "elaiJS/binder", "elaiJS/cascadeCaller",
   }
   
   function launchDebugMode() {
-    if(config.debugMode) {
+    if(config.isDebug) {
       require(["elaiJS/debugManager"], function(debugManager) {
         debugManager.startDebugMode();
       });
@@ -81,15 +80,14 @@ define(["elaiJS/helper", "elaiJS/binder", "elaiJS/cascadeCaller",
   IE/Edge
     StorageEvent don't work
   
-  Clean elaiJSMain
-  Utiliser les workers?
+    Utiliser les workers?
   
   Integrate one or more of this View:
     Google Polymer
-    Angular 2
-    X-Tag
     Riot
     React
+    Angular 2
+    X-Tag
 */
 
 /*

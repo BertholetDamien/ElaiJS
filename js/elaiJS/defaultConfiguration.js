@@ -24,7 +24,7 @@ define(["elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper"],
 	};
 	
 	function setDefaultBasicConfiguration() {
-	  config.debugMode = isDebugMode();
+	  config.isDebug = isDebugMode();
 	  config.requireElaiJS = window.requireElaiJS;
 	  
 	  config.homePage = "home";
