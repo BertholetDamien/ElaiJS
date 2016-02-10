@@ -57,6 +57,9 @@ define(["elaiJS/helper", "elaiJS/binder", "elaiJS/cascadeCaller",
     if(console && console.timeEnd && config.isDebug)
       console.timeEnd("ElaiJS Start in");
 	  
+	  if(document.dispatchEvent && CustomEvent)
+	    document.dispatchEvent(new CustomEvent("ElaiJSReady"));
+    
     require([appModuleName], function(appMain) {
       if(appMain && helper.isFunction(appMain.start))
         appMain.start();
@@ -80,8 +83,9 @@ define(["elaiJS/helper", "elaiJS/binder", "elaiJS/cascadeCaller",
   IE/Edge
     StorageEvent don't work
   
+    Emit window event when loaded
     Utiliser les workers?
-  
+    
   Integrate one or more of this View:
     Google Polymer
     Riot
