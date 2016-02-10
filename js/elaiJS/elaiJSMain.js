@@ -13,7 +13,7 @@ define(["elaiJS/helper", "elaiJS/binder", "elaiJS/cascadeCaller",
     defaultWebservices.addDefaultWebservices();
 	  defaultConfig.setDefaultConfiguration(function() {
 	    launchDebugMode();
-	    initalizeModules(loadAppMain);
+	    initalizeModules(ready);
 	  });
 	}
 	
@@ -39,26 +39,23 @@ define(["elaiJS/helper", "elaiJS/binder", "elaiJS/cascadeCaller",
       callback();
 	}
 	
-	function loadAppMain() {
-    if(config.requireElaiJS)
+	function ready() {
+	  if(config.requireElaiJS)
       config.requireElaiJS.setConfig(config);
-    
-	  var debug = config.isDebug ? "Debug" : "";
-    var appModuleName = helper.getElaiJSAttribute("app" + debug);
-    if(!appModuleName)
-      return;
-    
-    var baseURL = helper.getElaiJSAttribute("baseurl");
-    if(!baseURL && config.requireElaiJS) {
-      var index = appModuleName.lastIndexOf("/");
-      appModuleName = appModuleName.substring(index + 1, appModuleName.length);
-    }
     
     if(console && console.timeEnd && config.isDebug)
       console.timeEnd("ElaiJS Start in");
 	  
     if(document.dispatchEvent && CustomEvent)
       document.dispatchEvent(new CustomEvent("ElaiJSReady"));
+      
+    loadAppMain();
+	}
+	
+	function loadAppMain() {
+    var appModuleName = helper.getElaiJSAttribute("app");
+    if(!appModuleName)
+      return;
     
     require([appModuleName], function(appMain) {
       if(appMain && helper.isFunction(appMain.start))
