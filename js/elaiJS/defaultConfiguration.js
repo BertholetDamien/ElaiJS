@@ -104,6 +104,9 @@ define(["elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper"],
 	  if(config.defaultTheme === "undefined")
 	    config.defaultTheme = undefined;
 	    
+    if(config.version === undefined)
+      config.version = helper.getElaiJSAttribute("version");
+
     if( config.requireElaiJS
         && config.version
         && (!config.require || !config.require.urlArgs)) {
