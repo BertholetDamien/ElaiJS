@@ -1,0 +1,22 @@
+{
+  "name": "ElaiJS",
+  "homepage": "https://github.com/BertholetDamien/ElaiJS",
+  "authors": [
+    "Bertholet Damien <bertholet.damien@gmail.com>"
+  ],
+  "description": "ElaiJS is a framework web for developper. It's fully customizable. More info at elaijs.com.",
+  "main": "",
+  "moduleType": [],
+  "keywords": [
+    "elaijs",
+    "framework"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
