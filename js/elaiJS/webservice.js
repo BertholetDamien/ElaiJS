@@ -4,12 +4,18 @@ define(["elaiJS/binder", "elaiJS/cascadeCaller", "elaiJS/helper"],
 
 	var self = {};
 
-	var keywords = [  "addService", "setDefaultUseCache",
-	                  "addBeforeListener", "addAfterListener",
-	                  "removeBeforeListener", "removeAfterListener",
-	                  "addBeforeInterceptor", "addAfterInterceptor",
-	                  "removeBeforeInterceptor", "removeAfterInterceptor"
-	               ];
+	var keywords = [
+	  "addService",
+    "setDefaultUseCache",
+    "addBeforeListener",
+    "addAfterListener",
+    "removeBeforeListener",
+    "removeAfterListener",
+    "addBeforeInterceptor",
+    "addAfterInterceptor",
+    "removeBeforeInterceptor",
+    "removeAfterInterceptor"
+  ];
 	var services = {};
 	var cache = {};
   var currents = {};
@@ -20,16 +26,20 @@ define(["elaiJS/binder", "elaiJS/cascadeCaller", "elaiJS/helper"],
     var service = createService(name, executeFonction, defaultUseCache);
     services[service.name] = service;
     delete cache[service.name];
-	  
-    self[name] = function(params, callback, errCallback, serviceParams) {
+	  createAccessPoint(name, service);
+    
+    return self;
+	};
+	
+	function createAccessPoint(name, service) {
+	  self[name] = function(params, callback, errCallback, serviceParams) {
       callback = callback || function() {};
       errCallback = errCallback || function(e) {
         console.error("Error during execution of service %o: %o", name, e);
       };
       process(service, params, callback, errCallback, serviceParams || {});
     };
-    return self;
-	};
+	}
 	
 	function createService(name, executeFunction, useCache) {
     return {
