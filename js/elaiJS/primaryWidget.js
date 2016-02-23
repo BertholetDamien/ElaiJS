@@ -1,5 +1,5 @@
 define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder", "elaiJS/helper"],
-            function(widgetManager, multicallback, binder, helper) {
+        function(widgetManager, multicallback, binder, helper) {
 	'use strict';
 	var properties = {};
 
@@ -53,7 +53,7 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder", "elaiJS/helper
 		  this.fetchData(function(rowData) {
 		    _this.setData(rowData, true);
 		    _this.after("refreshData", skipEvent);
-		    if(callback)
+		    if(helper.isFunction(callback))
 		      callback();
 		  });
 		};
@@ -175,7 +175,7 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder", "elaiJS/helper
 		  if(helper.isFunction(this[fctName]))
         return this[fctName](callback);
       
-      if(callback)
+      if(helper.isFunction(callback))
         callback();
 		}
 		
@@ -202,7 +202,7 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder", "elaiJS/helper
 		  var needChildren = isNeedChildren.call(this, name, overrideValue);
       if(needChildren)
         this[name + "Children"](callback);
-      else if(callback)
+      else if(helper.isFunction(callback))
         callback();
 		}
 		
@@ -285,7 +285,7 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder", "elaiJS/helper
 		this.createChildAndRender = function (widgetInfo, id, params, renderParams, callback) {
 		  this.createChild(widgetInfo, id, params, function(child) {
 		    child.render(renderParams, function() {
-		      if(callback)
+		      if(helper.isFunction(callback))
 		        callback(child);
 		    });
 		  });

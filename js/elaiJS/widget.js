@@ -27,7 +27,7 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/plugin",
 	self.createAndRender = function createAndRender(widgetInfo, id, params, renderParams, callback) {
 		self.create(widgetInfo, id, params, function(widget) {
 		  widget.render(renderParams, function() {
-		    if(callback)
+		    if(helper.isFunction(callback))
 		      callback(widget);
 		  });
 		});
@@ -147,7 +147,7 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/plugin",
     
 		if(!widgetProtoInfo)
 			loadWidgetPrototype(helper.clone(widgetInfo), callback);
-		else if(callback)
+		else if(helper.isFunction(callback))
 		  callback(widgetProtoInfo);
 	}
 

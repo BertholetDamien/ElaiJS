@@ -17,7 +17,7 @@ define(["elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper"],
     
     setAppConfigurationFile(function() {
       setDefaultConditionalConfiguration();
-      if(callback)
+      if(helper.isFunction(callback))
         callback();
     });
 	};

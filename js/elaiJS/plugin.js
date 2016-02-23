@@ -31,7 +31,7 @@ define(["elaiJS/webservice", "elaiJS/multicallback",
 
     createPlugin(pluginInfo, widget, function(plugin) {
       addPlugin(plugin, pluginInfo, widget);
-      if(callback)
+      if(helper.isFunction(callback))
         callback();
 	  });
 	};

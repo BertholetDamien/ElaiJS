@@ -1,4 +1,5 @@
-define(["elaiJS/multicallback"], function(multicallback) {
+define(["elaiJS/multicallback", "elaiJS/helper"],
+        function(multicallback, helper) {
 	'use strict';
 
   function build(definition) {
@@ -43,7 +44,7 @@ define(["elaiJS/multicallback"], function(multicallback) {
       
       if(!properties[currentKey])
         loadProperties(currentKey, callback);
-      else if(callback)
+      else if(helper.isFunction(callback))
         callback();
   	};
   	

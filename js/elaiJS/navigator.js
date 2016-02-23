@@ -108,7 +108,7 @@ define(['elaiJS/configuration', 'elaiJS/binder'],
     
 	  var choice = true;
 	  if(message) {
-	    choice = confirm(message);
+      choice = confirm(message);
     }
     
     if(choice) {
@@ -158,7 +158,7 @@ define(['elaiJS/configuration', 'elaiJS/binder'],
       date.setTime(date.getTime() + (params.days*24*60*60*1000));
     }
     
-    var cookieStr = params.name + "=" + params.value + "; ";
+    var cookieStr = params.name + "=" + params.value + ";";
     if(date)
       cookieStr += "expires=" + date.toUTCString() + ";";
     if(params.path)
@@ -195,29 +195,11 @@ define(['elaiJS/configuration', 'elaiJS/binder'],
 	};
 	
 	self.removeAllCookies = function() {
-    for(var name in self.getCookies()) {
+    for(var name in self.getCookies())
       self.removeCookie(name);
-    }
 	};
-	
-	function setCookie(cname, cvalue, exdays) {
-    var d = new Date();
-    d.setTime(d.getTime() + (exdays*24*60*60*1000));
-    var expires = "expires="+d.toUTCString();
-    document.cookie = cname + "=" + cvalue + "; " + expires;
-  }
-  
-  function getCookie(cname) {
-      var name = cname + "=";
-      var ca = document.cookie.split(';');
-      for(var i=0; i<ca.length; i++) {
-          var c = ca[i];
-          while (c.charAt(0)==' ') c = c.substring(1);
-          if (c.indexOf(name) == 0) return c.substring(name.length, c.length);
-      }
-      return "";
-  }
 
 	initialize();
+	
 	return self;
 });

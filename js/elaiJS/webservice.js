@@ -211,7 +211,7 @@ define(["elaiJS/binder", "elaiJS/cascadeCaller", "elaiJS/helper"],
 	function removeInterceptor(type, name, callback) {
 	  var service = getService(name);
     
-    if(callback) {
+    if(helper.isFunction(callback)) {
       var index = service.interceptors[type].indexOf(callback);
       service.interceptors[type].splice(index, 1);
     }

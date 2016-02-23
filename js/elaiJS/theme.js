@@ -1,6 +1,6 @@
-define([  "elaiJS/webservice", "elaiJS/configuration", "elaiJS/ressources",
-          "elaiJS/binder"],
-          function(webservice, config, res, binder) {
+define([  "elaiJS/webservice", "elaiJS/configuration",
+          "elaiJS/ressources", "elaiJS/binder", "elaiJS/helper"],
+          function(webservice, config, res, binder, helper) {
 	'use strict';
 
 	var self = {};
@@ -34,7 +34,7 @@ define([  "elaiJS/webservice", "elaiJS/configuration", "elaiJS/ressources",
 		
 		webservice.loadTheme({name: theme}, function() {
 		  self.fire(EVENT.themeChanged, params);
-		  if(callback)
+		  if(helper.isFunction(callback))
 		    callback();
 		}, errCallback);
 	}
