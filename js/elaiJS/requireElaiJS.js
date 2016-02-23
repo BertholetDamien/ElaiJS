@@ -27,7 +27,7 @@
     if(baseURL)
       return baseURL;
     
-    var appModuleName = getElaiJSAttribute("app") || getElaiJSAttribute("appDebug");
+    var appModuleName = getElaiJSAttribute("app");
     if(!appModuleName)
       return ".";
     
@@ -101,10 +101,8 @@
   }
   
   function internalDefine(name, deps, callback) {
-    if(typeof callback === "object") {
-      addModule(name, callback);
-      return;
-    }
+    if(typeof callback === "object")
+      return addModule(name, callback);
     
     scope.require(deps, function() {
       var module = callback.apply(scope, arguments);
@@ -126,10 +124,8 @@
   }
   
   function addModule(name, module) {
-    if(modules[name]) {
-      callListener(name, module);
-      return;
-    }
+    if(modules[name])
+      return callListener(name, module);
     
     modules[name] = module;
     callListener(name, module);
