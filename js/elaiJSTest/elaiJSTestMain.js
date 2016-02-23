@@ -1,5 +1,10 @@
 define(["elaiJS/widget"], function(widgetManager) {
-  widgetManager.createAndRender("body", "bodytest");
+  
+  function start() {
+    widgetManager.createAndRender("body", "bodytest");
+  }
+  
+  return {start: start};
 });
 
 /*
