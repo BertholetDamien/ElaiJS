@@ -4,22 +4,15 @@ define(["elaiJS/binder", "elaiJS/cascadeCaller", "elaiJS/helper"],
 
 	var self = {};
 
-	var keywords = [
-	  "addService",
-    "setDefaultUseCache",
-    "addBeforeListener",
-    "addAfterListener",
-    "removeBeforeListener",
-    "removeAfterListener",
-    "addBeforeInterceptor",
-    "addAfterInterceptor",
-    "removeBeforeInterceptor",
-    "removeAfterInterceptor"
-  ];
+	var keywords;
 	var services = {};
 	var cache = {};
   var currents = {};
-
+  
+  function initialize() {
+    keywords = Object.keys(self);
+  }
+  
 	self.addService = function addService(name, executeFonction, defaultUseCache) {
     checkKeywords(name);
 	  
@@ -294,6 +287,8 @@ define(["elaiJS/binder", "elaiJS/cascadeCaller", "elaiJS/helper"],
     
     cache[name].push({params: params, result: result});
 	}
+	
+	initialize();
 	
 	return self;
 });
