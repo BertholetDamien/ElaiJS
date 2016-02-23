@@ -2,7 +2,6 @@ define(["elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper"],
         function(config, webservice, helper) {
 	'use strict';
 
-  var applicationConfig;
 	var self = {};
 
 	self.resetConfiguration = function resetConfiguration() {
@@ -148,7 +147,6 @@ define(["elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper"],
 	
 	function setAppConfigurationFile(callback) {
     loadAppConfigurationFile(function(appConfig) {
-      applicationConfig = appConfig;
       if(appConfig)
         config(appConfig);
       callback();
