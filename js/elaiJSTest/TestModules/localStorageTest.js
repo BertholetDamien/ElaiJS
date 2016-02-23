@@ -199,11 +199,11 @@
   self.bind = function () {
     var loveCount = 0;
     var hopeCount = 0;
-    localStorage.bindTab("loveBind", function() {
+    localStorage.bindCurrentTab("loveBind", function() {
       ++loveCount;
     }, path);
     
-    localStorage.bindTab("hopeBind", function() {
+    localStorage.bindCurrentTab("hopeBind", function() {
       ++hopeCount;
     });
     

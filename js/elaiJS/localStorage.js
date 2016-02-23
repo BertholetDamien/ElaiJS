@@ -37,7 +37,7 @@ define( ["elaiJS/binder", "elaiJS/helper", "elaiJS/configuration"],
   
   self.set = function(name, value, path) {
     check();
-    fireTabEvent.call(self, name, path, value);
+    fireCurrentTabEvent.call(self, name, path, value);
     
     var itemName = getItemName(name, path);
     localStorage.setItem(itemName, JSON.stringify(value));
@@ -45,7 +45,7 @@ define( ["elaiJS/binder", "elaiJS/helper", "elaiJS/configuration"],
   
   self.remove = function(name, path) {
     check();
-    fireTabEvent.call(self, name, path, null);
+    fireCurrentTabEvent.call(self, name, path, null);
     
     var itemName = getItemName(name, path);
     localStorage.removeItem(itemName);
@@ -68,7 +68,7 @@ define( ["elaiJS/binder", "elaiJS/helper", "elaiJS/configuration"],
     }
   };
   
-  function fireTabEvent(name, path, newValue) {
+  function fireCurrentTabEvent(name, path, newValue) {
     var oldValue = self.get(name, path);
     if(oldValue === newValue)
       return;
@@ -78,17 +78,17 @@ define( ["elaiJS/binder", "elaiJS/helper", "elaiJS/configuration"],
     binder.fire.call(self, itemName + TAB, params);
   }
   
-  self.bindTab = function(name, callback, path, params, scope, bindOne) {
+  self.bindCurrentTab = function(name, callback, path, params, scope, bindOne) {
     var itemName = getItemName(name, path) + TAB;
     return binder.bind.call(self, itemName, callback, params, scope, bindOne);
   };
   
-  self.bindOneTab = function(name, callback, path, params, scope) {
+  self.bindOneCurrentTab = function(name, callback, path, params, scope) {
     var itemName = getItemName(name, path) + TAB;
     return binder.bindOne.call(self, itemName, callback, params, scope);
   };
   
-  self.unbindTab = function(name, callback, path) {
+  self.unbindCurrenTab = function(name, callback, path) {
     var itemName = getItemName(name, path) + TAB;
     return binder.unbind.call(self, itemName);
   };
