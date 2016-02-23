@@ -93,18 +93,18 @@ define(["elaiJS/configuration", "elaiJS/ressources", "elaiJS/helper"],
     this.done();
   };
   
-  self.simpleGetFull = function () {
+  self.simpleExecute = function () {
     var res1 = "superRes1";
     config.ressources = {
       res1: res1
     };
     
-    var value = ressources.getFull("{{res1}}");
+    var value = ressources.execute("{{res1}}");
     this.assertEq(res1, value);
     this.done();
   };
   
-  self.complexeGetFull = function () {
+  self.complexeExecute = function () {
     var res1 = "a";
     var res2 = "bb {{res1}} bb";
     var res3 = "ccc {{res1}} {{res2}} ccc";
@@ -116,7 +116,7 @@ define(["elaiJS/configuration", "elaiJS/ressources", "elaiJS/helper"],
       res3: res3
     };
     
-    var value = ressources.getFull(res4);
+    var value = ressources.execute(res4);
     this.assertEq(wishResult, value);
     this.done();
   };
@@ -164,18 +164,18 @@ define(["elaiJS/configuration", "elaiJS/ressources", "elaiJS/helper"],
     this.done();
   };
   
-  self.simpleGetFullChangeRessourcesList = function () {
+  self.simpleExecuteChangeRessourcesList = function () {
     var res1 = "superRes1";
     var ressourcesList = {
       res1: res1
     };
     
-    var value = ressources.getFull("{{res1}}", undefined, ressourcesList);
+    var value = ressources.execute("{{res1}}", undefined, ressourcesList);
     this.assertEq(res1, value);
     this.done();
   };
   
-  self.complexeGetFullChangeRessourcesList = function () {
+  self.complexeExecuteChangeRessourcesList = function () {
     var res1 = "a";
     var res2 = "bb {{res1}} bb";
     var res3 = "ccc {{res1}} {{res2}} ccc";
@@ -187,7 +187,7 @@ define(["elaiJS/configuration", "elaiJS/ressources", "elaiJS/helper"],
       res3: res3
     };
     
-    var value = ressources.getFull(res4, undefined, ressourcesList);
+    var value = ressources.execute(res4, undefined, ressourcesList);
     this.assertEq(wishResult, value);
     this.done();
   };
