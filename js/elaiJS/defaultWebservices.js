@@ -85,40 +85,18 @@ define([  "elaiJS/webservice", "elaiJS/ressources", "elaiJS/helper",
 	}
 	
 	function loadTemplate(params, callback, errCallback) {
-	  var url = mode.getRessource("template", params);
+    var url = mode.getRessource("template", params);
   	webservice.loadTextFile({url: url}, callback, errCallback);
 	}
 	
 	function loadTheme(params, callback, errCallback) {
-	  var url = res.get("theme", params);
-	  if(config.elaiJS.loadThemeAsPolymerMixin === true)
-		  loadPolymerMixin(url, callback, errCallback);
-		else
-		  webservice.loadCSS(url, callback, errCallback, {useCache: false});
-	}
-	
-	function loadPolymerMixin(params, callback, errCallback) {
-	  webservice.loadJSONFile(params, function(properties) {
-      applyPolymerMixin(properties, callback);
-	  }, errCallback);
-	}
-	
-	function applyPolymerMixin(properties, callback, timeout) {
-    setTimeout(function() {
-  	  if(!window.Polymer || !helper.isFunction(Polymer.updateStyles))
-        return applyPolymerMixin(properties, callback, 100);
-  	  
-      window.Polymer.updateStyles(properties);
-      callback();
-    }, timeout);
+    var url = res.get("theme", params);
+    webservice.loadCSS(url, callback, errCallback, {useCache: false});
 	}
 	
 	function removeTheme(params, callback, errCallback) {
-	  if(config.elaiJS.loadThemeAsPolymerMixin)
-	    return callback();
-    
-	  var url = res.get("theme", params);
-	  webservice.removeDocument(url, callback, errCallback);
+    var url = res.get("theme", params);
+    webservice.removeDocument(url, callback, errCallback);
 	}
 	
 	/************************************************************************
