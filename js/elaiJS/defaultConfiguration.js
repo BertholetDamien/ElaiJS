@@ -143,6 +143,10 @@ define(["elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper"],
       
       return pageInfo;
     };
+    
+    config.showInternalBeforeUnloadMessage = function(message, callback) {
+      callback(confirm(message));
+    };
 	}
 	
 	function setAppConfigurationFile(callback) {

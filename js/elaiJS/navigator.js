@@ -6,7 +6,7 @@ define(['elaiJS/configuration', 'elaiJS/binder'],
 	binder.addFunctions(self);
 	
   var EVENT = { beforeUnload: "beforeUnload",
-	              beforeUnloadConfirm: "beforeUnloadConfirm",
+	              beforeUnloadInternal: "beforeUnloadInternal",
 	              beforeUnloadNavigator: "beforeUnloadNavigator",
                 pageChanged: "pageChanged"
   };
@@ -15,6 +15,7 @@ define(['elaiJS/configuration', 'elaiJS/binder'],
   var ignoreHasChange = false;
   var beforeUnloadCallback;
 	var beforeUnloadMessage;
+	var beforeUnloadShowMessage;
 	var currentPageInfo;
   
 	function initialize() {
@@ -24,8 +25,8 @@ define(['elaiJS/configuration', 'elaiJS/binder'],
 		  
 		  if(beforeUnloadMessage) {
 		    fire(EVENT.beforeUnload);
-		    fire(EVENT.beforeUnloadConfirm);
-		    showConfirmMessage();
+		    fire(EVENT.beforeUnloadInternal);
+		    setTimeout(showInternalBeforeUnloadMessage());
 		    return;
 		  }
 
@@ -103,25 +104,31 @@ define(['elaiJS/configuration', 'elaiJS/binder'],
     return config.extractPageInfo(hash);
 	}
 	
-	function showConfirmMessage() {
+	function showInternalBeforeUnloadMessage() {
 	  var message = getBeforeUnloadMessage(true);
+    if(!message)
+      return changeCurrentPage();
     
-	  var choice = true;
-	  if(message) {
-      choice = confirm(message);
-    }
+    var action = config.showInternalBeforeUnloadMessage;
+    if(beforeUnloadShowMessage)
+      action = beforeUnloadShowMessage;
     
-    if(choice) {
-      changeCurrentPage();
-    } else {
-      ignoreHasChange = true;
-      self.back();
-    }
-	}
+    action(message, function(continueNav) {
+      if(continueNav) {
+        changeCurrentPage();
+        self.removeBeforeUnloadMessage();
+      }
+      else {
+        ignoreHasChange = true;
+        self.back();
+      }
+    });
+  }
 
-	self.setBeforeUnloadMessage = function setBeforeUnloadMessage(message, callback) {
-	  beforeUnloadCallback = callback;
+	self.setBeforeUnloadMessage = function setBeforeUnloadMessage(message, callback, showMessage) {
 	  beforeUnloadMessage = message;
+	  beforeUnloadCallback = callback;
+	  beforeUnloadShowMessage = showMessage;
 	  
 		window.onbeforeunload = function() {
 		  fire(EVENT.beforeUnload);
@@ -134,14 +141,15 @@ define(['elaiJS/configuration', 'elaiJS/binder'],
 		window.onbeforeunload = undefined;
 		beforeUnloadCallback = undefined;
 		beforeUnloadMessage = undefined;
+		beforeUnloadShowMessage = undefined;
 	};
 	
-	function getBeforeUnloadMessage(isConfirm) {
+	function getBeforeUnloadMessage(isInternal) {
     if(beforeUnloadCallback)
-      return beforeUnloadCallback(beforeUnloadMessage, isConfirm);
+      return beforeUnloadCallback(beforeUnloadMessage, isInternal);
     
     if(config.beforeUnloadCallback)
-      return config.beforeUnloadCallback(beforeUnloadMessage, isConfirm);
+      return config.beforeUnloadCallback(beforeUnloadMessage, isInternal);
     
     return beforeUnloadMessage;
 	}
