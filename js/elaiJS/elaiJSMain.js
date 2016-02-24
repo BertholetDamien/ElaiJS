@@ -18,7 +18,8 @@ define(["elaiJS/helper", "elaiJS/binder", "elaiJS/cascadeCaller",
 	}
 	
 	function loadWidgetModules() {
-    require(["elaiJS/plugin", "elaiJS/widget", "elaiJS/primaryWidget"]);
+    require([ "elaiJS/plugin", "elaiJS/widget", "elaiJS/primaryWidget",
+              "elaiJS/mustacherend", "elaiJS/polymerend"]);
 	}
 	
 	function initalizeModules(callback) {
@@ -78,8 +79,6 @@ define(["elaiJS/helper", "elaiJS/binder", "elaiJS/cascadeCaller",
 
 /*
   TODO:
-    loadThemeAsPolymerMixin
-    Tester avec ElaiJSTest
 */
 
 /*
