@@ -23,7 +23,7 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/mode",
 		  if(window.WebComponents)
 		    return polymerLoaded();
 		  
-      require([config.polymereLib]);
+      require([config.elaiJS.polymereLib]);
       window.addEventListener('WebComponentsReady', polymerLoaded);
 		}
 		

@@ -3,7 +3,7 @@ define(["elaiJS/configuration"], function(config) {
   var self = {};
 	
 	self.get = function get(name, params, ressourcesList) {
-    ressourcesList = ressourcesList || config.ressources;
+    ressourcesList = ressourcesList || config.elaiJS.ressources;
     
     var value = ressourcesList[name];
     if(!value)
@@ -13,7 +13,7 @@ define(["elaiJS/configuration"], function(config) {
 	};
 	
 	self.execute = function execute(value, params, ressourcesList) {
-    ressourcesList = ressourcesList || config.ressources;
+    ressourcesList = ressourcesList || config.elaiJS.ressources;
     return replaceHolder(value, params, ressourcesList);
 	};
 	

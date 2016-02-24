@@ -56,7 +56,7 @@
   };
   
   self.getAndSetWithConfigPath = function () {
-    config.storagePath = "defaultStorageTest";
+    config.elaiJS.storagePath = "defaultStorageTest";
     
     this.assertNull(localStorage.get("love"));
     this.assertNull(localStorage.get("hope"));

@@ -15,8 +15,8 @@ define([  "elaiJS/webservice", "elaiJS/configuration",
 	};
 
 	self.initialize = function initialize(callback, errCallback) {
-    if(config.defaultTheme)
-      self.setTheme(config.defaultTheme, callback, errCallback);
+    if(config.elaiJS.defaultTheme)
+      self.setTheme(config.elaiJS.defaultTheme, callback, errCallback);
 	};
 
 	self.setTheme = function setTheme(theme, callback, errCallback) {

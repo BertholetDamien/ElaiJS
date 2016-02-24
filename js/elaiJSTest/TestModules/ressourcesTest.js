@@ -12,7 +12,7 @@ define(["elaiJS/configuration", "elaiJS/ressources", "elaiJS/helper"],
   
   self.simpleRessources = function () {
     var res1 = "superRes1";
-    config.ressources = {
+    config.elaiJS.ressources = {
       res1: res1
     };
     
@@ -24,7 +24,7 @@ define(["elaiJS/configuration", "elaiJS/ressources", "elaiJS/helper"],
   self.indirectRessource = function () {
     var res1 = "superRes1";
     var res1Copy = "{{res1}}";
-    config.ressources = {
+    config.elaiJS.ressources = {
       res1: res1,
       res1Copy: res1Copy
     };
@@ -37,7 +37,7 @@ define(["elaiJS/configuration", "elaiJS/ressources", "elaiJS/helper"],
   self.indirectRessourceNotFound = function () {
     var res1 = "superRes1";
     var res2 = "{{resUndefined}}";
-    config.ressources = {
+    config.elaiJS.ressources = {
       res1: res1,
       res2: res2
     };
@@ -50,7 +50,7 @@ define(["elaiJS/configuration", "elaiJS/ressources", "elaiJS/helper"],
   self.indirectRessourceNotFound2 = function () {
     var res1 = "superRes1";
     var res2 = "{{res1}} {{res404}} superRes2 {{res1}}";
-    config.ressources = {
+    config.elaiJS.ressources = {
       res1: res1,
       res2: res2
     };
@@ -64,7 +64,7 @@ define(["elaiJS/configuration", "elaiJS/ressources", "elaiJS/helper"],
     var res1 = "superRes1";
     var res2 = "superRes2";
     var res12 = "{{res1}} {{res2}}";
-    config.ressources = {
+    config.elaiJS.ressources = {
       res1: res1,
       res2: res2,
       res12: res12
@@ -81,7 +81,7 @@ define(["elaiJS/configuration", "elaiJS/ressources", "elaiJS/helper"],
     var res3 = "ccc {{res1}} {{res2}} ccc";
     var res4 = "{{res3}} {{res3}} blabla {{res2}}";
     var wishResult = "ccc a bb a bb ccc ccc a bb a bb ccc blabla bb a bb";
-    config.ressources = {
+    config.elaiJS.ressources = {
       res1: res1,
       res2: res2,
       res3: res3,
@@ -95,7 +95,7 @@ define(["elaiJS/configuration", "elaiJS/ressources", "elaiJS/helper"],
   
   self.simpleExecute = function () {
     var res1 = "superRes1";
-    config.ressources = {
+    config.elaiJS.ressources = {
       res1: res1
     };
     
@@ -110,7 +110,7 @@ define(["elaiJS/configuration", "elaiJS/ressources", "elaiJS/helper"],
     var res3 = "ccc {{res1}} {{res2}} ccc";
     var res4 = "{{res3}} {{res3}} blabla {{res2}}";
     var wishResult = "ccc a bb a bb ccc ccc a bb a bb ccc blabla bb a bb";
-    config.ressources = {
+    config.elaiJS.ressources = {
       res1: res1,
       res2: res2,
       res3: res3
@@ -122,7 +122,7 @@ define(["elaiJS/configuration", "elaiJS/ressources", "elaiJS/helper"],
   };
   
   self.simpleRessourcesChangeRessourcesList = function () {
-    config.ressources = {};
+    config.elaiJS.ressources = {};
     var res1 = "superRes1";
     var ressourcesList = {
       res1: res1
@@ -194,7 +194,7 @@ define(["elaiJS/configuration", "elaiJS/ressources", "elaiJS/helper"],
   
   self.simpleRessourcesWithParams = function () {
     var res1 = "superRes1 {{param1}}";
-    config.ressources = {
+    config.elaiJS.ressources = {
       res1: res1
     };
     
@@ -206,7 +206,7 @@ define(["elaiJS/configuration", "elaiJS/ressources", "elaiJS/helper"],
   self.indirectRessourceWithParams = function () {
     var res1 = "superRes1 {{param1}}";
     var res2 = "{{res1}} {{param2}}";
-    config.ressources = {
+    config.elaiJS.ressources = {
       res1: res1,
       res2: res2
     };
@@ -222,7 +222,7 @@ define(["elaiJS/configuration", "elaiJS/ressources", "elaiJS/helper"],
     var res3 = "ccc {{res1}} {{res2}} ccc{{param3}}";
     var res4 = "{{res3}} {{res3}} {{param3}}-blabla {{res2}}";
     var wishResult = "ccc a1 bb a1 2 bb ccc3 ccc a1 bb a1 2 bb ccc3 3-blabla bb a1 2 bb";
-    config.ressources = {
+    config.elaiJS.ressources = {
       res1: res1,
       res2: res2,
       res3: res3,

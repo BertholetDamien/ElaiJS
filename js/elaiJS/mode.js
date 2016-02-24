@@ -10,7 +10,7 @@ define([  "elaiJS/configuration", "elaiJS/helper",
 	self.EVENT = EVENT;
 	
 	self.getMode = function getMode() {
-	  return mode === null ? config.defaultMode : mode;
+	  return mode === null ? config.elaiJS.defaultMode : mode;
 	};
 	
 	self.setMode = function setMode(newMode) {
@@ -39,12 +39,12 @@ define([  "elaiJS/configuration", "elaiJS/helper",
 
 	self.findMode = function findMode(type, params) {
 		if( !params.mode
-		    || !config.modesRessources
-		    || !config.modesRessources[type]
-		    || !config.modesRessources[type][params.name])
+		    || !config.elaiJS.modesRessources
+		    || !config.elaiJS.modesRessources[type]
+		    || !config.elaiJS.modesRessources[type][params.name])
 		  return undefined;
 		
-		var acceptModes = config.modesRessources[type][params.name];
+		var acceptModes = config.elaiJS.modesRessources[type][params.name];
 		return findBestMode(params.mode, acceptModes);
 	};
 	
@@ -54,8 +54,8 @@ define([  "elaiJS/configuration", "elaiJS/helper",
         return wishMode;
     }
     
-    if(config.modes && config.modes[wishMode])
-      return findBestMode(config.modes[wishMode], acceptModes);
+    if(config.elaiJS.modes && config.elaiJS.modes[wishMode])
+      return findBestMode(config.elaiJS.modes[wishMode], acceptModes);
     
     return undefined;
 	}

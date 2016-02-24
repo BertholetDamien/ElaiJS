@@ -5,7 +5,7 @@ define([  "elaiJS/configuration", "elaiJS/webservice",
 
   var propertiesManager = manager.build({
     name: "Language",
-    getDefaultKey: function() {return config.defaultLanguage;},
+    getDefaultKey: function() {return config.elaiJS.defaultLanguage;},
     loadProperties: function(name, cb) {webservice.loadLanguageFile(name, cb);},
     findFirstKey: findFirstKey
   });
@@ -25,7 +25,7 @@ define([  "elaiJS/configuration", "elaiJS/webservice",
 
   function findFirstKey() {
     var language = window.navigator.userLanguage || window.navigator.language;
-    if(config.autoFindLanguage !== true || !language)
+    if(config.elaiJS.autoFindLanguage !== true || !language)
       return undefined;
     
     return language.split("-")[0];

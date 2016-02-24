@@ -89,7 +89,7 @@ define(["elaiJS/webservice", "elaiJS/multicallback",
 	}
 
 	function getDefaultPlugins() {
-	  return config.defaultPlugins || {};
+	  return config.elaiJS.defaultPlugins || {};
 	}
 
 	function removeDefaultPlugins(pluginsInfo) {

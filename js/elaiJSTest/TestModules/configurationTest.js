@@ -63,7 +63,7 @@ define(["elaiJS/configuration"],
     this.assertEq(42, config.test.field1);
     this.assertEq(101110, config.test.field2);
 
-    delete config.test2;    
+    delete config.test2;
     config({test2: "test2"}, true);
     
     this.assertDefined(config.test2);

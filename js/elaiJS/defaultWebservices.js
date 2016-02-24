@@ -91,7 +91,7 @@ define([  "elaiJS/webservice", "elaiJS/ressources", "elaiJS/helper",
 	
 	function loadTheme(params, callback, errCallback) {
 	  var url = res.get("theme", params);
-	  if(config.loadThemeAsPolymerMixin === true)
+	  if(config.elaiJS.loadThemeAsPolymerMixin === true)
 		  loadPolymerMixin(url, callback, errCallback);
 		else
 		  webservice.loadCSS(url, callback, errCallback, {useCache: false});
@@ -114,7 +114,7 @@ define([  "elaiJS/webservice", "elaiJS/ressources", "elaiJS/helper",
 	}
 	
 	function removeTheme(params, callback, errCallback) {
-	  if(config.loadThemeAsPolymerMixin)
+	  if(config.elaiJS.loadThemeAsPolymerMixin)
 	    return callback();
     
 	  var url = res.get("theme", params);
@@ -281,13 +281,13 @@ define([  "elaiJS/webservice", "elaiJS/ressources", "elaiJS/helper",
 	}
 	
 	function getVersionURL(needVersion, needVersionDefault) {
-    if(!config.version)
+    if(!config.elaiJS.version)
       return "";
 	  
     if(needVersion === undefined)
       needVersion = (needVersionDefault === undefined) ? true : needVersionDefault;
     
-    return needVersion ? "?v=" + config.version : "";
+    return needVersion ? "?v=" + config.elaiJS.version : "";
 	}
 	
 	return self;

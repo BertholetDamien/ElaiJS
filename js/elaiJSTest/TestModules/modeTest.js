@@ -5,12 +5,12 @@ define(["elaiJS/configuration", "elaiJS/mode", "elaiJS/helper"],
   var saveRessourcesConfig;
   
   self.beforeTest = function(callback) {
-    saveRessourcesConfig = helper.clone(config.ressources);
+    saveRessourcesConfig = helper.clone(config.elaiJS.ressources);
     callback();
   };
   
   self.afterTest = function() {
-    config.ressources = saveRessourcesConfig;
+    config.elaiJS.ressources = saveRessourcesConfig;
   };
   
   self.setMode = function() {
@@ -29,10 +29,10 @@ define(["elaiJS/configuration", "elaiJS/mode", "elaiJS/helper"],
   self.defaultMode = function() {
     mode.setMode(null);
     
-    config.defaultMode = "default";
+    config.elaiJS.defaultMode = "default";
     this.assertEq("default", mode.getMode());
     
-    config.defaultMode = "default2";
+    config.elaiJS.defaultMode = "default2";
     this.assertEq("default2", mode.getMode());
     
     this.done();
@@ -49,7 +49,7 @@ define(["elaiJS/configuration", "elaiJS/mode", "elaiJS/helper"],
   };
   
   self.noMode = function () {
-    config.modesRessources = undefined;
+    config.elaiJS.modesRessources = undefined;
     
     var result = mode.findMode("type1", "name1");
     this.assertUndefined(result);
@@ -61,7 +61,7 @@ define(["elaiJS/configuration", "elaiJS/mode", "elaiJS/helper"],
   };
   
   self.noRessourceModeTypeDefine = function () {
-    config.modesRessources = undefined;
+    config.elaiJS.modesRessources = undefined;
     
     var result = mode.findMode("type1", "name1");
     this.assertUndefined(result);
@@ -76,7 +76,7 @@ define(["elaiJS/configuration", "elaiJS/mode", "elaiJS/helper"],
   };
   
   self.noRessourceModeNameDefine = function () {
-    config.modesRessources = {type1: {}};
+    config.elaiJS.modesRessources = {type1: {}};
     
     var result = mode.findMode("type1", "name1");
     this.assertUndefined(result);
@@ -91,7 +91,7 @@ define(["elaiJS/configuration", "elaiJS/mode", "elaiJS/helper"],
   };
   
   self.simpleRessourceMode = function () {
-    config.modesRessources = {
+    config.elaiJS.modesRessources = {
       type1: {
         name1: ["mode1"]
       }
@@ -109,13 +109,13 @@ define(["elaiJS/configuration", "elaiJS/mode", "elaiJS/helper"],
   };
   
   self.complexeRessourceMode = function () {
-    config.modes = {
+    config.elaiJS.modes = {
       mode2: "mode1",
       mode3: "mode2",
       mode3b: "mode3",
       mode4: "mode3"
     };
-    config.modesRessources = {
+    config.elaiJS.modesRessources = {
       type1: {
         name1: ["mode1", "mode2", "mode4"]
       }
@@ -140,14 +140,14 @@ define(["elaiJS/configuration", "elaiJS/mode", "elaiJS/helper"],
   };
   
   self.getRessource = function () {
-    config.ressources = {
+    config.elaiJS.ressources = {
       "name1": "Test{{name}}",
       "name1Mode": "Test {{name}}-{{mode}} Test"
     };
     
-    config.modes = {};
+    config.elaiJS.modes = {};
     
-    config.modesRessources = {
+    config.elaiJS.modesRessources = {
       type1: {
         name1: ["mode1"]
       }
@@ -166,14 +166,14 @@ define(["elaiJS/configuration", "elaiJS/mode", "elaiJS/helper"],
   };
   
   self.getRessource = function () {
-    config.ressources = {
+    config.elaiJS.ressources = {
       "type1": "Test{{name}}",
       "type1Mode": "Test {{name}}-{{mode}} Test"
     };
     
-    config.modes = {};
+    config.elaiJS.modes = {};
     
-    config.modesRessources = {
+    config.elaiJS.modesRessources = {
       type1: {
         name1: ["mode1"]
       }

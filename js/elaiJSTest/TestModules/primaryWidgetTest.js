@@ -4,9 +4,9 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
   var self = {};
 
   self.beforeTest = function(callback) {
-    config.defaultPlugins = undefined;
-    config.ressources.widgets = "elaiJSTest/TestModules/TestWidgets";
-    config.ressources.widgetCSS = "elaiJSTest/TestModules/TestWidgets/{{name}}.css";
+    config.elaiJS.defaultPlugins = undefined;
+    config.elaiJS.ressources.widgets = "elaiJSTest/TestModules/TestWidgets";
+    config.elaiJS.ressources.widgetCSS = "elaiJSTest/TestModules/TestWidgets/{{name}}.css";
     callback();
   };
 

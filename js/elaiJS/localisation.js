@@ -6,7 +6,7 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper",
   var propertiesManager = manager.build({
     name: "Localisation",
     getDefaultKey: function() {
-      return self.findValidLocalisation(config.defaultLocalisation);
+      return self.findValidLocalisation(config.elaiJS.defaultLocalisation);
     },
     loadProperties: function(n, cb) {webservice.loadLocalisationFile(n, cb);},
     findFirstKey: findFirstKey
@@ -22,7 +22,7 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper",
 	self.getLocalisation = propertiesManager.getCurrentKey;
 	
   function findFirstKey() {
-    if(config.autoFindLocalisation !== true)
+    if(config.elaiJS.autoFindLocalisation !== true)
       return undefined;
     
     var loc = window.navigator.userLanguage || window.navigator.language;
@@ -39,10 +39,12 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper",
 	};
 	
 	self.findValidLocalisation = function findValidLocalisation(loc) {
-    if(!loc || !config.matchValidLocalisation || !config.matchValidLocalisation[loc])
+    if( !loc
+        || !config.elaiJS.matchValidLocalisation
+        || !config.elaiJS.matchValidLocalisation[loc])
       return loc;
     
-    return self.findValidLocalisation(config.matchValidLocalisation[loc]);
+    return self.findValidLocalisation(config.elaiJS.matchValidLocalisation[loc]);
 	};
 	
 	self.toLocaleString = function (date, loc) {

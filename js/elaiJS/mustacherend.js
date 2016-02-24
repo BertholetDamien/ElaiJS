@@ -46,7 +46,7 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/language",
 		  if(mustache)
 		    return;
 		  
-		  require([config.mustacheLib], function(moduleMustache) {
+		  require([config.elaiJS.mustacheLib], function(moduleMustache) {
         mustache = moduleMustache;
         rendererInfo.fire("libLoaded");
       });
@@ -125,7 +125,7 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/language",
 	    if(Object.keys(params).length === 1 && !params.page)
 	      params = {page: Object.keys(params)[0]};
 	    
-	    return config.buildHash(params);
+	    return config.elaiJS.buildHash(params);
 		}
 		
 		return plugin;

@@ -4,14 +4,12 @@ define(["elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper"],
 
 	var self = {};
 
-	self.resetConfiguration = function resetConfiguration() {
-	  var keys = Object.keys(config);
-		for(var i in keys)
-		  delete config[keys[i]];
+	self.resetElaiJSConfiguration = function resetElaiJSConfiguration() {
+    delete config.elaiJS;
 	};
 	
 	self.setDefaultConfiguration = function setDefaultConfiguration(callback) {
-    self.resetConfiguration();
+    self.resetElaiJSConfiguration();
     
     setDefaultBasicConfiguration();
     
@@ -23,27 +21,31 @@ define(["elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper"],
 	};
 	
 	function setDefaultBasicConfiguration() {
-	  config.isDebug = isDebugMode();
-	  config.requireElaiJS = window.requireElaiJS;
+	  var elaiJS = {};
+	  config.elaiJS = elaiJS;
+	  config.elaiJS.require = {paths: {}, shim: {}};
 	  
-	  config.homePage = "home";
-	  config.defaultParentWidget = "elaiJS/primaryWidget";
-    config.defaultTheme = undefined;
-    config.defaultMode = undefined;
-    config.defaultLanguage = "en";
-    config.autoFindLanguage = true;
-    config.mustacheLib = "lib/mustache.min";
-    config.polymereLib = "../bower_components/webcomponentsjs/webcomponents-lite.min";
+	  elaiJS.isDebug = isDebugMode();
+	  elaiJS.requireElaiJS = window.requireElaiJS;
+	  
+	  elaiJS.homePage = "home";
+	  elaiJS.defaultParentWidget = "elaiJS/primaryWidget";
+    elaiJS.defaultTheme = undefined;
+    elaiJS.defaultMode = undefined;
+    elaiJS.defaultLanguage = "en";
+    elaiJS.autoFindLanguage = true;
+    elaiJS.mustacheLib = "lib/mustache.min";
+    elaiJS.polymereLib = "../bower_components/webcomponentsjs/webcomponents-lite.min";
     
-    config.defaultLocalisation = "en-US";
-    config.autoFindLocalisation = true;
-    config.matchValidLocalisation = {
+    elaiJS.defaultLocalisation = "en-US";
+    elaiJS.autoFindLocalisation = true;
+    elaiJS.matchValidLocalisation = {
       "fr": "fr-FR",
       "en": "en-US"
     };
-    config.storagePath = location.pathname.split(".")[0].substring(1).replace(/\//g, "_");
+    elaiJS.storagePath = location.pathname.split(".")[0].substring(1).replace(/\//g, "_");
     
-    config.ressources = {
+    elaiJS.ressources = {
       ressources: "ressources",
       javascript: "js",
       css:        "css",
@@ -71,7 +73,7 @@ define(["elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper"],
       widgetCSSMode:  "{{widgetsCSS}}/{{name}}-{{mode}}.css"
     };
     
-    config.debugModules = {
+    elaiJS.debugModules = {
       "elaiJS/binder":                    "binder",
       "elaiJS/cascadeCaller":             "cascadeCaller",
       "elaiJS/configuration":             "config",
@@ -100,25 +102,26 @@ define(["elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper"],
   }
 	
 	function setDefaultConditionalConfiguration() {
-	  if(config.defaultTheme === "undefined")
-	    config.defaultTheme = undefined;
+	  var elaiJS = config.elaiJS;
+	  if(elaiJS.defaultTheme === "undefined")
+	    elaiJS.defaultTheme = undefined;
 	    
-    if(config.version === undefined)
-      config.version = helper.getElaiJSAttribute("version");
+    if(elaiJS.version === undefined)
+      elaiJS.version = helper.getElaiJSAttribute("version");
 
-    if( config.requireElaiJS
-        && config.version
-        && (!config.require || !config.require.urlArgs)) {
-      if(!config.require)
-        config.require = {};
+    if( elaiJS.requireElaiJS
+        && elaiJS.version
+        && (!elaiJS.require || !elaiJS.require.urlArgs)) {
+      if(!elaiJS.require)
+        elaiJS.require = {};
       
-      config.require.urlArgs = "v=" + config.version;
+      elaiJS.require.urlArgs = "v=" + elaiJS.version;
     }
 	  
-	  if(config.setDefaultNavigationFunctions === false)
+	  if(elaiJS.setDefaultNavigationFunctions === false)
 	    return;
 	 
-	  config.buildHash = function defaultBuildHash(pageInfo) {
+	  elaiJS.buildHash = function defaultBuildHash(pageInfo) {
       var hash = "#" + pageInfo.page;
   
     	if(Object.keys(pageInfo).length > 1) {
@@ -133,9 +136,9 @@ define(["elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper"],
       return hash;
     };
   
-    config.extractPageInfo = function defaultExtractPageInfo(hash) {
+    elaiJS.extractPageInfo = function defaultExtractPageInfo(hash) {
       if(!hash || hash === "" || hash === "#")
-        return {page: config.homePage};
+        return {page: elaiJS.homePage};
       
       var tab = hash.split("/");
   	  var pageInfo = helper.extractParams(tab[1]);
@@ -144,7 +147,7 @@ define(["elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper"],
       return pageInfo;
     };
     
-    config.showInternalBeforeUnloadMessage = function(message, callback) {
+    elaiJS.showInternalBeforeUnloadMessage = function(message, callback) {
       callback(confirm(message));
     };
 	}

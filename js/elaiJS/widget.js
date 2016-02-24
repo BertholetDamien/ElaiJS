@@ -171,7 +171,8 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/plugin",
 	
 	function buildWidgetParentInfo(widgetInfo, widgetPrototypeInfo) {
 	  var parent = widgetPrototypeInfo.parent;
-	  var widgetParentInfo = (parent === undefined) ? config.defaultParentWidget : parent;
+	  var defaultParent = config.elaiJS.defaultParentWidget;
+	  var widgetParentInfo = (parent === undefined) ? defaultParent : parent;
   	if(widgetParentInfo !== null)
       widgetParentInfo = buildWidgetParams(widgetParentInfo, widgetInfo.mode);
     

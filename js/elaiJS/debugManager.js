@@ -3,8 +3,8 @@ define(["elaiJS/configuration"], function(config) {
 
 	var self = {};
 	self.startDebugMode = function () {
-    for(var key in config.debugModules)
-      loadModule(key, config.debugModules[key] || key);
+    for(var key in config.elaiJS.debugModules)
+      loadModule(key, config.elaiJS.debugModules[key] || key);
 	};
 	
 	function loadModule(key, moduleName) {

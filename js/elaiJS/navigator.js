@@ -90,18 +90,18 @@ define(['elaiJS/configuration', 'elaiJS/binder'],
 	};
 
 	function buildHash(pageInfo) {
-    if(!config.buildHash)
+    if(!config.elaiJS.buildHash)
       throw new Error("You need to configure 'buildHash'.");
 
-    return config.buildHash(pageInfo);
+    return config.elaiJS.buildHash(pageInfo);
 	}
 
 	function buidCurrentPageInfo() {
     var hash = location.hash.substring(1);
-    if(!config.extractPageInfo)
+    if(!config.elaiJS.extractPageInfo)
       throw new Error("You need to configure 'extractPageInfo'.");
 
-    return config.extractPageInfo(hash);
+    return config.elaiJS.extractPageInfo(hash);
 	}
 	
 	function showInternalBeforeUnloadMessage() {
@@ -109,7 +109,7 @@ define(['elaiJS/configuration', 'elaiJS/binder'],
     if(!message)
       return changeCurrentPage();
     
-    var action = config.showInternalBeforeUnloadMessage;
+    var action = config.elaiJS.showInternalBeforeUnloadMessage;
     if(beforeUnloadShowMessage)
       action = beforeUnloadShowMessage;
     
@@ -148,8 +148,8 @@ define(['elaiJS/configuration', 'elaiJS/binder'],
     if(beforeUnloadCallback)
       return beforeUnloadCallback(beforeUnloadMessage, isInternal);
     
-    if(config.beforeUnloadCallback)
-      return config.beforeUnloadCallback(beforeUnloadMessage, isInternal);
+    if(config.elaiJS.beforeUnloadCallback)
+      return config.elaiJS.beforeUnloadCallback(beforeUnloadMessage, isInternal);
     
     return beforeUnloadMessage;
 	}

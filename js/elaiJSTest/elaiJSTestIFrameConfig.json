@@ -1,45 +1,47 @@
 {
-  "version": 0.1,
+  "elaiJS": {
+    "version": 0.1,
+    "ressources": {
+      "theme":          "../elaiJSTest/ressources/{{name}}.css",
+      "widgets":        "elaiJSTest/widgets",
+      "widgetCSS":      "../elaiJSTest/widgets/{{name}}.css",
+      "widgetCSSMode":  "../elaiJSTest/widgets/{{name}}-{{mode}}.css",
+      "template":       "../elaiJSTest/widgets/{{name}}.tpl",
+      "templateMode":   "../elaiJSTest/widgets/{{name}}-{{mode}}.tpl",
+      "testModule":     "elaiJSTest/TestModules/{{name}}Test",
+      "ressources":     "../elaiJSTest/ressources"
+    },
+    "defaultPlugins": {
+      "elaiJS/mustacherend": {"CSS": true}
+    },
+    "defaultTheme": "undefined",
+    "homePage": "overview",
+    "modesRessources": {
+      "template": {
+        "moduleTitle": ["alternative"]
+      },
+      "widget": {
+        "feature": ["alternative"]
+      },
+      "widgetCSS": {
+        "feature": ["alternative"]
+      }
+    },
+    "skipLanguageInitialization": true,
+    "skipLocalisationInitialization": true
+  },
   "testModules":  [
-                    "binder", "cascadeCaller", "configuration", "helper",
-                    "language", "localisation", "localStorage", "mode",
-                    "multicallback", "navigator", "primaryWidget",
-                    "ressources", "webservice", "widget"
-                  ],
-  "ressources": {
-    "theme": "../elaiJSTest/ressources/{{name}}.css",
-    "widgets": "elaiJSTest/widgets",
-    "widgetCSS": "../elaiJSTest/widgets/{{name}}.css",
-    "widgetCSSMode": "../elaiJSTest/widgets/{{name}}-{{mode}}.css",
-    "template": "../elaiJSTest/widgets/{{name}}.tpl",
-    "templateMode": "../elaiJSTest/widgets/{{name}}-{{mode}}.tpl",
-    "testModule": "elaiJSTest/TestModules/{{name}}Test",
-    "ressources": "../elaiJSTest/ressources"
-  },
-  "defaultPlugins": {
-    "elaiJS/mustacherend": {"CSS": true}
-  },
-  "defaultTheme": "undefined",
-  "homePage": "overview",
+    "binder", "cascadeCaller", "configuration", "helper",
+    "language", "localisation", "localStorage", "mode",
+    "multicallback", "navigator", "primaryWidget",
+    "ressources", "webservice", "widget"
+  ],
   "themes": [
     {"label": "white"},
     {"label": "dark", "key": "dark"}
   ],
   "languages": [
-      {"code": "fr", "label": "français"},
-      {"code": "en", "label": "english"}
-  ],
-  "modesRessources": {
-    "template": {
-      "moduleTitle": ["alternative"]
-    },
-    "widget": {
-      "feature": ["alternative"]
-    },
-    "widgetCSS": {
-      "feature": ["alternative"]
-    }
-  },
-  "skipLanguageInitialization": true,
-  "skipLocalisationInitialization": true
+    {"code": "fr", "label": "français"},
+    {"code": "en", "label": "english"}
+  ]
 }

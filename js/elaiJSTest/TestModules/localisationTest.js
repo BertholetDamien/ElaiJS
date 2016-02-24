@@ -8,7 +8,7 @@ define(["elaiJS/localisation", "elaiJS/configuration"],
   };
   
   self.findValidLocalisation = function () {
-    config.matchValidLocalisation = {
+    config.elaiJS.matchValidLocalisation = {
       "en": "en-US",
       "fr-CA": "fr",
       "fr": "fr-FR"
@@ -34,7 +34,7 @@ define(["elaiJS/localisation", "elaiJS/configuration"],
   
   self.getSimple = function () {
     loc.setLocalisation("fr");
-    config.defaultLocalisation = "en-US";
+    config.elaiJS.defaultLocalisation = "en-US";
     
     this.assertEq("seulementFR", loc.get("onlyFR"));
     this.assertEq("justEN", loc.get("onlyEN"));
@@ -59,7 +59,7 @@ define(["elaiJS/localisation", "elaiJS/configuration"],
   };
   
   self.getWithDefaultChange = function() {
-    config.defaultLocalisation = "fr";
+    config.elaiJS.defaultLocalisation = "fr";
     loc.setLocalisation("fr");
     this.assertEq("seulementFR", loc.get("onlyFR"));
     this.assertUndefined(loc.get("onlyEN"));

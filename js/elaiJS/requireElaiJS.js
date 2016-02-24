@@ -53,17 +53,15 @@
   }
   
   function getScriptURL(moduleName) {
-    if( config && config.require && config.require.paths &&
-        config.require.paths[moduleName]) {
-      moduleName = config.require.paths[moduleName];
-    }
+    if(config && config.elaiJS.require.paths[moduleName])
+      moduleName = config.elaiJS.require.paths[moduleName];
     
     if(moduleName.indexOf(".js") >= 0)
       return moduleName;
     
     var url = baseURL + "/" + moduleName + ".js";
-    if(config && config.require && config.require.urlArgs)
-      url += "?" + config.require.urlArgs;
+    if(config && config.elaiJS.require.urlArgs)
+      url += "?" + config.elaiJS.require.urlArgs;
     
     return url;
   }
@@ -185,13 +183,11 @@
   
   function callShimInit(moduleName) {
     if( !config
-        || !config.require
-        || !config.require.shim
-        || !config.require.shim[moduleName]
-        || !config.require.shim[moduleName].init)
+        || !config.elaiJS.require.shim[moduleName]
+        || !config.elaiJS.require.shim[moduleName].init)
       return;
     
-    config.require.shim[moduleName].init();
+    config.elaiJS.require.shim[moduleName].init();
   }
   
   function getModules(modulesName, callback, errCallback) {
@@ -225,10 +221,10 @@
   }
   
   function getIndirectDeps(modulesName) {
-    if(!config || !config.require || !config.require.shim)
+    if(!config || config.elaiJS.require.shim.length === 0)
       return [];
       
-    var shim = config.require.shim;
+    var shim = config.elaiJS.require.shim;
     var deps = [];
     for(var i in modulesName) {
       var moduleLoadDef = shim[modulesName[i]];

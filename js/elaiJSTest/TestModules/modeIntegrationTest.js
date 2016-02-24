@@ -4,14 +4,14 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
   var self = {};
 
   self.beforeTest = function(callback) {
-    config.defaultPlugins = undefined;
-    config.ressources.widgets = "elaiJSTest/TestModules/TestWidgets";
-    config.ressources.plugins = "elaiJSTest/TestModules/TestWidgets";
+    config.elaiJS.defaultPlugins = undefined;
+    config.elaiJS.ressources.widgets = "elaiJSTest/TestModules/TestWidgets";
+    config.elaiJS.ressources.plugins = "elaiJSTest/TestModules/TestWidgets";
     callback();
   };
   
   self.widgetNoMode = function(test) {
-    config.modesRessources = {
+    config.elaiJS.modesRessources = {
     };
     
     var property = {name: "widget1", mode: "people"};
@@ -26,7 +26,7 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
   };
   
   self.widgetAndPluginMode = function(test) {
-    config.modesRessources = {
+    config.elaiJS.modesRessources = {
       widget: {
         widget1: ["people"]
       },
@@ -47,7 +47,7 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
   };
   
   self.widgetMode = function(test) {
-    config.modesRessources = {
+    config.elaiJS.modesRessources = {
       widget: {
         widget1: ["people"]
       }

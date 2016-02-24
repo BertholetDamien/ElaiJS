@@ -10,7 +10,7 @@ define( ["elaiJS/binder", "elaiJS/helper", "elaiJS/configuration"],
 	self.EVENT = EVENT;
   
   function getItemName(name, path) {
-    path = path || config.storagePath;
+    path = path || config.elaiJS.storagePath;
     return path + SEPARATOR + name;
   }
   
@@ -59,7 +59,7 @@ define( ["elaiJS/binder", "elaiJS/helper", "elaiJS/configuration"],
   
   self.clear = function(path) {
     check();
-    path = path || config.storagePath;
+    path = path || config.elaiJS.storagePath;
     var keys = Object.keys(localStorage);
     for(var index in keys) {
       var rawKey = keys[index].split(SEPARATOR);

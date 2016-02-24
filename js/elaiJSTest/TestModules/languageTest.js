@@ -18,7 +18,7 @@ define(["elaiJS/language", "elaiJS/configuration"],
   
   self.getSimple = function () {
     lang.setLanguage("fr");
-    config.defaultLanguage = "en";
+    config.elaiJS.defaultLanguage = "en";
     
     this.assertEq("seulementFR", lang.get("onlyFR"));
     this.assertEq("justEN", lang.get("onlyEN"));
@@ -43,7 +43,7 @@ define(["elaiJS/language", "elaiJS/configuration"],
   };
   
   self.getWithDefaultChange = function() {
-    config.defaultLanguage = "fr";
+    config.elaiJS.defaultLanguage = "fr";
     lang.setLanguage("fr");
     this.assertEq("seulementFR", lang.get("onlyFR"));
     this.assertUndefined(lang.get("onlyEN"));
@@ -58,7 +58,7 @@ define(["elaiJS/language", "elaiJS/configuration"],
   };
   
   self.getWithParams = function() {
-    config.defaultLanguage = "en";
+    config.elaiJS.defaultLanguage = "en";
     lang.setLanguage("fr");
 
     var params = {kindness: "hope", love: "happy"};
@@ -71,7 +71,7 @@ define(["elaiJS/language", "elaiJS/configuration"],
   };
   
   self.getWithArray = function() {
-    config.defaultLanguage = "en";
+    config.elaiJS.defaultLanguage = "en";
     lang.setLanguage("fr");
 
     var array = ["kindness", "love"];

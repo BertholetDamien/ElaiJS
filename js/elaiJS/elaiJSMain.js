@@ -13,7 +13,7 @@ define(["elaiJS/helper", "elaiJS/binder", "elaiJS/cascadeCaller",
     defaultWebservices.addDefaultWebservices();
 	  defaultConfig.setDefaultConfiguration(function() {
 	    launchDebugMode();
-	    initalizeModules(ready);
+	    initalizeModules(start);
 	  });
 	}
 	
@@ -24,12 +24,12 @@ define(["elaiJS/helper", "elaiJS/binder", "elaiJS/cascadeCaller",
 	function initalizeModules(callback) {
     themeManager.initialize();
     
-    if(config.setDefaultNavigationFunctions !== false)
+    if(config.elaiJS.skipNavigatorInitialization !== true)
       navigator.initializeCurrentPage();
     
     var multiCallBackFunction = multicallback(2, callback);
-    initializeModule(lang, multiCallBackFunction, config.skipLanguageInitialization);
-    initializeModule(loc, multiCallBackFunction, config.skipLocalisationInitialization);
+    initializeModule(lang, multiCallBackFunction, config.elaiJS.skipLanguageInitialization);
+    initializeModule(loc, multiCallBackFunction, config.elaiJS.skipLocalisationInitialization);
 	}
 	
 	function initializeModule(module, callback, needInit) {
@@ -39,11 +39,11 @@ define(["elaiJS/helper", "elaiJS/binder", "elaiJS/cascadeCaller",
       callback();
 	}
 	
-	function ready() {
-	  if(config.requireElaiJS)
-      config.requireElaiJS.setConfig(config);
+	function start() {
+	  if(config.elaiJS.requireElaiJS)
+      config.elaiJS.requireElaiJS.setConfig(config);
     
-    if(console && console.timeEnd && config.isDebug)
+    if(console && console.timeEnd && config.elaiJS.isDebug)
       console.timeEnd("ElaiJS Start in");
 	  
     if(document.dispatchEvent && CustomEvent)
@@ -64,7 +64,7 @@ define(["elaiJS/helper", "elaiJS/binder", "elaiJS/cascadeCaller",
   }
   
   function launchDebugMode() {
-    if(config.isDebug) {
+    if(config.elaiJS.isDebug) {
       require(["elaiJS/debugManager"], function(debugManager) {
         debugManager.startDebugMode();
       });
@@ -78,7 +78,8 @@ define(["elaiJS/helper", "elaiJS/binder", "elaiJS/cascadeCaller",
 
 /*
   TODO:
-  
+    loadThemeAsPolymerMixin
+    Tester avec ElaiJSTest
 */
 
 /*
