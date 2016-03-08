@@ -2,7 +2,8 @@ define(["elaiJS/helper"], function(helper) {
 	'use strict';
   
 	var self = function(data, keepDefined) {
-  	merges(data, this || self, keepDefined);
+	  var scope = (!this || this === window) ? self : this;
+  	merges(data, scope, keepDefined);
 	};
 	
 	function merges(src, dest, keepDefined) {
