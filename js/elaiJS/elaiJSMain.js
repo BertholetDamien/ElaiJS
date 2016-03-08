@@ -33,11 +33,11 @@ define(["elaiJS/helper", "elaiJS/binder", "elaiJS/cascadeCaller",
     initializeModule(loc, multiCallBackFunction, config.elaiJS.skipLocalisationInitialization);
 	}
 	
-	function initializeModule(module, callback, needInit) {
-	  if(needInit !== true)
-      module.initialize(callback);
-    else
+	function initializeModule(module, callback, skipInit) {
+	  if(skipInit === true)
       callback();
+    else
+      module.initialize(callback);
 	}
 	
 	function start() {
