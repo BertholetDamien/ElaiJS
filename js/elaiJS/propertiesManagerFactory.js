@@ -52,6 +52,10 @@ define(["elaiJS/multicallback", "elaiJS/helper"],
       definition.loadProperties(key, function(propertie) {
         properties[key] = propertie;
         callback();
+      }, function(e) {
+        console.error("Loading error with properties '" + key + "' of " + definition.name);
+        console.error(e);
+        callback();
       });
   	}
   

@@ -157,13 +157,13 @@ define(["elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper"],
       if(appConfig)
         config(appConfig);
       callback();
-    });
+    }, callback);
   }
 	
-	function loadAppConfigurationFile(callback) {
+	function loadAppConfigurationFile(callback, errCallback) {
     var urlFile = helper.getElaiJSAttribute("config");
     if(urlFile)
-      webservice.loadJSONFile(urlFile, callback);
+      webservice.loadJSONFile(urlFile, callback, errCallback);
     else
       callback();
 	}
