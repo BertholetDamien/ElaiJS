@@ -37,7 +37,8 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/mode",
 	 ************************************************************************/
 		function render(callback) {
       var info = getWebComponentInfo.call(this);
-      var componentName = mode.getRessource("WebComponent", info);
+      var ressourceName = info.ressource || "WebComponent";
+      var componentName = mode.getRessource(ressourceName, info);
       
       this.elementPolymer = document.createElement(componentName);
       if(this.viewData)
