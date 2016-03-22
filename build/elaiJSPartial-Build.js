@@ -10,6 +10,7 @@
       'elaiJS/helper',
       'elaiJS/language',
       'elaiJS/localisation',
+      'elaiJS/localStorage',
       'elaiJS/mode',
       'elaiJS/multicallback',
       'elaiJS/mustacherend',
