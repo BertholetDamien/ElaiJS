@@ -229,7 +229,7 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder", "elaiJS/helper
 		this.findChild = function findChild(name, recursively) {
 			for(var key in this.children) {
 				var child = this.children[key];
-				if(child.name === name.toLowerCase())
+				if(child.name.toLowerCase() === name.toLowerCase())
 					return child;
 
 				if(recursively) {
@@ -244,7 +244,7 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder", "elaiJS/helper
 			var result = [];
 			for(var key in this.children) {
 				var child = this.children[key];
-				if(child.name === name.toLowerCase())
+				if(child.name.toLowerCase() === name.toLowerCase())
 					result.push(child);
 				
 				if(recursively)
