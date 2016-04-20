@@ -24,10 +24,13 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper",
 	self.getLocalisation = propertiesManager.getCurrentKey;
 	
   function findFirstKey() {
-    if(config.elaiJS.autoFindLocalisation !== true)
-      return undefined;
+    var loc;
+    if(config.elaiJS.localisationStorageKey)
+      loc = localStorage.get(config.elaiJS.localisationStorageKey);
+
+    if(!loc && config.elaiJS.autoFindLocalisation)
+      loc = window.navigator.userLanguage || window.navigator.language;
     
-    var loc = window.navigator.userLanguage || window.navigator.language;
     return self.findValidLocalisation(loc);
   }
   
@@ -36,6 +39,9 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper",
 	};
 	
 	self.setLocalisation = function setLocalisation(rawLocalisation, callback) {
+    if(config.elaiJS.localisationStorageKey)
+      localStorage.set(config.elaiJS.localisationStorageKey, rawLocalisation);
+    
 	  var fireCb = binder.buildFireCallBack(this, EVENT.localisationChanged, callback);
     propertiesManager.setKey(self.findValidLocalisation(rawLocalisation), fireCb);
 	};

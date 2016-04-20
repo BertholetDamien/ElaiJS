@@ -18,8 +18,8 @@ define([  "elaiJS/webservice", "elaiJS/ressources", "elaiJS/helper",
     
     webservice.addService("loadTheme", loadTheme);
     webservice.addService("removeTheme", removeTheme);
-    webservice.addService("loadLanguageFile", loadLanguageFile);
-    webservice.addService("loadLocalisationFile", loadLocalisationFile);
+    webservice.addService("loadLanguageFile", loadLanguageFile, true);
+    webservice.addService("loadLocalisationFile", loadLocalisationFile, true);
     webservice.addService("loadTemplate", loadTemplate, true);
     webservice.addService("loadWidget", loadWidget);
     webservice.addService("loadPlugin", loadPlugin);

@@ -34,6 +34,8 @@ define(["elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper"],
     elaiJS.defaultMode = undefined;
     elaiJS.defaultLanguage = "en";
     elaiJS.autoFindLanguage = true;
+    elaiJS.languageStorageKey = "language";
+    elaiJS.localisationStorageKey = "localisation";
     elaiJS.mustacheLib = "lib/mustache.min";
     elaiJS.polymereLib = "../bower_components/webcomponentsjs/webcomponents-lite.min";
     

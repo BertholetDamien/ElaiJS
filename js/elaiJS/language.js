@@ -1,6 +1,6 @@
-define([  "elaiJS/configuration", "elaiJS/webservice",
+define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/localStorage",
           "elaiJS/propertiesManagerFactory", "elaiJS/binder"],
-          function(config, webservice, manager, binder) {
+          function(config, webservice, localStorage, manager, binder) {
 	'use strict';
 
   var propertiesManager = manager.build({
@@ -21,11 +21,20 @@ define([  "elaiJS/configuration", "elaiJS/webservice",
 	self.getLanguage = propertiesManager.getCurrentKey;
 	
 	self.setLanguage = function setLocalisation(rawLanguage, callback) {
+    if(config.elaiJS.languageStorageKey)
+      localStorage.set(config.elaiJS.languageStorageKey, rawLanguage);
+      
 	  var fireCb = binder.buildFireCallBack(this, EVENT.languageChanged, callback);
     propertiesManager.setKey(rawLanguage, fireCb);
 	};
 
   function findFirstKey() {
+    if(config.elaiJS.languageStorageKey) {
+      var storeLang = localStorage.get(config.elaiJS.languageStorageKey);
+      if(storeLang)
+        return storeLang;
+    }
+    
     var language = window.navigator.userLanguage || window.navigator.language;
     if(config.elaiJS.autoFindLanguage !== true || !language)
       return undefined;
