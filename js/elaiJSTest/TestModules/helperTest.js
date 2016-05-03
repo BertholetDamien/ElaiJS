@@ -206,6 +206,12 @@ define([  "elaiJS/helper"],
     this.assertTrue(helper.equals(false, 0, false));
     this.assertTrue(helper.equals({love: 42}, {love: 42, sun: undefined}, false));
     
+    var objComplexe = {love: 42, sun: undefined, hope: "happy"};
+    this.assertFalse(helper.equals({love: 42}, objComplexe, false));
+    this.assertFalse(helper.equals(objComplexe, {love: 42}, false));
+    
+    this.assertTrue(helper.equals(objComplexe, {love: 42, hope: "happy"}, false));
+    
     this.done();
   };
   

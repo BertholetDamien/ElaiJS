@@ -100,10 +100,13 @@ define([], function() {
     if(!self.isObject(obj1) || !self.isObject(obj1))
       return false;
     
-    if(strict !== false && Object.keys(obj1).length !== Object.keys(obj2).length)
+    var countObj1 = Object.keys(obj1).length;
+    var countObj2 = Object.keys(obj2).length;
+    if(strict !== false && countObj1 !== countObj2)
       return false;
     
-    for(var key in obj1) {
+    var biggerObj = (countObj1 > countObj2) ? obj1 : obj2;
+    for(var key in biggerObj) {
       if(!self.equals(obj1[key], obj2[key]))
         return false;
     }
