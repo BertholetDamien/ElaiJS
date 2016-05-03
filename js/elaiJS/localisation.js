@@ -1,6 +1,6 @@
 define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper",
-          "elaiJS/propertiesManagerFactory", "elaiJS/binder"],
-          function(config, webservice, helper, manager, binder) {
+          "elaiJS/propertiesManagerFactory", "elaiJS/binder", "elaiJS/localStorage"],
+          function(config, webservice, helper, manager, binder, localStorage) {
 	'use strict';
 	
   var propertiesManager = manager.build({
