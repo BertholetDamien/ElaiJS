@@ -245,14 +245,35 @@ define([  "elaiJS/webservice", "elaiJS/ressources", "elaiJS/helper",
   function parseProperties(rawText) {
     var properties = {};
 	  
+	  var lastKey;
     var lines = rawText.split(/\r?\n/);
     for(var i in lines) {
       var line = lines[i];
+      if(lastKey) {
+        var storeKey = lastKey;
+        line = checkMultiLine(line);
+        properties[storeKey] += "\n" + line;
+        continue;
+      }
+      
       var index = line.indexOf("=");
       var key = line.substr(0, index);
       var value = line.substr(index + 1);
       
+      value = checkMultiLine(value);
       properties[key] = value;
+    }
+    
+    function checkMultiLine(value) {
+      if(value.charAt(value.length -1) === "\\") {
+        lastKey = key;
+        value = value.substring(0, value.length - 1);
+      }
+      else {
+        lastKey = undefined;
+      }
+      
+      return value;
     }
     
     return properties;
