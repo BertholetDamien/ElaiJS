@@ -4,20 +4,24 @@ define(["elaiJS/helper"], function(helper) {
 	var self = {};
 	var globalEvent = {};
 	
-	self.bindGlobal = function bindGlobal(type, callback, params, scope) {
-    return self.bind.call(globalEvent, type, callback, params, scope || this);
+	self.bindGlobal = function bindGlobal(type, callback, params, scope, bindOne) {
+    self.bind.call(globalEvent, type, callback, params, scope || this, bindOne);
 	};
 	
 	self.bindOneGlobal = function bindGlobal(type, callback, params, scope) {
-    return self.bindOne.call(globalEvent, type, callback, params, scope || this);
+    self.bindOne.call(globalEvent, type, callback, params, scope || this);
 	};
 	
 	self.unbindGlobal = function unbindGlobal(type, callback) {
-    return self.unbind.call(globalEvent, type, callback);
+    self.unbind.call(globalEvent, type, callback);
+	};
+	
+	self.unbindAllGlobal = function unbindAllGlobal() {
+	  self.unbindAll.call(globalEvent);
 	};
 	
 	self.fireGlobal = function fireGlobal(event, data) {
-    return self.fire.call(globalEvent, event, data);
+    self.fire.call(globalEvent, event, data);
 	};
 	
 	self.buildGlobalFireCallBack = function buildGlobalFireCallBack(event, callback, data) {
