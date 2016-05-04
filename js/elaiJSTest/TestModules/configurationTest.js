@@ -103,5 +103,40 @@ define(["elaiJS/configuration"],
     this.done();
   };
   
+  self.keepDefine = function () {
+    var obj1 = {love: 41};
+    var obj2 = {test: 101111};
+    var obj3 = {love: 42, happy: "hope", test: 101110};
+    
+    this.assertEq(1, Object.keys(obj1).length);
+    this.assertEq(41, obj1.love);
+    
+    config.call(obj1, obj2, true);
+    
+    this.assertEq(2, Object.keys(obj1).length);
+    this.assertEq(41, obj1.love);
+    this.assertEq(101111, obj1.test);
+    
+    config.call(obj1, obj3, true);
+    
+    this.assertEq(3, Object.keys(obj1).length);
+    this.assertEq(41, obj1.love);
+    this.assertEq(101111, obj1.test);
+    this.assertEq("hope", obj1.happy);
+    
+    
+    this.assertEq(1, Object.keys(obj2).length);
+    this.assertEq(101111, obj2.test);
+    
+    config.call(obj2, obj3, true);
+    
+    this.assertEq(3, Object.keys(obj2).length);
+    this.assertEq(42, obj2.love);
+    this.assertEq(101111, obj2.test);
+    this.assertEq("hope", obj2.happy);
+    
+    this.done();
+  };
+  
 	return self;
 });
