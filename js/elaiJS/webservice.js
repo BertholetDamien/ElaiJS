@@ -1,5 +1,6 @@
-define(["elaiJS/binder", "elaiJS/cascadeCaller", "elaiJS/helper"],
-          function(binder, cascadeCaller, helper) {
+define(["elaiJS/configuration", "elaiJS/binder", "elaiJS/cascadeCaller",
+        "elaiJS/helper"],
+        function(config, binder, cascadeCaller, helper) {
 	'use strict';
 
 	var self = {};
@@ -9,14 +10,16 @@ define(["elaiJS/binder", "elaiJS/cascadeCaller", "elaiJS/helper"],
 	var cache = {};
   var currents = {};
   
+  var DEFAULT_SERVICE_PARAMS = {useCache: false, searchInCache: true};
+  
   function initialize() {
     keywords = Object.keys(self);
   }
   
-	self.addService = function addService(name, executeFonction, defaultUseCache) {
+	self.addService = function addService(name, executeFonction, defaultServiceParams) {
     checkKeywords(name);
 	  
-    var service = createService(name, executeFonction, defaultUseCache);
+    var service = createService(name, executeFonction, defaultServiceParams);
     services[service.name] = service;
     delete cache[service.name];
 	  createAccessPoint(name, service);
@@ -30,14 +33,14 @@ define(["elaiJS/binder", "elaiJS/cascadeCaller", "elaiJS/helper"],
       errCallback = errCallback || function(e) {
         console.error("Error during execution of service %o: %o", name, e);
       };
-      process(service, params, callback, errCallback, serviceParams || {});
+      process(service, params, callback, errCallback, serviceParams);
     };
 	}
 	
-	function createService(name, executeFunction, useCache) {
+	function createService(name, executeFunction, defaultServiceParams) {
     return {
         execute: executeFunction,
-        useCache: useCache || false,
+        defaultServiceParams: defaultServiceParams,
         name: name.toLowerCase(),
         displayName: name,
         interceptors: {before: [], after: []}
@@ -51,8 +54,8 @@ define(["elaiJS/binder", "elaiJS/cascadeCaller", "elaiJS/helper"],
     }
 	}
 	
-	self.setDefaultUseCache = function setDefaultUseCache(name, defaultUseCache) {
-    getService(name).useCache = defaultUseCache;
+	self.setDefaultServiceParams = function setDefaultServPar(name, defaultServiceParams) {
+    getService(name).defaultServiceParams = defaultServiceParams;
     return self;
 	};
 	
@@ -65,7 +68,7 @@ define(["elaiJS/binder", "elaiJS/cascadeCaller", "elaiJS/helper"],
 	}
 	
   function process(service, params, callback, errCallback, serviceParams) {
-    setDefaultServiceParams(service, serviceParams);
+    serviceParams = buildServiceParams(service, serviceParams);
     
     var beforeExecuteCallback = function(params2, serviceParams2) {
       params = params2;
@@ -87,12 +90,12 @@ define(["elaiJS/binder", "elaiJS/cascadeCaller", "elaiJS/helper"],
     executeBeforeInterceptor(service, params, beforeExecuteCallback, errCallback, serviceParams);
 	}
 	
-	function setDefaultServiceParams(service, serviceParams) {
-	  if(serviceParams.useCache === undefined)
-      serviceParams.useCache = service.useCache;
+	function buildServiceParams(service, serviceParams) {
+	  serviceParams = serviceParams || {};
+    config.call(serviceParams, service.defaultServiceParams, true);
+    config.call(serviceParams, DEFAULT_SERVICE_PARAMS, true);
     
-    if(serviceParams.searchInCache === undefined)
-      serviceParams.searchInCache = true;
+    return serviceParams;
 	}
 	
 	function executeBeforeInterceptor(service, params, callback, errCallback, serviceParams) {

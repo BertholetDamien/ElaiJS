@@ -11,16 +11,16 @@ define([  "elaiJS/webservice", "elaiJS/ressources", "elaiJS/helper",
     webservice.addService("loadTextFile", loadTextFile);
     webservice.addService("loadDocument", loadDocument);
     webservice.addService("removeDocument", removeDocument);
-    webservice.addService("loadCSS", loadCSS, true);
+    webservice.addService("loadCSS", loadCSS, {useCache: true});
     webservice.addService("loadJSONFile", loadJSONFile);
     webservice.addService("loadPropertiesFile", loadPropertiesFile);
     webservice.addService("loadJSFile", loadJSFile);
     
     webservice.addService("loadTheme", loadTheme);
     webservice.addService("removeTheme", removeTheme);
-    webservice.addService("loadLanguageFile", loadLanguageFile, true);
-    webservice.addService("loadLocalisationFile", loadLocalisationFile, true);
-    webservice.addService("loadTemplate", loadTemplate, true);
+    webservice.addService("loadLanguageFile", loadLanguageFile, {useCache: true});
+    webservice.addService("loadLocalisationFile", loadLocalisationFile, {useCache: true});
+    webservice.addService("loadTemplate", loadTemplate, {useCache: true});
     webservice.addService("loadWidget", loadWidget);
     webservice.addService("loadPlugin", loadPlugin);
     webservice.addService("loadWidgetCSS", loadWidgetCSS);
