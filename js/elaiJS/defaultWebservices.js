@@ -257,6 +257,9 @@ define([  "elaiJS/webservice", "elaiJS/ressources", "elaiJS/helper",
       }
       
       var index = line.indexOf("=");
+      if(index === -1)
+        continue;
+      
       var key = line.substr(0, index);
       var value = line.substr(index + 1);
       
