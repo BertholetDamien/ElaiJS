@@ -41,6 +41,7 @@ define( ["elaiJS/binder", "elaiJS/helper", "elaiJS/configuration"],
     
     var itemName = getItemName(name, path);
     localStorage.setItem(itemName, JSON.stringify(value));
+    return self;
   };
   
   self.remove = function(name, path) {
@@ -49,12 +50,14 @@ define( ["elaiJS/binder", "elaiJS/helper", "elaiJS/configuration"],
     
     var itemName = getItemName(name, path);
     localStorage.removeItem(itemName);
+    return self;
   };
   
   self.clearAll = function() {
     check();
     localStorage.clear();
     binder.fire.call(self, EVENT.clearAll);
+    return self;
   };
   
   self.clear = function(path) {
@@ -66,6 +69,7 @@ define( ["elaiJS/binder", "elaiJS/helper", "elaiJS/configuration"],
       if(rawKey.length > 1 && rawKey[0] === path)
         self.remove(rawKey[1], rawKey[0]);
     }
+    return self;
   };
   
   function fireCurrentTabEvent(name, path, newValue) {
