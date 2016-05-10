@@ -23,12 +23,11 @@ define(["elaiJS/helper", "elaiJS/binder", "elaiJS/cascadeCaller",
 	}
 	
 	function initalizeModules(callback) {
-    themeManager.initialize();
-    
     if(config.elaiJS.skipNavigatorInitialization !== true)
       navigator.initializeCurrentPage();
     
-    var multiCallBackFunction = multicallback(2, callback);
+    var multiCallBackFunction = multicallback(3, callback);
+    initializeModule(themeManager, multiCallBackFunction);
     initializeModule(lang, multiCallBackFunction, config.elaiJS.skipLanguageInitialization);
     initializeModule(loc, multiCallBackFunction, config.elaiJS.skipLocalisationInitialization);
 	}
