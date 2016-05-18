@@ -219,6 +219,25 @@ define(["elaiJS/webservice", "elaiJS/multicallback"],
     });
   };
   
+  self.setServiceParamsScope = function (test) {
+    var testScope = {sun: 42};
+    var testScope2 = {happy: "hope"};
+    
+    webservice.addService("testService", function(params, callback) {
+      callback();
+    }, {scope: testScope});
+    
+    webservice.testService(undefined, function() {
+      test.assertEq(42, this.sun);
+      test.assertUndefined(this.happy);
+      
+      webservice.testService(undefined, function() {
+        test.assertEq("hope", this.happy);
+        test.done();
+      }, undefined, {scope: testScope2});
+    });
+  };
+  
   self.multiloading = function (test) {
     var testValue = "ElaiJS";
     var count = 0;

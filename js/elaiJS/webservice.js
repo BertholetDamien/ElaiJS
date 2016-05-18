@@ -28,11 +28,21 @@ define(["elaiJS/configuration", "elaiJS/binder", "elaiJS/cascadeCaller",
 	};
 	
 	function createAccessPoint(name, service) {
-	  self[name] = function(params, callback, errCallback, serviceParams) {
-      callback = callback || function() {};
-      errCallback = errCallback || function(e) {
-        console.error("Error during execution of service %o: %o", name, e);
+	  self[name] = function(params, initialCallback, initialErrCallback, serviceParams) {
+	    serviceParams = buildServiceParams(service, serviceParams);
+	    
+      var callback = function() {
+        if(helper.isFunction(initialCallback))
+          initialCallback.apply(serviceParams.scope, arguments);
       };
+      
+      var errCallback = function(e) {
+        if(helper.isFunction(initialErrCallback))
+          initialErrCallback.apply(serviceParams.scope, arguments);
+        else
+          console.error("Error during execution of service %o: %o", name, e);
+      };
+      
       process(service, params, callback, errCallback, serviceParams);
     };
 	}
@@ -68,8 +78,6 @@ define(["elaiJS/configuration", "elaiJS/binder", "elaiJS/cascadeCaller",
 	}
 	
   function process(service, params, callback, errCallback, serviceParams) {
-    serviceParams = buildServiceParams(service, serviceParams);
-    
     var beforeExecuteCallback = function(params2, serviceParams2) {
       params = params2;
       serviceParams = serviceParams2;
@@ -94,6 +102,7 @@ define(["elaiJS/configuration", "elaiJS/binder", "elaiJS/cascadeCaller",
 	  serviceParams = serviceParams || {};
     config.call(serviceParams, service.defaultServiceParams, true);
     config.call(serviceParams, DEFAULT_SERVICE_PARAMS, true);
+    serviceParams.scope = serviceParams.scope || service;
     
     return serviceParams;
 	}
