@@ -20,12 +20,12 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/localStorage",
   self.initialize = propertiesManager.initialize;
 	self.getLanguage = propertiesManager.getCurrentKey;
 	
-	self.setLanguage = function setLocalisation(rawLanguage, callback) {
+	self.setLanguage = function setLocalisation(rawLanguage, callback, errCallback) {
     if(config.elaiJS.languageStorageKey)
       localStorage.set(config.elaiJS.languageStorageKey, rawLanguage);
       
 	  var fireCb = binder.buildFireCallBack(this, EVENT.languageChanged, callback);
-    propertiesManager.setKey(rawLanguage, fireCb);
+    propertiesManager.setKey(rawLanguage, fireCb, errCallback);
 	};
 
   function findFirstKey() {

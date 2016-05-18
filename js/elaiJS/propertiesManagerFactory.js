@@ -8,13 +8,13 @@ define(["elaiJS/multicallback", "elaiJS/helper"],
   	var currentKey;
   	var properties = {};
   
-    self.initialize = function initialize(callback) {
+    self.initialize = function initialize(callback, errCallback) {
       var multiCBFct = multicallback(2, callback);
       
-      loadProperties(definition.getDefaultKey(), multiCBFct);
+      loadProperties(definition.getDefaultKey(), multiCBFct, errCallback);
       
       var key = definition.findFirstKey() || definition.getDefaultKey();
-      self.setKey(key, multiCBFct);
+      self.setKey(key, multiCBFct, errCallback);
     };
     
   	self.get = function get(propertieKey, key) {
@@ -39,23 +39,24 @@ define(["elaiJS/multicallback", "elaiJS/helper"],
       return currentKey;
   	};
   	
-  	self.setKey = function setKey(key, callback) {
+  	self.setKey = function setKey(key, callback, errCallback) {
       currentKey = key;
       
       if(!properties[currentKey])
-        loadProperties(currentKey, callback);
+        loadProperties(currentKey, callback, errCallback);
       else if(helper.isFunction(callback))
         callback();
   	};
   	
-  	function loadProperties(key, callback) {
+  	function loadProperties(key, callback, errCallback) {
       definition.loadProperties(key, function(propertie) {
         properties[key] = propertie;
-        callback();
+        if(helper.isFunction(callback))
+          callback();
       }, function(e) {
         console.error("Loading error with properties '" + key + "' of " + definition.name);
-        console.error(e);
-        callback();
+        if(helper.isFunction(errCallback))
+          errCallback();
       });
   	}
   
