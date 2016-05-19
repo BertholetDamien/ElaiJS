@@ -85,6 +85,7 @@
   function onScriptLoad() {
     var moduleName = this.getAttribute("data-moduleName");
     var moduleDef = waitModules.shift();
+
     if(moduleDef)
       scope.define(moduleName, moduleDef.deps, moduleDef.callback);
     else
@@ -106,8 +107,7 @@
       var module = callback.apply(scope, arguments);
       var index = checkExportsIndex(deps);
       module = (index === undefined) ? module : arguments[index];
-      
-      addModule(name, module);
+      addModule(name, module || null);
     });
   }
   
@@ -124,7 +124,7 @@
   function addModule(name, module) {
     if(modules[name])
       return callListener(name, module);
-    
+
     modules[name] = module;
     callListener(name, module);
     callShimInit(name);
@@ -232,10 +232,11 @@
         deps = deps.concat(moduleLoadDef.deps);
       }
     }
-    
-    if(deps.length > 0)
-      return getIndirectDeps(deps).concat(deps);
-    return [];
+
+    var uniqueDeps = {};
+    for(var i in deps)
+      uniqueDeps[deps[i]] = 42;
+    return Object.keys(uniqueDeps);
   }
   
   /************************************************************
@@ -246,7 +247,10 @@
       return getModule(deps);
     
     var indirectDeps = getIndirectDeps(deps);
-    getModules(indirectDeps, function() {
+    if(indirectDeps.length === 0)
+      return getModules(deps, callback, errCallback);
+
+    scope.require(indirectDeps, function() {
       getModules(deps, callback, errCallback);
     }, errCallback);
   };
