@@ -9,7 +9,7 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper",
       return self.findValidLocalisation(config.elaiJS.defaultLocalisation);
     },
     loadProperties: function(n, cb, errcb) {
-      webservice.loadLocalisationFile(n, cb, errcb);
+      webservice.loadLocalisation(n, cb, errcb);
     },
     findFirstKey: findFirstKey
   });
@@ -42,8 +42,8 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper",
     if(config.elaiJS.localisationStorageKey)
       localStorage.set(config.elaiJS.localisationStorageKey, rawLocalisation);
     
-	  var fireCb = binder.buildFireCallBack(this, EVENT.localisationChanged, callback);
-	  var localisation = self.findValidLocalisation(rawLocalisation);
+    var fireCb = binder.buildFireCallBack(this, EVENT.localisationChanged, callback);
+    var localisation = self.findValidLocalisation(rawLocalisation);
     propertiesManager.setKey(localisation, fireCb, errCallback);
 	};
 	
@@ -57,11 +57,7 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper",
 	};
 	
 	self.toLocaleString = function (date, loc) {
-	  if(loc)
-	    loc = self.findValidLocalisation(loc);
-	  
-	  if(!loc)
-	    loc = self.getLocalisation();
+    loc = self.findValidLocalisation(loc) || self.getLocalisation();
 	  
 	  if(!helper.isObject(date))
       date = new Date(date);

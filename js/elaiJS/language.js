@@ -7,7 +7,7 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/localStorage",
     name: "Language",
     getDefaultKey: function() {return config.elaiJS.defaultLanguage;},
     loadProperties: function(name, cb, errcb) {
-      webservice.loadLanguageFile(name, cb, errcb);
+      webservice.loadLanguage(name, cb, errcb);
     },
     findFirstKey: findFirstKey
   });
@@ -20,10 +20,10 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/localStorage",
   self.initialize = propertiesManager.initialize;
 	self.getLanguage = propertiesManager.getCurrentKey;
 	
-	self.setLanguage = function setLocalisation(rawLanguage, callback, errCallback) {
+	self.setLanguage = function setLanguage(rawLanguage, callback, errCallback) {
     if(config.elaiJS.languageStorageKey)
       localStorage.set(config.elaiJS.languageStorageKey, rawLanguage);
-      
+    
 	  var fireCb = binder.buildFireCallBack(this, EVENT.languageChanged, callback);
     propertiesManager.setKey(rawLanguage, fireCb, errCallback);
 	};

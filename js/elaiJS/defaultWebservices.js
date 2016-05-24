@@ -18,8 +18,8 @@ define([  "elaiJS/webservice", "elaiJS/ressources", "elaiJS/helper",
     
     webservice.addService("loadTheme", loadTheme);
     webservice.addService("removeTheme", removeTheme);
-    webservice.addService("loadLanguageFile", loadLanguageFile, {useCache: true});
-    webservice.addService("loadLocalisationFile", loadLocalisationFile, {useCache: true});
+    webservice.addService("loadLanguage", loadLanguageFile, {useCache: true});
+    webservice.addService("loadLocalisation", loadLocalisationFile, {useCache: true});
     webservice.addService("loadTemplate", loadTemplate, {useCache: true});
     webservice.addService("loadWidget", loadWidget);
     webservice.addService("loadPlugin", loadPlugin);
