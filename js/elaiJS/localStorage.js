@@ -37,6 +37,9 @@ define( ["elaiJS/binder", "elaiJS/helper", "elaiJS/configuration"],
   
   self.set = function(name, value, path) {
     check();
+    if(value === undefined)
+      return self.remove(name, path);
+    
     fireCurrentTabEvent.call(self, name, path, value);
     
     var itemName = getItemName(name, path);
