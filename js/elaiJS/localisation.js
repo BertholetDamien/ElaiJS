@@ -6,7 +6,7 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper",
   var propertiesManager = manager.build({
     name: "Localisation",
     getDefaultKey: function() {
-      return self.findValidLocalisation(config.elaiJS.defaultLocalisation);
+      return self.findDefaultLocalisation(config.elaiJS.defaultLocalisation);
     },
     loadProperties: function(n, cb, errcb) {
       webservice.loadLocalisation(n, cb, errcb);
@@ -31,11 +31,11 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper",
     if(!loc && config.elaiJS.autoFindLocalisation)
       loc = window.navigator.userLanguage || window.navigator.language;
     
-    return self.findValidLocalisation(loc);
+    return self.findDefaultLocalisation(loc);
   }
   
 	self.get = function get(keyPropertie, loc) {
-    return propertiesManager.get(keyPropertie, self.findValidLocalisation(loc));
+    return propertiesManager.get(keyPropertie, self.findDefaultLocalisation(loc));
 	};
 	
 	self.setLocalisation = function setLocalisation(rawLocalisation, callback, errCallback) {
@@ -43,21 +43,21 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper",
       localStorage.set(config.elaiJS.localisationStorageKey, rawLocalisation);
     
     var fireCb = binder.buildFireCallBack(this, EVENT.localisationChanged, callback);
-    var localisation = self.findValidLocalisation(rawLocalisation);
+    var localisation = self.findDefaultLocalisation(rawLocalisation);
     propertiesManager.setKey(localisation, fireCb, errCallback);
 	};
 	
-	self.findValidLocalisation = function findValidLocalisation(loc) {
+	self.findDefaultLocalisation = function findDefaultLocalisation(loc) {
     if( !loc
         || !config.elaiJS.matchValidLocalisation
         || !config.elaiJS.matchValidLocalisation[loc])
       return loc;
     
-    return self.findValidLocalisation(config.elaiJS.matchValidLocalisation[loc]);
+    return self.findDefaultLocalisation(config.elaiJS.matchValidLocalisation[loc]);
 	};
 	
 	self.toLocaleString = function (date, loc) {
-    loc = self.findValidLocalisation(loc) || self.getLocalisation();
+    loc = self.findDefaultLocalisation(loc) || self.getLocalisation();
 	  
 	  if(!helper.isObject(date))
       date = new Date(date);

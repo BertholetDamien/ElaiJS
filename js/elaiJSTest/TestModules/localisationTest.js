@@ -7,17 +7,17 @@ define(["elaiJS/localisation", "elaiJS/configuration"],
     loc.initialize(callback);
   };
   
-  self.findValidLocalisation = function () {
+  self.findDefaultLocalisation = function () {
     config.elaiJS.matchValidLocalisation = {
       "en": "en-US",
       "fr-CA": "fr",
       "fr": "fr-FR"
     };
-    this.assertEq("en-US", loc.findValidLocalisation("en-US"));
-    this.assertEq("en-US", loc.findValidLocalisation("en"));
-    this.assertEq("fr-FR", loc.findValidLocalisation("fr-CA"));
-    this.assertEq("fr-FR", loc.findValidLocalisation("fr-FR"));
-    this.assertEq("fr-FR", loc.findValidLocalisation("fr"));
+    this.assertEq("en-US", loc.findDefaultLocalisation("en-US"));
+    this.assertEq("en-US", loc.findDefaultLocalisation("en"));
+    this.assertEq("fr-FR", loc.findDefaultLocalisation("fr-CA"));
+    this.assertEq("fr-FR", loc.findDefaultLocalisation("fr-FR"));
+    this.assertEq("fr-FR", loc.findDefaultLocalisation("fr"));
     
     this.done();
   };
