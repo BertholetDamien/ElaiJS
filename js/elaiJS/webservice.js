@@ -138,12 +138,16 @@ define(["elaiJS/configuration", "elaiJS/binder", "elaiJS/cascadeCaller",
       callback.apply(service, arguments);
     }
     
-    try {
-      service.execute(params, afterExecute, errCallback);
-    } catch(exception) {
+    function afterErrorExecute(exception) {
       if(serviceParams.useCache)
         fireErrorCurrentObj(currentObj, exception);
       errCallback.call(service, exception);
+    }
+    
+    try {
+      service.execute(params, afterExecute, afterErrorExecute);
+    } catch(exception) {
+      afterErrorExecute(exception);
     }
 	}
 	
