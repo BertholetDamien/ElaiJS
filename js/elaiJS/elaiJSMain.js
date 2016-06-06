@@ -46,9 +46,6 @@ define(["elaiJS/helper", "elaiJS/binder", "elaiJS/cascadeCaller",
     if(console && console.timeEnd && config.elaiJS.isDebug)
       console.timeEnd("ElaiJS Start in");
 	  
-    if(document.dispatchEvent && CustomEvent)
-      document.dispatchEvent(new CustomEvent("ElaiJSReady"));
-      
     loadAppMain();
 	}
 	
