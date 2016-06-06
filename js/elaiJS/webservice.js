@@ -26,6 +26,10 @@ define(["elaiJS/configuration", "elaiJS/binder", "elaiJS/cascadeCaller",
     
     return self;
 	};
+
+  self.removeCache = function (name) {
+    delete cache[getService(name).name];
+  };
 	
 	function createAccessPoint(name, service) {
 	  self[name] = function(params, initialCallback, initialErrCallback, serviceParams) {
@@ -165,7 +169,7 @@ define(["elaiJS/configuration", "elaiJS/binder", "elaiJS/cascadeCaller",
       });
       
       binder.bind.call(currentObj, "error", function(event) {
-        errCallback.apply(service, e.data);
+        errCallback.apply(service, event.data);
       });
       
       return true;
@@ -300,6 +304,10 @@ define(["elaiJS/configuration", "elaiJS/binder", "elaiJS/cascadeCaller",
     var name = service.name;
     if(!cache[name])
       cache[name] = [];
+
+    var inCache = findInCache(service, params);
+    if(inCache)
+      cache[name].splice(cache[name].indexOf(inCache), 1);
     
     cache[name].push({params: params, result: result});
 	}
