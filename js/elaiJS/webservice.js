@@ -36,15 +36,21 @@ define(["elaiJS/configuration", "elaiJS/binder", "elaiJS/cascadeCaller",
 	    serviceParams = buildServiceParams(service, serviceParams);
 	    
       var callback = function() {
-        if(helper.isFunction(initialCallback))
-          initialCallback.apply(serviceParams.scope, arguments);
+        var args = arguments;
+        setTimeout(function() {
+          if(helper.isFunction(initialCallback))
+            initialCallback.apply(serviceParams.scope, args);
+        });
       };
       
       var errCallback = function(e) {
-        if(helper.isFunction(initialErrCallback))
-          initialErrCallback.apply(serviceParams.scope, arguments);
-        else
-          console.error("Error during execution of service %o: %o", name, e);
+        var args = arguments;
+        setTimeout(function() {
+          if(helper.isFunction(initialErrCallback))
+            initialErrCallback.apply(serviceParams.scope, args);
+          else
+            console.error("Error during execution of service %o: %o", name, e);
+        });
       };
       
       process(service, params, callback, errCallback, serviceParams);
