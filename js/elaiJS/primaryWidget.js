@@ -281,9 +281,10 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder", "elaiJS/helper
 		
 		this.createChildAndRender = function (widgetInfo, id, params, renderParams, callback) {
 		  this.createChild(widgetInfo, id, params, function(child) {
+		  	var _this = this;
 		    child.render(renderParams, function() {
 		      if(helper.isFunction(callback))
-		        callback(child);
+		        callback.call(_this, child);
 		    });
 		  });
 		};
