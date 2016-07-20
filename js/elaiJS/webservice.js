@@ -185,16 +185,16 @@ define(["elaiJS/configuration", "elaiJS/binder", "elaiJS/cascadeCaller",
 	/******************************************************************
 	 *************************** Listener *****************************
 	******************************************************************/
-	self.addBeforeListener = function addBeforeListener(name, callback) {
-    return addListener("before", name, callback);
+	self.addBeforeListener = function (name, callback, params, scope, bindOne) {
+    return addListener("before", name, callback, params, scope, bindOne);
 	};
 	
-	self.addAfterListener = function addAfterListener(name, callback) {
-    return addListener("after", name, callback);
+	self.addAfterListener = function (name, callback, params, scope, bindOne) {
+    return addListener("after", name, callback, params, scope, bindOne);
 	};
 	
-	function addListener(eventCode, name, callback) {
-    return binder.bind.call(getService(name), eventCode, callback);
+	function addListener(eventCode, name, callback, params, scope, bindOne) {
+    return binder.bind.call(getService(name), eventCode, callback, params, scope, bindOne);
 	}
 	
 	self.removeBeforeListener = function removeBeforeListener(name, callback) {
