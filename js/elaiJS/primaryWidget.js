@@ -411,6 +411,13 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder", "elaiJS/helper
         callback.apply(_this, params);
       }, timeout);
     };
+		
+		this.scope = function(callback) {
+      var _this = this;
+      return function() {
+      	return callback.apply(_this, arguments);
+      };
+    };
 	};
 
 	return properties;
