@@ -23,8 +23,7 @@ define(["elaiJS/helper", "elaiJS/binder", "elaiJS/cascadeCaller",
 	}
 	
 	function initalizeModules(callback) {
-    if(config.elaiJS.skipNavigatorInitialization !== true)
-      navigator.initializeCurrentPage();
+	  initializeModule(navigator, undefined, config.elaiJS.skipNavigatorInitialization);
     
     var multiCallBackFunction = multicallback(3, callback);
     initializeModule(themeManager, multiCallBackFunction);
@@ -33,10 +32,13 @@ define(["elaiJS/helper", "elaiJS/binder", "elaiJS/cascadeCaller",
 	}
 	
 	function initializeModule(module, callback, skipInit) {
-	  if(skipInit === true)
-      callback();
-    else
-      module.initialize(callback);
+	  if(skipInit === true) {
+	    if(helper.isFunction(callback))
+	      callback();
+      return;
+	  }
+	  
+    module.initialize(callback);
 	}
 	
 	function start() {
@@ -78,6 +80,9 @@ define(["elaiJS/helper", "elaiJS/binder", "elaiJS/cascadeCaller",
 
 /*
   TODO:
+  Promise pour webservice
+  Ajouter catch Error pour les webservices
+  Ajouter 'on' for binder
 */
 
 /*
