@@ -37,11 +37,10 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder", "elaiJS/helper
 		this.refresh = function refresh(callback, skipEvent) {
 		  this.before("refresh", skipEvent);
 		  
-		  var _this = this;
 		  var fireCallback = this.buildAfterCB("refresh", callback, skipEvent);
 		  this.refreshData(function() {
-		    _this.refreshRender(function() {
-		      callChildrenIfNeeded.call(_this, "refresh", fireCallback);
+		    this.refreshRender(function() {
+		      callChildrenIfNeeded.call(this, "refresh", fireCallback);
 		    }, false);
 		  });
 		};
@@ -49,12 +48,11 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder", "elaiJS/helper
 		this.refreshData = function refreshData(callback, skipEvent) {
 		  this.before("refreshData", skipEvent);
 		  
-		  var _this = this;
 		  this.fetchData(function(rowData) {
-		    _this.setData(rowData, true);
-		    _this.after("refreshData", skipEvent);
+		    this.setData(rowData, true);
+		    this.after("refreshData", skipEvent);
 		    if(helper.isFunction(callback))
-		      callback();
+		      callback.call(this);
 		  });
 		};
 		
@@ -113,11 +111,10 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder", "elaiJS/helper
 		this.reload = function reload(params, renderParams, callback, skipEvent) {
 		  this.before("reload", skipEvent);
 
-      var _this = this;
 			var fireCallback = this.buildAfterCB("reload", callback, skipEvent);
-			this.initialize(params || _this.params, function () {
-				_this.removeRender(false);
-				_this.render(renderParams || _this.renderParams, fireCallback);
+			this.initialize(params || this.params, function () {
+				this.removeRender(false);
+				this.render(renderParams || this.renderParams, fireCallback);
 			});
 		};
 		
@@ -284,9 +281,10 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder", "elaiJS/helper
 		
 		this.createChildAndRender = function (widgetInfo, id, params, renderParams, callback) {
 		  this.createChild(widgetInfo, id, params, function(child) {
+		  	var _this = this;
 		    child.render(renderParams, function() {
 		      if(helper.isFunction(callback))
-		        callback(child);
+		        callback.call(_this, child);
 		    });
 		  });
 		};
@@ -412,6 +410,13 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder", "elaiJS/helper
       setTimeout(function() {
         callback.apply(_this, params);
       }, timeout);
+    };
+		
+		this.scope = function(callback) {
+      var _this = this;
+      return function() {
+      	return callback.apply(_this, arguments);
+      };
     };
 	};
 

@@ -26,21 +26,31 @@ define(["elaiJS/configuration", "elaiJS/binder", "elaiJS/cascadeCaller",
     
     return self;
 	};
+
+  self.removeCache = function (name) {
+    delete cache[getService(name).name];
+  };
 	
 	function createAccessPoint(name, service) {
 	  self[name] = function(params, initialCallback, initialErrCallback, serviceParams) {
 	    serviceParams = buildServiceParams(service, serviceParams);
 	    
       var callback = function() {
-        if(helper.isFunction(initialCallback))
-          initialCallback.apply(serviceParams.scope, arguments);
+        var args = arguments;
+        setTimeout(function() {
+          if(helper.isFunction(initialCallback))
+            initialCallback.apply(serviceParams.scope, args);
+        });
       };
       
       var errCallback = function(e) {
-        if(helper.isFunction(initialErrCallback))
-          initialErrCallback.apply(serviceParams.scope, arguments);
-        else
-          console.error("Error during execution of service %o: %o", name, e);
+        var args = arguments;
+        setTimeout(function() {
+          if(helper.isFunction(initialErrCallback))
+            initialErrCallback.apply(serviceParams.scope, args);
+          else
+            console.error("Error during execution of service %o: %o", name, e);
+        });
       };
       
       process(service, params, callback, errCallback, serviceParams);
@@ -138,12 +148,16 @@ define(["elaiJS/configuration", "elaiJS/binder", "elaiJS/cascadeCaller",
       callback.apply(service, arguments);
     }
     
-    try {
-      service.execute(params, afterExecute, errCallback);
-    } catch(exception) {
+    function afterErrorExecute(exception) {
       if(serviceParams.useCache)
         fireErrorCurrentObj(currentObj, exception);
       errCallback.call(service, exception);
+    }
+    
+    try {
+      service.execute(params, afterExecute, afterErrorExecute);
+    } catch(exception) {
+      afterErrorExecute(exception);
     }
 	}
 	
@@ -161,7 +175,7 @@ define(["elaiJS/configuration", "elaiJS/binder", "elaiJS/cascadeCaller",
       });
       
       binder.bind.call(currentObj, "error", function(event) {
-        errCallback.apply(service, e.data);
+        errCallback.apply(service, event.data);
       });
       
       return true;
@@ -171,16 +185,16 @@ define(["elaiJS/configuration", "elaiJS/binder", "elaiJS/cascadeCaller",
 	/******************************************************************
 	 *************************** Listener *****************************
 	******************************************************************/
-	self.addBeforeListener = function addBeforeListener(name, callback) {
-    return addListener("before", name, callback);
+	self.addBeforeListener = function (name, callback, params, scope, bindOne) {
+    return addListener("before", name, callback, params, scope, bindOne);
 	};
 	
-	self.addAfterListener = function addAfterListener(name, callback) {
-    return addListener("after", name, callback);
+	self.addAfterListener = function (name, callback, params, scope, bindOne) {
+    return addListener("after", name, callback, params, scope, bindOne);
 	};
 	
-	function addListener(eventCode, name, callback) {
-    return binder.bind.call(getService(name), eventCode, callback);
+	function addListener(eventCode, name, callback, params, scope, bindOne) {
+    return binder.bind.call(getService(name), eventCode, callback, params, scope, bindOne);
 	}
 	
 	self.removeBeforeListener = function removeBeforeListener(name, callback) {
@@ -296,6 +310,10 @@ define(["elaiJS/configuration", "elaiJS/binder", "elaiJS/cascadeCaller",
     var name = service.name;
     if(!cache[name])
       cache[name] = [];
+
+    var inCache = findInCache(service, params);
+    if(inCache)
+      cache[name].splice(cache[name].indexOf(inCache), 1);
     
     cache[name].push({params: params, result: result});
 	}

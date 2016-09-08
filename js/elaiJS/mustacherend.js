@@ -59,7 +59,7 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/language",
 			var _this = this;
       var params = getTemplateInfo.call(this);
       
-			webservice.loadTemplate(params, function (template) {
+			getTemplate.call(this, params, function (template) {
   			var templateData = {
           widget: _this,
           w: _this,
@@ -73,6 +73,13 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/language",
 				var html = mustache.render(template, templateData);
 				callback(html);
 			});
+		}
+
+		function getTemplate(params, callback) {
+			if(helper.isFunction(this.getTemplate))
+		    return this.getTemplate(params, callback);
+
+			webservice.loadTemplate(params, callback);
 		}
 		
 		function getTemplateInfo() {

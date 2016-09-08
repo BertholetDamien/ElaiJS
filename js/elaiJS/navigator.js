@@ -9,7 +9,8 @@ define(['elaiJS/configuration', 'elaiJS/binder'],
     beforeUnload:           "beforeUnload",
     beforeUnloadInternal:   "beforeUnloadInternal",
     beforeUnloadNavigator:  "beforeUnloadNavigator",
-    pageChanged:            "pageChanged"
+    pageChanged:            "pageChanged",
+    reload:                 "reload"
   };
 	self.EVENT = EVENT;
 
@@ -72,6 +73,10 @@ define(['elaiJS/configuration', 'elaiJS/binder'],
 	self.back = function back() {
 		window.history.back();
 	};
+
+	self.reload = function reload() {
+		fire(EVENT.reload, currentPageInfo);
+	}
 	
 	self.getHistoryState = function getHistoryState(state) {
     return window.history.state;

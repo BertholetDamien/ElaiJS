@@ -94,6 +94,9 @@ define(["elaiJS/helper"], function(helper) {
 	  }
     
     function mustAppendHTML() {
+    	if(pluginInfo.mustAppendHTML)
+    		return pluginInfo.mustAppendHTML;
+    	
       return helper.isFunction(this.mustAppendHTML) && this.mustAppendHTML() === true;
     }
     
