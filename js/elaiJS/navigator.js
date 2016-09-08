@@ -5,10 +5,11 @@ define(['elaiJS/configuration', 'elaiJS/binder'],
 	var self = {};
 	binder.addFunctions(self);
 	
-  var EVENT = { beforeUnload: "beforeUnload",
-	              beforeUnloadInternal: "beforeUnloadInternal",
-	              beforeUnloadNavigator: "beforeUnloadNavigator",
-                pageChanged: "pageChanged"
+  var EVENT = {
+    beforeUnload:           "beforeUnload",
+    beforeUnloadInternal:   "beforeUnloadInternal",
+    beforeUnloadNavigator:  "beforeUnloadNavigator",
+    pageChanged:            "pageChanged"
   };
 	self.EVENT = EVENT;
 
@@ -18,7 +19,7 @@ define(['elaiJS/configuration', 'elaiJS/binder'],
 	var beforeUnloadShowMessage;
 	var currentPageInfo;
   
-	function initialize() {
+	self.initialize = function initialize() {
 		window.onhashchange = function() {
 		  if(ignoreHasChange)
 		    return ignoreHasChange = false;
@@ -32,11 +33,13 @@ define(['elaiJS/configuration', 'elaiJS/binder'],
 
 		  changeCurrentPage();
 		};
-	}
+		
+		initializeCurrentPage();
+	};
 	
 	function changeCurrentPage() {
     var oldPageInfo = currentPageInfo;
-    self.initializeCurrentPage();
+    initializeCurrentPage();
     fire(EVENT.pageChanged, currentPageInfo, oldPageInfo);
 	}
 
@@ -50,9 +53,9 @@ define(['elaiJS/configuration', 'elaiJS/binder'],
 		self.fire(event);
 	}
 	
-	self.initializeCurrentPage = function initializeCurrentPage() {
+	function initializeCurrentPage() {
     currentPageInfo = buidCurrentPageInfo();
-	};
+	}
 
 	self.getCurrentPageInfo = function getCurrentPageInfo() {
 	  return currentPageInfo;
@@ -91,16 +94,16 @@ define(['elaiJS/configuration', 'elaiJS/binder'],
 
 	function buildHash(pageInfo) {
     if(!config.elaiJS.buildHash)
-      throw new Error("You need to configure 'buildHash'.");
+      throw new Error("Missing configuration for 'elaiJS.buildHash'.");
 
     return config.elaiJS.buildHash(pageInfo);
 	}
 
 	function buidCurrentPageInfo() {
-    var hash = location.hash.substring(1);
     if(!config.elaiJS.extractPageInfo)
-      throw new Error("You need to configure 'extractPageInfo'.");
+      throw new Error("Missing configuration for 'elaiJS.extractPageInfo'.");
 
+    var hash = location.hash.substring(1);
     return config.elaiJS.extractPageInfo(hash);
 	}
 	
@@ -207,7 +210,5 @@ define(['elaiJS/configuration', 'elaiJS/binder'],
       self.removeCookie(name);
 	};
 
-	initialize();
-	
 	return self;
 });
