@@ -30,8 +30,8 @@
   },
   "testModules":  [
     "binder", "cascadeCaller", "configuration", "helper",
-    "language", "localisation", "localStorage", "mode",
-    "multicallback", "navigator", "primaryWidget",
+    "promise", "language", "localisation", "localStorage",
+    "mode", "multicallback", "navigator", "primaryWidget",
     "ressources", "webservice", "widget"
   ],
   "themes": [

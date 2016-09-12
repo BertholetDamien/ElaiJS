@@ -1,11 +1,11 @@
-define(["elaiJS/helper", "elaiJS/binder", "elaiJS/cascadeCaller",
+define(["elaiJS/helper", "elaiJS/binder", "elaiJS/cascadeCaller", "elaiJS/promise",
         "elaiJS/multicallback", "elaiJS/propertiesManagerFactory",
         "elaiJS/configuration", "elaiJS/ressources", "elaiJS/mode",
         "elaiJS/navigator", "elaiJS/webservice",
         "elaiJS/defaultWebservices","elaiJS/defaultConfiguration",
         "elaiJS/theme", "elaiJS/language", "elaiJS/localisation"],
-        function(helper, a, b, multicallback, c, config, d, e, navigator,
-          f, defaultWebservices, defaultConfig, themeManager, lang, loc) {
+        function(helper, a, b, c, multicallback, d, config, e, f, navigator,
+          g, defaultWebservices, defaultConfig, themeManager, lang, loc) {
   
 	function initialize() {
 	  loadWidgetModules();

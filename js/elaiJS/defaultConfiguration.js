@@ -93,7 +93,8 @@ define(["elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper"],
       "elaiJS/localStorage":              "localStorageElai",
       "elaiJS/theme":                     "themeManager",
       "elaiJS/webservice":                "webservice",
-      "elaiJS/widget":                    "widgetManager"
+      "elaiJS/widget":                    "widgetManager",
+      "elaiJS/promise":                   "PromiseElai"
   	};
 	}
 	
