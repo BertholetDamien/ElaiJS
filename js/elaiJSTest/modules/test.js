@@ -48,7 +48,7 @@ define(["elaiJSTest/modules/testError"], function(testError) {
       test.assertEq(false, value);
     };
     
-    test.error = test.failed = function error(mess) {
+    test.error = test.failed = test.fail = function error(mess) {
       throw new Error(mess);
     };
     
