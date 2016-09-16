@@ -1,6 +1,6 @@
-define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/mode",
-          "elaiJS/helper", "elaiJS/binder", "elaiJS/rendererFactory"],
-			    function( config, webservice, mode, helper, binder, rendererFactory) {
+define([  "elaiJS/configuration", "elaiJS/mode", "elaiJS/helper",
+					"elaiJS/binder", "elaiJS/rendererFactory"],
+			    function( config, mode, helper, binder, rendererFactory) {
 	'use strict';
 	var polymerLoaded;
 	
