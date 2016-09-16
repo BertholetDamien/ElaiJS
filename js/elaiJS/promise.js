@@ -1,5 +1,7 @@
 define(["elaiJS/helper"], function(helper) {
-
+	if(window.Promise)
+		return window.Promise;
+	
 	function PromiseElai(resolver) {
 		if(!helper.isFunction(resolver))
 			throw Error("PromiseElai resolver " + resolver + " is not a function");
@@ -8,7 +10,7 @@ define(["elaiJS/helper"], function(helper) {
 		this.status = "pending";
 
 		try {
-			resolver(scope(this, resolved), scope(this, rejected));
+			resolver(resolved.bind(this), rejected.bind(this));
 		} catch(e) {
 			rejected.call(this, e);
 		}
@@ -69,13 +71,11 @@ define(["elaiJS/helper"], function(helper) {
 	};
 
 	PromiseElai.resolve = function(value) {
-		var promise = new PromiseElai(function(){});
-		return resolved.call(promise, value);
+		return new PromiseElai(function(s){s(value);});
 	};
 
 	PromiseElai.reject = function(value) {
-		var promise = new PromiseElai(function(){});
-		return rejected.call(promise, value);
+		return new PromiseElai(function(s, r){r(value);});
 	};
 
 	function then(onResolved, onRejection) {
@@ -87,17 +87,19 @@ define(["elaiJS/helper"], function(helper) {
 				promiseSettled();
 
 			function promiseSettled() {
-				var callback = (promise.status === "fulfilled") ? onResolved : onRejection;
-				if(!helper.isFunction(callback)) {
-					callback = (promise.status === "fulfilled") ? resolve : reject;
-					return callback(promise.value);
-				}
-
-				try {
-					resolve(callback(promise.value));
-				} catch(e) {
-					reject(e);
-				}
+				setTimeout(function() {
+					var callback = (promise.status === "fulfilled") ? onResolved : onRejection;
+					if(!helper.isFunction(callback)) {
+						callback = (promise.status === "fulfilled") ? resolve : reject;
+						return callback(promise.value);
+					}
+	
+					try {
+						resolve(callback(promise.value));
+					} catch(e) {
+						reject(e);
+					}
+				});
 			}
 		});
 	}
@@ -115,22 +117,15 @@ define(["elaiJS/helper"], function(helper) {
 			return;
 
 		if(isThenable(value))
-			return value.then(scope(this, resolved), scope(this, rejected));
+			return value.then(resolved.bind(this), rejected.bind(this));
 
 		this.status = isRejected ? "rejected" : "fulfilled";
 		this.value = value;
 
-		for(var i in this.pendingThens)
-			this.pendingThens[i]();
-		this.pendingThens = [];
+		while(this.pendingThens.length > 0)
+			this.pendingThens.shift()();
 		
 		return this;
-	}
-
-	function scope(scope, callback) {
-		return function(result) {
-			callback.call(scope, result);
-		};
 	}
 
 	function isThenable(obj) {
@@ -138,5 +133,4 @@ define(["elaiJS/helper"], function(helper) {
 	}
 
 	return PromiseElai;
-	return window.Promise ? window.Promise : PromiseElai;
 });
