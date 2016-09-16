@@ -2,7 +2,6 @@
     baseUrl: "./../js/",
     include: [
       'elaiJS/binder',
-      'elaiJS/cascadeCaller',
       'elaiJS/configuration',
       'elaiJS/debugManager',
       'elaiJS/defaultConfiguration',

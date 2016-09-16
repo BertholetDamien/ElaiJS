@@ -80,7 +80,6 @@ define([	"elaiJS/configuration", "elaiJS/webservice",
     
     elaiJS.debugModules = {
       "elaiJS/binder":                    "binder",
-      "elaiJS/cascadeCaller":             "cascadeCaller",
       "elaiJS/configuration":             "config",
       "elaiJS/defaultConfiguration":      "defaultConfiguration",
       "elaiJS/defaultWebservices":        "defaultWebservices",

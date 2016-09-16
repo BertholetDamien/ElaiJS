@@ -4,7 +4,6 @@
     exclude: [
       "elaiJS/helper",
       "elaiJS/binder",
-      "elaiJS/cascadeCaller",
       "elaiJS/multicallback",
       "elaiJS/propertiesManagerFactory",
       "elaiJS/configuration",

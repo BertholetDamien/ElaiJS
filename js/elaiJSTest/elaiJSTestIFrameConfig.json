@@ -31,7 +31,7 @@
     "skipLocalisationInitialization": true
   },
   "testModules":  [
-    "binder", "cascadeCaller", "configuration", "helper",
+    "binder", "configuration", "helper",
     "language", "localisation", "localStorage", "mode",
     "multicallback", "navigator", "primaryWidget",
     "ressources", "webservice", "widget"
