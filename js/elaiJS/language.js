@@ -6,8 +6,8 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/localStorage",
   var propertiesManager = manager.build({
     name: "Language",
     getDefaultKey: function() {return config.elaiJS.defaultLanguage;},
-    loadProperties: function(name, cb, errcb) {
-      webservice.loadLanguage(name, cb, errcb);
+    loadProperties: function(name) {
+      return webservice.loadLanguage(name);
     },
     findFirstKey: findFirstKey
   });

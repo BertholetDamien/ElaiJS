@@ -8,8 +8,8 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper",
     getDefaultKey: function() {
       return self.findDefaultLocalisation(config.elaiJS.defaultLocalisation);
     },
-    loadProperties: function(n, cb, errcb) {
-      webservice.loadLocalisation(n, cb, errcb);
+    loadProperties: function(n) {
+      return webservice.loadLocalisation(n);
     },
     findFirstKey: findFirstKey
   });

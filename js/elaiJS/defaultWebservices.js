@@ -29,30 +29,30 @@ define([  "elaiJS/webservice", "elaiJS/ressources", "elaiJS/helper",
 	/************************************************************************
 	 ************************* Widget/Plugins stuff **************************
 	 ************************************************************************/
-	function loadWidget(params, callback, errCallback) {
+	function loadWidget(params, resolve, reject) {
     var url = params.name;
     if(params.name.indexOf("/") === -1)
       url = mode.getRessource("widget", params);
     
-    webservice.loadJSFile(url, callback, errCallback);
+    webservice.loadJSFile(url).then(resolve, reject);
 	}
 
-	function loadPlugin(params, callback, errCallback) {
+	function loadPlugin(params, resolve, reject) {
     var url = params.name;
     if(params.url)
       url = params.url;
     else if(params.name.indexOf("/") === -1)
       url = mode.getRessource("plugin", params);
 	  
-		webservice.loadJSFile(url, callback, errCallback);
+		webservice.loadJSFile(url).then(resolve, reject);
 	}
 	
-	function loadWidgetCSS(params, callback, errCallback) {
+	function loadWidgetCSS(params, resolve, reject) {
     var cssSettings = getCSSSettings(params);
     
 		for(var i in cssSettings) {
 			var setting = cssSettings[i];
-			webservice.loadCSS({url: setting.url}, callback, errCallback);
+			webservice.loadCSS({url: setting.url}).then(resolve, reject);
 		}
 	}
 	
@@ -74,44 +74,44 @@ define([  "elaiJS/webservice", "elaiJS/ressources", "elaiJS/helper",
 	/************************************************************************
 	 ************************** Ressources Files ****************************
 	 ************************************************************************/
-	function loadLocalisationFile(name, callback, errCallback) {
+	function loadLocalisationFile(name, resolve, reject) {
     var url = res.get("localisation", {name: name});
-    webservice.loadJSONFile(url, callback, errCallback);
+    webservice.loadJSONFile(url).then(resolve, reject);
 	}
 	
-	function loadLanguageFile(name, callback, errCallback) {
+	function loadLanguageFile(name, resolve, reject) {
     var url = res.get("language", {name: name});
-    webservice.loadPropertiesFile(url, callback, errCallback);
+    webservice.loadPropertiesFile(url).then(resolve, reject);
 	}
 	
-	function loadTemplate(params, callback, errCallback) {
+	function loadTemplate(params, resolve, reject) {
     var url = mode.getRessource("template", params);
-  	webservice.loadTextFile({url: url}, callback, errCallback);
+  	webservice.loadTextFile({url: url}).then(resolve, reject);
 	}
 	
-	function loadTheme(params, callback, errCallback) {
+	function loadTheme(params, resolve, reject) {
     var url = res.get("theme", params);
-    webservice.loadCSS(url, callback, errCallback, {useCache: false});
+    webservice.loadCSS(url, {useCache: false}).then(resolve, reject);
 	}
 	
-	function removeTheme(params, callback, errCallback) {
+	function removeTheme(params, resolve, reject) {
     var url = res.get("theme", params);
-    webservice.removeDocument(url, callback, errCallback);
+    webservice.removeDocument(url).then(resolve, reject);
 	}
 	
 	/************************************************************************
 	 ************************** Generic webservice **************************
 	 ************************************************************************/
-	function loadCSS(params, callback, errCallback) {
+	function loadCSS(params, resolve, reject) {
     if(!helper.isObject(params))
       params = {url: params};
     params.rel = "stylesheet";
     params.type = "text/css";
     
-		webservice.loadDocument(params, callback, errCallback);
+		webservice.loadDocument(params).then(resolve, reject);
 	}
 	
-	function loadDocument(params, callback, errCallback) {
+	function loadDocument(params, resolve, reject) {
     if(!helper.isObject(params))
       params = {url: params};
 		var link = document.createElement("link");
@@ -122,24 +122,18 @@ define([  "elaiJS/webservice", "elaiJS/ressources", "elaiJS/helper",
 		
 		link.addEventListener("load", function(event) {
 		  event.src = link;
-  		if(helper.isFunction(params.onSuccess))
-        params.onSuccess(event);
-
-		  callback(event);
+		  resolve(event);
 		});
 		
 		link.addEventListener("error", function(event) {
 		  event.src = link;
-  		if(helper.isFunction(params.onError))
-        params.onError(event);
-      
-		  errCallback(event);
+		  reject(event);
 		});
       
 		document.getElementsByTagName("head")[0].appendChild(link);
 	}
 	
-	function removeDocument(params, callback, errCallback) {
+	function removeDocument(params, resolve, reject) {
 	  if(!helper.isObject(params))
       params = {url: params};
       
@@ -148,74 +142,71 @@ define([  "elaiJS/webservice", "elaiJS/ressources", "elaiJS/helper",
 	  for(var i = 0 ; i < elems.length ; ++i)
       elems[i].parentNode.removeChild(elems[i]);
     
-    callback();
+    resolve();
 	}
 	
-	function loadJSONFile(params, callback, errCallback) {
-	  webservice.loadTextFile(params, function(text) {
-	    callback(JSON.parse(text));
-	  }, errCallback);
+	function loadJSONFile(params, resolve, reject) {
+	  webservice.loadTextFile(params).then(function(text) {
+	    resolve(JSON.parse(text));
+	  }, reject);
 	}
 	
-	function loadPropertiesFile(params, callback, errCallback) {
-	  webservice.loadTextFile(params, function(text) {
-	    callback(parseProperties(text));
-	  }, errCallback);
+	function loadPropertiesFile(params, resolve, reject) {
+	  webservice.loadTextFile(params).then(function(text) {
+	    resolve(parseProperties(text));
+	  }, reject);
 	}
 	
-	function loadJSFile(url, callback, errCallback) {
-    require([url], callback, errCallback);
+	function loadJSFile(url, resolve, reject) {
+    require([url], resolve, reject);
 	}
 	
-	function loadTextFile(params, callback, errCallback) {
+	function loadTextFile(params, resolve, reject) {
 	  if(!helper.isObject(params))
 	    params = {url: params};
 	    
     params.url += getVersionURL(params.addVersion, true);
     
     params.method = "GET";
-    callHTTPRequest(params, function(response) {
-      callback((response.isSuccess) ? response.responseText : undefined);
-    }, errCallback);
+		callHTTPRequest(params).then(function(response) {
+      resolve((response.isSuccess) ? response.responseText : undefined);
+    }, reject);
 	}
 	
-	function callHTTPRequest(params, callback, errCallback) {
-	  if(!helper.isObject(params))
-      params = {url: params};
-    
-    var url = params.url;
-		var req = getXMLHttpRequest();
-		var async = (params.async === false) ? false : true;
-		var method = (params.method) ? params.method.toUpperCase() : "GET";
-    req.open(method, url, async);
-    
-    for(var key in params.requestHeader)
-      req.setRequestHeader(key, params.requestHeader[key]);
-      
-    req.onreadystatechange = function() {
-      if(req.readyState != 4)
-        return;
-      
-      req.isSuccess = req.status === 200;
-      req.isError = !req.isSuccess;
-      req.responseJSON = helper.parseJSON(req.responseText);
-      
-      if(req.isSuccess && helper.isFunction(params.onSuccess))
-        params.onSuccess(req);
-      else if(req.isError && helper.isFunction(params.onError))
-        params.onError(req);
-        
-      if(req.isError)
-        errCallback();
-      else
-        callback(req);
-    };
-
-    var data = (params.data) ? JSON.stringify(params.data) : null;
-    req.send(data);
+	function callHTTPRequest(params) {
+		return new Promise(function(resolve, reject) {
+		  if(!helper.isObject(params))
+	      params = {url: params};
+	    
+	    var url = params.url;
+			var req = getXMLHttpRequest();
+			var async = (params.async === false) ? false : true;
+			var method = (params.method) ? params.method.toUpperCase() : "GET";
+	    req.open(method, url, async);
+	    
+	    for(var key in params.requestHeader)
+	      req.setRequestHeader(key, params.requestHeader[key]);
+	      
+	    req.onreadystatechange = function() {
+	      if(req.readyState != 4)
+	        return;
+	      
+	      req.isSuccess = req.status === 200;
+	      req.isError = !req.isSuccess;
+	      req.responseJSON = helper.parseJSON(req.responseText);
+	      
+	      if(req.isError)
+	        reject(req);
+	      else
+	        resolve(req);
+	    };
+	
+	    var data = (params.data) ? JSON.stringify(params.data) : null;
+	    req.send(data);
+		});
 	}
 	
-	function callAjaxHTTPRequest(params, callback, errCallback) {
+	function callAjaxHTTPRequest(params, resolve, reject) {
 	  if(!helper.isObject(params))
       params = {url: params};
     
@@ -224,7 +215,7 @@ define([  "elaiJS/webservice", "elaiJS/ressources", "elaiJS/helper",
     if(!params.requestHeader["Content-Type"])
       params.requestHeader["Content-Type"] = "application/json;charset=UTF-8";
     
-    callHTTPRequest(params, callback, errCallback);
+    callHTTPRequest(params).then(resolve, reject);
 	}
 
 	function getXMLHttpRequest() {

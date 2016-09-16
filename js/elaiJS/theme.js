@@ -22,7 +22,7 @@ define([  "elaiJS/webservice", "elaiJS/configuration",
 	};
 
 	self.setTheme = function setTheme(theme, callback, errCallback) {
-		webservice.removeTheme({name: currentTheme}, function() {
+		webservice.removeTheme({name: currentTheme}).then(function() {
 		  _setTheme(theme, callback);
 		}, errCallback);
 	};
@@ -34,7 +34,7 @@ define([  "elaiJS/webservice", "elaiJS/configuration",
 		if(!theme)
 		  return self.fire(EVENT.themeChanged, params);
 		
-		webservice.loadTheme({name: theme}, function() {
+		webservice.loadTheme({name: theme}).then(function() {
 		  self.fire(EVENT.themeChanged, params);
 		  if(helper.isFunction(callback))
 		    callback();

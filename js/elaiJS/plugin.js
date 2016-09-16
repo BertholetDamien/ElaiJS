@@ -138,7 +138,7 @@ define(["elaiJS/webservice", "elaiJS/multicallback",
 	}
 
 	function getPrototypeOf(pluginInfo, callback) {
-    webservice.loadPlugin(pluginInfo, callback);
+    webservice.loadPlugin(pluginInfo).then(callback);
 	}
 
 	return self;

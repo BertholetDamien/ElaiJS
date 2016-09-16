@@ -1,5 +1,6 @@
-define(["elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper"],
-        function(config, webservice, helper) {
+define([	"elaiJS/configuration", "elaiJS/webservice",
+					"elaiJS/helper", "elaiJS/promise"],
+      		function(config, webservice, helper, Promise) {
 	'use strict';
 
 	var self = {};
@@ -46,6 +47,8 @@ define(["elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper"],
       "en": "en-US"
     };
     elaiJS.storagePath = location.pathname.split(".")[0].substring(1).replace(/\//g, "_");
+    
+   	elaiJS.defaultServiceParams = {useCache: false, searchInCache: true};
     
     elaiJS.ressources = {
       ressources: "ressources",
@@ -156,19 +159,18 @@ define(["elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper"],
 	}
 	
 	function setAppConfigurationFile(callback) {
-    loadAppConfigurationFile(function(appConfig) {
+    loadAppConfigurationFile().then(function(appConfig) {
       if(appConfig)
         config(appConfig);
       callback();
     }, callback);
   }
 	
-	function loadAppConfigurationFile(callback, errCallback) {
+	function loadAppConfigurationFile() {
     var urlFile = helper.getElaiJSAttribute("config");
     if(urlFile)
-      webservice.loadJSONFile(urlFile, callback, errCallback);
-    else
-      callback();
+      return webservice.loadJSONFile(urlFile);
+    return Promise.resolved();
 	}
 
 	return self;

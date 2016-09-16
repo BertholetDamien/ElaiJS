@@ -79,7 +79,7 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/language",
 			if(helper.isFunction(this.getTemplate))
 		    return this.getTemplate(params, callback);
 
-			webservice.loadTemplate(params, callback);
+			webservice.loadTemplate(params).then(callback);
 		}
 		
 		function getTemplateInfo() {

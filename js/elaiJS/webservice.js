@@ -1,324 +1,195 @@
-define(["elaiJS/configuration", "elaiJS/binder", "elaiJS/cascadeCaller",
-        "elaiJS/helper"],
-        function(config, binder, cascadeCaller, helper) {
+define(["elaiJS/configuration", "elaiJS/binder", "elaiJS/helper", "elaiJS/promise"],
+				function(config, binder, helper, Promise) {
 	'use strict';
-
+	
 	var self = {};
-
 	var keywords;
-	var services = {};
-	var cache = {};
-  var currents = {};
-  
-  var DEFAULT_SERVICE_PARAMS = {useCache: false, searchInCache: true};
-  
-  function initialize() {
-    keywords = Object.keys(self);
-  }
-  
-	self.addService = function addService(name, executeFonction, defaultServiceParams) {
-    checkKeywords(name);
-	  
-    var service = createService(name, executeFonction, defaultServiceParams);
-    services[service.name] = service;
-    delete cache[service.name];
-	  createAccessPoint(name, service);
-    
-    return self;
-	};
-
-  self.removeCache = function (name) {
-    delete cache[getService(name).name];
-  };
-	
-	function createAccessPoint(name, service) {
-	  self[name] = function(params, initialCallback, initialErrCallback, serviceParams) {
-	    serviceParams = buildServiceParams(service, serviceParams);
-	    
-      var callback = function() {
-        var args = arguments;
-        setTimeout(function() {
-          if(helper.isFunction(initialCallback))
-            initialCallback.apply(serviceParams.scope, args);
-        });
-      };
-      
-      var errCallback = function(e) {
-        var args = arguments;
-        setTimeout(function() {
-          if(helper.isFunction(initialErrCallback))
-            initialErrCallback.apply(serviceParams.scope, args);
-          else
-            console.error("Error during execution of service %o: %o", name, e);
-        });
-      };
-      
-      process(service, params, callback, errCallback, serviceParams);
-    };
-	}
-	
-	function createService(name, executeFunction, defaultServiceParams) {
-    return {
-        execute: executeFunction,
-        defaultServiceParams: defaultServiceParams,
-        name: name.toLowerCase(),
-        displayName: name,
-        interceptors: {before: [], after: []}
-    };
-	}
 	
 	function checkKeywords(name) {
-    for(var i in keywords) {
-      if(name.toLowerCase() === keywords[i].toLowerCase())
-        throw new Error("You can't use a Keyword: '" + name + "'");
-    }
+		if(keywords.indexOf(name) !== -1)
+			throw new Error("You can't use a Keyword: '" + name + "'");
 	}
 	
-	self.setDefaultServiceParams = function setDefaultServPar(name, defaultServiceParams) {
-    getService(name).defaultServiceParams = defaultServiceParams;
-    return self;
-	};
-	
-	function getService(name) {
-    var service = services[name.toLowerCase()];
-    if(!service)
-      throw new Error("WebService '" + name + "' doesn't exist.");
-    
-    return service;
+	self.addService = function addService(name, executeFunction, defaultServiceParams) {
+		checkKeywords(name);
+		
+		var service = function(params, serviceParams) {
+			return execute(buildContext(service, params, serviceParams));
+		};
+		
+		service.execute = executeFunction;
+		service.defaultServiceParams = defaultServiceParams;
+		service.id = name.toLowerCase();
+		service.interceptors = {
+			before: {add: addInterceptor, remove: removeInterceptor, list: []},
+			after: 	{add: addInterceptor, remove: removeInterceptor, list: []}
+		};
+		service.cache = [];
+		service.currents = [];
+		service.removeCache = removeCache;
+		binder.addBindFunctions(service);
+		
+		return self[name] = service;
 	}
 	
-  function process(service, params, callback, errCallback, serviceParams) {
-    var beforeExecuteCallback = function(params2, serviceParams2) {
-      params = params2;
-      serviceParams = serviceParams2;
-      
-      binder.fire.call(service, "before", {params: params, serviceParams: serviceParams});
-      execute(service, params, executeCallback, errCallback, serviceParams);
-    };
-    
-    var executeCallback = function() {
-      executeAfterInterceptor(service, params, afterInterceptorCallback, errCallback, serviceParams, arguments);
-    };
-    
-    var afterInterceptorCallback = function(params, serviceParams, result) {
-      binder.fire.call(service, "after", {params: params, serviceParams: serviceParams, result: result});
-      callback.apply(service, result);
-    };
-    
-    executeBeforeInterceptor(service, params, beforeExecuteCallback, errCallback, serviceParams);
+	function buildContext(service, params, serviceParams) {
+		return {
+			service: service,
+			params: params || {},
+			serviceParams: buildServiceParams(service, serviceParams || {})
+		};
 	}
 	
 	function buildServiceParams(service, serviceParams) {
-	  serviceParams = serviceParams || {};
-    config.call(serviceParams, service.defaultServiceParams, true);
-    config.call(serviceParams, DEFAULT_SERVICE_PARAMS, true);
-    serviceParams.scope = serviceParams.scope || service;
-    
-    return serviceParams;
+		config.call(serviceParams, service.defaultServiceParams, true);
+		config.call(serviceParams, config.elaiJS.defaultServiceParams, true);
+		return serviceParams;
 	}
 	
-	function executeBeforeInterceptor(service, params, callback, errCallback, serviceParams) {
-    var interceptors = service.interceptors.before;
-    cascadeCaller(interceptors, [params, serviceParams], callback, errCallback, service);
+	function execute(context) {
+		binder.fire.call(context.service, "before", context);
+		
+		var promise = Promise.resolve(context);
+		promise = chainInterceptors(context, promise, context.service.interceptors.before.list);
+		promise = promise.then(executeService);
+		promise = chainInterceptors(context, promise, context.service.interceptors.after.list);
+		
+		return promise.then(finalizeExecute, finalizeExecuteWithError);
 	}
 	
-	function executeAfterInterceptor(service, params, callback, errCallback, serviceParams, result) {
-    var interceptors = service.interceptors.after;
-    cascadeCaller(interceptors, [params, serviceParams, result], callback, errCallback, service);
+	function finalizeExecute(context) {
+		binder.fire.call(context.service, "after", context);
+		binder.fire.call(context.service, "success", context);
+		return context.result;
 	}
 	
-	function execute(service, params, callback, errCallback, serviceParams) {
-    if(serviceParams.searchInCache) {
-      var find = searchInCacheOrFuturCache(service, params, callback, errCallback);
-      if(find === true)
-        return;
-    }
-    
-    var initialParams = helper.clone(params);
-    var currentObj;
-    if(serviceParams.useCache)
-      currentObj = addToCurrent(service, initialParams, callback);
-    
-    function afterExecute() {
-      if(serviceParams.useCache) {
-        addToCache(service, initialParams, arguments);
-        fireCurrentObj(currentObj, arguments);
-      }
-	    
-      callback.apply(service, arguments);
-    }
-    
-    function afterErrorExecute(exception) {
-      if(serviceParams.useCache)
-        fireErrorCurrentObj(currentObj, exception);
-      errCallback.call(service, exception);
-    }
-    
-    try {
-      service.execute(params, afterExecute, afterErrorExecute);
-    } catch(exception) {
-      afterErrorExecute(exception);
-    }
+	function finalizeExecuteWithError(context) {
+		binder.fire.call(context.service, "after", context);
+		binder.fire.call(context.service, "error", context);
+		throw context.error;
 	}
 	
-	function searchInCacheOrFuturCache(service, params, callback, errCallback) {
-    var cacheResult = findInCache(service, params);
-    if(cacheResult) {
-      callback.apply(service, cacheResult.result);
-      return true;
-    }
-    
-    var currentObj = findInCurrent(service, params);
-    if(currentObj) {
-      binder.bind.call(currentObj, "ready", function(event) {
-        callback.apply(service, event.data);
-      });
-      
-      binder.bind.call(currentObj, "error", function(event) {
-        errCallback.apply(service, event.data);
-      });
-      
-      return true;
-    }
+	function chainInterceptors(context, promise, interceptors) {
+		for(var i in interceptors) {
+			promise = promise.then(interceptors[i].callback, interceptors[i].errCallback);
+			promise = promise.catch(manageInterceptorError);
+		}
+		
+		function manageInterceptorError(error) {
+			if(error !== context)
+				context.error = error;
+			throw context;
+		}
+		
+		return promise;
 	}
 	
-	/******************************************************************
-	 *************************** Listener *****************************
-	******************************************************************/
-	self.addBeforeListener = function (name, callback, params, scope, bindOne) {
-    return addListener("before", name, callback, params, scope, bindOne);
-	};
-	
-	self.addAfterListener = function (name, callback, params, scope, bindOne) {
-    return addListener("after", name, callback, params, scope, bindOne);
-	};
-	
-	function addListener(eventCode, name, callback, params, scope, bindOne) {
-    return binder.bind.call(getService(name), eventCode, callback, params, scope, bindOne);
+	function executeService(context) {
+		var promise;
+		if(context.serviceParams.searchInCache)
+			promise = searchInCacheOrFuturCache(context);
+		
+		if(!promise) {
+			promise = new Promise(function(resolve, reject) {
+				context.service.execute(context.params, resolve, reject, context);
+			});
+			
+			if(context.serviceParams.useCache)
+				addToCurrent(context, promise, helper.clone(context.params));
+		}
+		
+		return promise.then(function(result) {
+			context.result = result;
+			return context;
+		}, function(error) {
+			context.error = error;
+			throw context;
+		});
 	}
 	
-	self.removeBeforeListener = function removeBeforeListener(name, callback) {
-    return removeListener("before", name, callback);
-	};
-	
-	self.removeAfterListener = function removeAfterListener(name, callback) {
-    return removeListener("after", name, callback);
-	};
-	
-	function removeListener(eventCode, name, callback) {
-    return binder.unbind.call(getService(name), eventCode, callback);
+	function searchInCacheOrFuturCache(context) {
+		var cacheResult = findInCache(context);
+		if(cacheResult)
+			return Promise.resolve(cacheResult.result);
+		
+		return findInCurrent(context);
 	}
 	
 	/******************************************************************
-	 ************************** Interceptor ***************************
+	************************** Interceptor ***************************
 	******************************************************************/
-	self.addBeforeInterceptor = function addBeforeInterceptor(name, callback) {
-    return addInterceptor("before", name, callback);
-	};
-	
-	self.addAfterInterceptor = function addAfterInterceptor(name, callback) {
-    return addInterceptor("after", name, callback);
-	};
-	
-	function addInterceptor(type, name, callback) {
-	  var service = getService(name);
-    service.interceptors[type].push(callback);
-    return self;
+	function addInterceptor(callback, errCallback) {
+		var interceptor = {
+			callback: callback,
+			errCallback: errCallback
+		};
+		this.list.push(interceptor);
+		return interceptor;
 	}
 	
-	self.removeBeforeInterceptor = function removeBeforeInterceptor(name, callback) {
-    return removeInterceptor("before", name, callback);
-	};
-	
-	self.removeAfterInterceptor = function removeAfterInterceptor(name, callback) {
-    return removeInterceptor("after", name, callback);
-	};
-	
-	function removeInterceptor(type, name, callback) {
-	  var service = getService(name);
-    
-    if(helper.isFunction(callback)) {
-      var index = service.interceptors[type].indexOf(callback);
-      service.interceptors[type].splice(index, 1);
-    }
-    else {
-      service.interceptors[type] = [];
-    }
-    
-    return self;
+	function removeInterceptor(interceptor) {
+		if(helper.isObject(interceptor))
+			this.list.splice(this.list.indexOf(interceptor), 1);
+		else
+			this.list = [];
+		
+		return self;
 	}
 	
 	/******************************************************************
-	 ************************* Utils Current **************************
+	************************* Utils Current **************************
 	******************************************************************/
-	function addToCurrent(service, params, callback) {
-	  var name = service.name;
-    if(!currents[name])
-      currents[name] = [];
-    
-    var obj = {service: service, params: params, callback: callback};
-    currents[name].push(obj);
-    return obj;
+	function addToCurrent(context, promise, params) {
+		var obj = {
+			promise: promise,
+			params: params
+		};
+		context.service.currents.push(obj);
+		
+		promise.then(function(result) {
+			addToCache(context, params, result);
+			deleteCurrentObj(context.service, obj);
+		});
 	}
 	
-	function findInCurrent(service, params) {
-    if(!currents[service.name])
-      return;
-    
-    var currentObjs = currents[service.name];
-    for(var i in currentObjs) {
-      if(helper.equals(params, currentObjs[i].params, false))
-        return currentObjs[i];
-    }
+	function findInCurrent(context) {
+		var currentObjs = context.service.currents;
+		for(var i in currentObjs) {
+			if(helper.equals(context.params, currentObjs[i].params, false))
+				return currentObjs[i].promise;
+		}
 	}
 	
-	function fireCurrentObj(currentObj, params) {
-    binder.fire.call(currentObj, "ready", params);
-    deleteCurrentObj(currentObj);
-	}
-	
-	function fireErrorCurrentObj(currentObj, error) {
-    binder.fire.call(currentObj, "error", error);
-    deleteCurrentObj(currentObj);
-	}
-	
-	function deleteCurrentObj(currentObj) {
-    var currentObjs = currents[currentObj.service.name];
-    for(var i in currentObjs) {
-      if(currentObj === currentObjs[i]) {
-        return currentObjs.splice(i, 1);
-      }
-    }
+	function deleteCurrentObj(service, currentObj) {
+		service.currents.splice(service.currents.indexOf(currentObj), 1);
 	}
 	
 	/******************************************************************
-	 ************************** Utils Cache ***************************
+	************************** Utils Cache ***************************
 	******************************************************************/
-	function findInCache(service, params) {
-    var name = service.name;
-    if(!cache[name])
-      return undefined;
-    
-    var cacheObjects = cache[name];
-    for(var i in cacheObjects) {
-      if(helper.equals(params, cacheObjects[i].params, false))
-        return cacheObjects[i];
-    }
+	function findInCache(context, params) {
+		var cacheObjects = context.service.cache;
+		for(var i in cacheObjects) {
+			if(helper.equals(params || context.params, cacheObjects[i].params, false))
+				return cacheObjects[i];
+		}
 	}
 	
-	function addToCache(service, params, result) {
-    var name = service.name;
-    if(!cache[name])
-      cache[name] = [];
-
-    var inCache = findInCache(service, params);
-    if(inCache)
-      cache[name].splice(cache[name].indexOf(inCache), 1);
-    
-    cache[name].push({params: params, result: result});
+	function addToCache(context, params, result) {
+		var cache = context.service.cache;
+		
+		var inCache = findInCache(context, params);
+		if(inCache)
+			cache.splice(cache.indexOf(inCache), 1);
+		
+		cache.push({params: params, result: result});
 	}
 	
-	initialize();
+	function removeCache() {
+		this.cache = [];
+	}
+	
+	keywords = Object.keys(self);
 	
 	return self;
 });

@@ -152,7 +152,7 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/plugin",
 	}
 
 	function loadWidgetPrototype(widgetInfo, callback) {
-		webservice.loadWidget(widgetInfo, function(properties) {
+		webservice.loadWidget(widgetInfo).then(function(properties) {
 		  if(helper.isFunction(properties))
 		    properties = {builder: properties};
 	    
