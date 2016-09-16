@@ -1,5 +1,4 @@
-define(["elaiJS/multicallback", "elaiJS/helper"],
-        function(multicallback, helper) {
+define(["elaiJS/promise"], function(Promise) {
 	'use strict';
 
   function build(definition) {
@@ -8,13 +7,12 @@ define(["elaiJS/multicallback", "elaiJS/helper"],
   	var currentKey;
   	var properties = {};
   
-    self.initialize = function initialize(callback, errCallback) {
-      var multiCBFct = multicallback(2, callback);
-      
-      loadProperties(definition.getDefaultKey()).then(multiCBFct, errCallback);
+    self.initialize = function initialize() {
+      var promiseCurrent = loadProperties(definition.getDefaultKey());
       
       var key = definition.findFirstKey() || definition.getDefaultKey();
-      self.setKey(key, multiCBFct, errCallback);
+      var promise = self.setKey(key);
+      return Promise.all([promiseCurrent, promise]);
     };
     
   	self.get = function get(propertieKey, key) {
@@ -39,13 +37,12 @@ define(["elaiJS/multicallback", "elaiJS/helper"],
       return currentKey;
   	};
   	
-  	self.setKey = function setKey(key, callback, errCallback) {
+  	self.setKey = function setKey(key) {
       currentKey = key;
       
       if(!properties[currentKey])
-        loadProperties(currentKey).then(callback, errCallback);
-      else if(helper.isFunction(callback))
-        callback();
+        return loadProperties(currentKey);
+      return Promise.resolve();
   	};
   	
   	function loadProperties(key) {

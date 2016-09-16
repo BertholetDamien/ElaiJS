@@ -4,8 +4,8 @@ define(["elaiJS/helper", "elaiJS/binder", "elaiJS/promise",
         "elaiJS/navigator", "elaiJS/webservice",
         "elaiJS/defaultWebservices","elaiJS/defaultConfiguration",
         "elaiJS/theme", "elaiJS/language", "elaiJS/localisation"],
-        function(helper, a, b, multicallback, c, config, d, e, navigator,
-          f, defaultWebservices, defaultConfig, themeManager, lang, loc) {
+        function(helper, b, Promise, c, p, config, r, m, navigator,
+          w, defaultWebservices, defaultConfig, themeManager, lang, loc) {
   
 	function initialize() {
 	  loadWidgetModules();
@@ -13,7 +13,7 @@ define(["elaiJS/helper", "elaiJS/binder", "elaiJS/promise",
     defaultWebservices.addDefaultWebservices();
 	  defaultConfig.setDefaultConfiguration(function() {
 	    launchDebugMode();
-	    initalizeModules(start);
+	    initalizeModules().then(start);
 	  });
 	}
 	
@@ -22,23 +22,21 @@ define(["elaiJS/helper", "elaiJS/binder", "elaiJS/promise",
               "elaiJS/mustacherend", "elaiJS/polymerend"]);
 	}
 	
-	function initalizeModules(callback) {
+	function initalizeModules() {
 	  initializeModule(navigator, undefined, config.elaiJS.skipNavigatorInitialization);
     
-    var multiCallBackFunction = multicallback(3, callback);
-    initializeModule(themeManager, multiCallBackFunction);
-    initializeModule(lang, multiCallBackFunction, config.elaiJS.skipLanguageInitialization);
-    initializeModule(loc, multiCallBackFunction, config.elaiJS.skipLocalisationInitialization);
+    return Promise.all([
+    	initializeModule(themeManager),
+    	initializeModule(lang, config.elaiJS.skipLanguageInitialization),
+    	initializeModule(loc, config.elaiJS.skipLocalisationInitialization)
+    ]);
 	}
 	
-	function initializeModule(module, callback, skipInit) {
-	  if(skipInit === true) {
-	    if(helper.isFunction(callback))
-	      callback();
-      return;
-	  }
+	function initializeModule(module, skipInit) {
+	  if(skipInit === true)
+      return Promise.resolve();
 	  
-    module.initialize(callback);
+    return module.initialize();
 	}
 	
 	function start() {
@@ -77,8 +75,6 @@ define(["elaiJS/helper", "elaiJS/binder", "elaiJS/promise",
 
 /*
   TODO:
-  Promise pour webservice
-  Ajouter catch Error pour les webservices
   Ajouter 'on' and 'emit' for binder
 */
 

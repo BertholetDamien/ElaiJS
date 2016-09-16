@@ -4,7 +4,7 @@ define(["elaiJS/language", "elaiJS/configuration"],
   var self = {};
   
   self.beforeTest = function(callback) {
-    lang.initialize(callback);
+    lang.initialize().then(callback);
   };
   
   self.setLanguage = function () {

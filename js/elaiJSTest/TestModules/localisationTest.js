@@ -4,7 +4,7 @@ define(["elaiJS/localisation", "elaiJS/configuration"],
   var self = {};
   
   self.beforeTest = function(callback) {
-    loc.initialize(callback);
+    loc.initialize().then(callback);
   };
   
   self.findDefaultLocalisation = function () {

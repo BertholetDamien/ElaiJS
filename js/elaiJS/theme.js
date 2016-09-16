@@ -1,6 +1,6 @@
-define([  "elaiJS/webservice", "elaiJS/configuration",
-          "elaiJS/ressources", "elaiJS/binder", "elaiJS/helper"],
-          function(webservice, config, res, binder, helper) {
+define([  "elaiJS/webservice", "elaiJS/configuration", "elaiJS/promise",
+          "elaiJS/ressources", "elaiJS/binder"],
+          function(webservice, config, Promise, res, binder) {
 	'use strict';
 
 	var self = {};
@@ -14,31 +14,26 @@ define([  "elaiJS/webservice", "elaiJS/configuration",
 		return currentTheme;
 	};
 
-	self.initialize = function initialize(callback, errCallback) {
+	self.initialize = function initialize() {
     if(config.elaiJS.defaultTheme)
-      self.setTheme(config.elaiJS.defaultTheme, callback, errCallback);
-    else if(helper.isFunction(callback))
-      callback();
+      return self.setTheme(config.elaiJS.defaultTheme);
+    return Promise.resolve();
 	};
 
-	self.setTheme = function setTheme(theme, callback, errCallback) {
-		webservice.removeTheme({name: currentTheme}).then(function() {
-		  _setTheme(theme, callback);
-		}, errCallback);
+	self.setTheme = function setTheme(theme) {
+		return webservice.removeTheme({name: currentTheme}).then(function() {
+		  return _setTheme(theme);
+		});
 	};
 	
-	function _setTheme(theme, callback, errCallback) {
+	function _setTheme(theme) {
 	  var params = {oldTheme: currentTheme, newTheme: theme};
 		currentTheme = theme;
 		
+		var fireCB = binder.buildFireCallBack(self, EVENT.themeChanged, undefined, params);
 		if(!theme)
-		  return self.fire(EVENT.themeChanged, params);
-		
-		webservice.loadTheme({name: theme}).then(function() {
-		  self.fire(EVENT.themeChanged, params);
-		  if(helper.isFunction(callback))
-		    callback();
-		}, errCallback);
+		  return Promise.resolve().then(fireCB);
+		return webservice.loadTheme({name: theme}).then(fireCB);
 	}
 
 	return self;
