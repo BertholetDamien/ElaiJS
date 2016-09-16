@@ -28,7 +28,7 @@ define(["elaiJS/webservice", "elaiJS/multicallback"],
       callback(testValue + testValue2);
     });
     
-    webservice["testService"](undefined, function(result) {
+    webservice.testService(undefined).then(function(result) {
       test.assertEq((testValue + testValue2), result);
       test.done();
     });
@@ -43,7 +43,7 @@ define(["elaiJS/webservice", "elaiJS/multicallback"],
       callback(testValue + testValue2 + params.testValue3);
     });
     
-    webservice["testService"]({testValue3: testValue3}, function(result) {
+    webservice.testService({testValue3: testValue3}).then(function(result) {
       test.assertEq((testValue + testValue2 + testValue3), result);
       test.done();
     });
@@ -99,10 +99,31 @@ define(["elaiJS/webservice", "elaiJS/multicallback"],
       callback(testValue);
     }, {useCache: true});
     
-    var repeat = 1;
+    var repeat = 2;
     callWebService("testService", {}, repeat, function() {
       test.assertEq(1, count);
       test.done();
+    });
+  };
+  
+  self.removeCache = function (test) {
+    var testValue = "ElaiJS";
+    var count = 0;
+    
+    webservice.addService("testService", function(params, callback) {
+      ++count;
+      callback(testValue);
+    }, {useCache: true});
+    
+    var repeat = 2;
+    callWebService("testService", {}, repeat, function() {
+      test.assertEq(1, count);
+      
+      webservice.testService.removeCache();
+      callWebService("testService", {}, repeat, function() {
+	      test.assertEq(2, count);
+	      test.done();
+	    });
     });
   };
   
@@ -116,7 +137,7 @@ define(["elaiJS/webservice", "elaiJS/multicallback"],
       
     var multiCallBackFunction = multicallback(count, callback);
     for(var i = 0 ; i < count ; ++i)
-      webservice[name](params, checkResult, undefined, serviceParams);
+      webservice[name](params, serviceParams).then(checkResult);
   }
   
   self.withUseCache = function (test) {
@@ -164,7 +185,7 @@ define(["elaiJS/webservice", "elaiJS/multicallback"],
     callWebService("testService", {}, repeat, function() {
       test.assertEq(repeat, count);
       
-      webservice.setDefaultServiceParams("testService", {useCache: true});
+      webservice.testService.defaultServiceParams = {useCache: true};
       callWebService("testService", {}, repeat, function() {
         test.assertEq((repeat + 1), count);
         test.done();
@@ -185,7 +206,7 @@ define(["elaiJS/webservice", "elaiJS/multicallback"],
     callWebService("testService", {}, repeat, function() {
       test.assertEq(1, count);
       
-      webservice.setDefaultServiceParams("testService", {searchInCache: false});
+      webservice.testService.defaultServiceParams = {searchInCache: false};
       callWebService("testService", {}, repeat, function() {
         test.assertEq((repeat + 1), count);
         test.done();
@@ -206,7 +227,7 @@ define(["elaiJS/webservice", "elaiJS/multicallback"],
     callWebService("testService", {}, repeat, function() {
       test.assertEq(repeat, count);
       
-      webservice.setDefaultServiceParams("testService", {searchInCache: true});
+      webservice.testService.defaultServiceParams = {searchInCache: true};
       callWebService("testService", {}, repeat, function() {
         test.assertEq(repeat, count);
         
@@ -216,25 +237,6 @@ define(["elaiJS/webservice", "elaiJS/multicallback"],
           test.done();
         }, {searchInCache: false});
       });
-    });
-  };
-  
-  self.setServiceParamsScope = function (test) {
-    var testScope = {sun: 42};
-    var testScope2 = {happy: "hope"};
-    
-    webservice.addService("testService", function(params, callback) {
-      callback();
-    }, {scope: testScope});
-    
-    webservice.testService(undefined, function() {
-      test.assertEq(42, this.sun);
-      test.assertUndefined(this.happy);
-      
-      webservice.testService(undefined, function() {
-        test.assertEq("hope", this.happy);
-        test.done();
-      }, undefined, {scope: testScope2});
     });
   };
   
@@ -258,7 +260,7 @@ define(["elaiJS/webservice", "elaiJS/multicallback"],
   
   self.addListenerUnknow = function (test) {
     try {
-      webservice.addBeforeListener("testServiceUnknow", function() {});
+      webservice.getService("testServiceUnknow").bind("after", function() {});
       test.error("Add an unknow service need to be prevent.");
     } catch(e) {
       test.done();
@@ -268,66 +270,45 @@ define(["elaiJS/webservice", "elaiJS/multicallback"],
   self.beforeListener = function (test) {
     var value = "";
     var testValue = "ElaiJS";
-    var count = 0;
-    
-    webservice.addService("testService", function(params, callback) {
-      value += "b";
-      callback(testValue);
-    });
-    
-    webservice.addBeforeListener("testService", function(params) {
-      value += "a";
-    });
-      
-    var repeat = 4;
-    callWebService("testService", {}, repeat, function() {
-      test.assertEq("abababab", value);
-      test.done();
-    }, undefined, test, testValue);
-  };
-  
-  self.beforeListenerParams = function (test) {
-    var value = "";
-    var testValue = "ElaiJS";
     var testValue2 = "ElaiJSParams";
     var testValue3 = "ElaiJsServiceParams";
-    var count = 0;
     
     webservice.addService("testService", function(params, callback) {
       value += "b";
       callback(testValue);
     });
     
-    webservice.addBeforeListener("testService", function(event) {
+    webservice.testService.bind("before", function(event) {
       test.assertEq(event.data.params.testValue2, testValue2);
       test.assertEq(event.data.serviceParams.test, testValue3);
       value += "a";
     });
       
-    var repeat = 4;
+    var repeat = 1;
     callWebService("testService", {testValue2: testValue2}, repeat, function() {
-      test.assertEq("abababab", value);
+      test.assertEq("ab", value);
       test.done();
     }, {test: testValue3}, test, testValue);
   };
   
   self.beforeListenerCache = function (test) {
-    var value = "";
     var testValue = "ElaiJS";
-    var count = 0;
+    var countListener = 0;
+    var countService = 0;
     
     webservice.addService("testService", function(params, callback) {
-      value += "b";
+      ++countService;
       callback(testValue);
     }, {useCache: true});
     
-    webservice.addBeforeListener("testService", function(params) {
-      value += "a";
+    webservice.testService.bind("before", function(event) {
+    	++countListener;
     });
       
     var repeat = 4;
     callWebService("testService", {}, repeat, function() {
-      test.assertEq("abaaa", value);
+      test.assertEq(repeat, countListener);
+      test.assertEq(1, countService);
       test.done();
     }, undefined, test, testValue);
   };
@@ -341,33 +322,33 @@ define(["elaiJS/webservice", "elaiJS/multicallback"],
       callback(testValue);
     });
     
-    webservice.addBeforeListener("testService", function(params) {
+    webservice.testService.bind("before", function(event) {
       value += "a";
     });
     
-    webservice.addBeforeListener("testService", function(params) {
+    webservice.testService.bind("before", function(event) {
       value += "b";
     });
     
-    webservice.addBeforeListener("testService", function(params) {
+    webservice.testService.bind("before", function(event) {
       value += "c";
     });
     
-    webservice.addAfterListener("testService", function(params) {
+    webservice.testService.bind("after", function(event) {
       value += "e";
     });
     
-    webservice.addAfterListener("testService", function(params) {
+    webservice.testService.bind("after", function(event) {
       value += "f";
     });
     
-    webservice.addAfterListener("testService", function(params) {
+    webservice.testService.bind("after", function(event) {
       value += "g";
     });
       
-    var repeat = 4;
+    var repeat = 1;
     callWebService("testService", {}, repeat, function() {
-      test.assertEq("abcdefgabcdefgabcdefgabcdefg", value);
+      test.assertEq("abcdefg", value);
       test.done();
     }, undefined, test, testValue);
   };
@@ -375,35 +356,37 @@ define(["elaiJS/webservice", "elaiJS/multicallback"],
   self.afterListener = function (test) {
     var value = "";
     var testValue = "ElaiJS";
-    var count = 0;
+    var testValue2 = "ElaiJSParams";
+    var testValue3 = "ElaiJsServiceParams";
     
     webservice.addService("testService", function(params, callback) {
       value += "b";
       callback(testValue);
     });
     
-    webservice.addAfterListener("testService", function(params) {
+    webservice.testService.bind("after", function(event) {
+    	test.assertEq(event.data.params.testValue2, testValue2);
+      test.assertEq(event.data.serviceParams.test, testValue3);
       value += "a";
     });
       
-    var repeat = 4;
-    callWebService("testService", {}, repeat, function() {
-      test.assertEq("babababa", value);
+    var repeat = 1;
+    callWebService("testService", {testValue2: testValue2}, repeat, function() {
+      test.assertEq("ba", value);
       test.done();
-    }, undefined, test, testValue);
+    }, {test: testValue3}, test, testValue);
   };
   
   self.afterListenerCache = function (test) {
     var value = "";
     var testValue = "ElaiJS";
-    var count = 0;
     
     webservice.addService("testService", function(params, callback) {
       value += "b";
       callback(testValue);
     }, {useCache: true});
     
-    webservice.addAfterListener("testService", function(params) {
+    webservice.testService.bind("after", function(event) {
       value += "a";
     });
       
@@ -424,14 +407,14 @@ define(["elaiJS/webservice", "elaiJS/multicallback"],
       callback(testValue);
     });
     
-    webservice.addAfterListener("testService", function(event) {
+    webservice.testService.bind("after", function(event) {
       value += "a";
-      test.assertEq(testValue, event.data.result[0]);
+      test.assertEq(testValue, event.data.result);
     });
       
-    var repeat = 4;
+    var repeat = 1;
     callWebService("testService", {}, repeat, function() {
-      test.assertEq("babababa", value);
+      test.assertEq("ba", value);
       test.done();
     });
   };
@@ -446,23 +429,24 @@ define(["elaiJS/webservice", "elaiJS/multicallback"],
       callback(testValue);
     });
     
-    webservice.addAfterListener("testService", function(event) {
+    webservice.testService.bind("after", function(event) {
       value += "c";
     });
     
     var beforeListenerCallback = function(event) {
       value += "a";
     };
-    webservice.addBeforeListener("testService", beforeListenerCallback);
+    webservice.testService.bind("before", beforeListenerCallback);
       
-    var repeat = 4;
+    var repeat = 1;
     callWebService("testService", {}, repeat, function() {
-      test.assertEq("abcabcabcabc", value);
-      webservice.removeBeforeListener("testService", beforeListenerCallback);
-      webservice.removeAfterListener("testService");
+      test.assertEq("abc", value);
+      webservice.testService.unbind("before");
+      webservice.testService.unbind("after");
       
+      repeat = 4;
       callWebService("testService", {}, repeat, function() {
-        test.assertEq("abcabcabcabcbbbb", value);
+        test.assertEq("abcbbbb", value);
         test.done();
       });
     });
@@ -477,16 +461,20 @@ define(["elaiJS/webservice", "elaiJS/multicallback"],
       callback(testValue);
     });
     
-    webservice.addBeforeInterceptor("testService", function(params, serviceParams, callback) {
+    webservice.testService.interceptors.before.add(function(context) {
       value += "a";
       
-      callback(params, serviceParams);
+      return context;
     });
       
     var repeat = 4;
     callWebService("testService", {}, repeat, function() {
-      test.assertEq("abababab", value);
-      test.done();
+      test.assertEq("aaaabbbb", value);
+      
+      callWebService("testService", {}, 1, function() {
+	      test.assertEq("aaaabbbbab", value);
+	      test.done();
+	    });
     });
   };
   
@@ -498,21 +486,20 @@ define(["elaiJS/webservice", "elaiJS/multicallback"],
       callback(params.test);
     });
     
-    webservice.addBeforeInterceptor("testService", function(params, serviceParams, callback) {
-      if(params)
-        params.test = testValue2;
-      callback(params, serviceParams);
+    webservice.testService.interceptors.before.add(function(context) {
+      context.params.test = testValue2;
+      return context;
     });
       
-    webservice["testService"]({test: testValue}, function(result) {
+    webservice.testService({test: testValue}).then(function(result) {
       test.assertEq(testValue2, result);
       test.done();
     });
   };
   
   self.afterInterceptor = function (test) {
-    webservice.removeBeforeListener("testService");
-    webservice.removeAfterListener("testService");
+    webservice.testService.unbind("before");
+    webservice.testService.unbind("after");
     
     var value = "";
     var testValue = "ElaiJS";
@@ -522,15 +509,19 @@ define(["elaiJS/webservice", "elaiJS/multicallback"],
       callback(testValue);
     });
     
-    webservice.addAfterInterceptor("testService", function(params, serviceParams, result, callback) {
+    webservice.testService.interceptors.after.add(function(context) {
       value += "a";
-      callback(params, serviceParams, result);
+      return context;
     });
       
     var repeat = 4;
     callWebService("testService", {}, repeat, function() {
-      test.assertEq("babababa", value);
-      test.done();
+      test.assertEq("bbbbaaaa", value);
+      
+      callWebService("testService", {}, 1, function() {
+	      test.assertEq("bbbbaaaaba", value);
+	      test.done();
+	    });
     });
   };
   
@@ -542,11 +533,12 @@ define(["elaiJS/webservice", "elaiJS/multicallback"],
       callback(testValue);
     });
     
-    webservice.addAfterInterceptor("testService", function(params, serviceParams, result, callback) {
-      callback(params, serviceParams, [testValue2]);
+    webservice.testService.interceptors.after.add(function(context) {
+    	context.result = testValue2;
+    	return context;
     });
       
-    webservice["testService"](undefined, function(result) {
+    webservice.testService(undefined).then(function(result) {
       test.assertEq(testValue2, result);
       test.done();
     });
@@ -562,25 +554,25 @@ define(["elaiJS/webservice", "elaiJS/multicallback"],
       callback(testValue);
     });
     
-    webservice.addAfterInterceptor("testService", function(params, serviceParams, result, callback) {
+    var afterInt = webservice.testService.interceptors.after.add(function(context) {
       value += "c";
-      callback(params, serviceParams, result);
+      return context;
     });
     
-    var beforeInterceptorCallback = function(params, serviceParams, callback) {
+    var beforeInterceptorCB = function(context) {
       value += "a";
-      callback(params, serviceParams);
+      return context;
     };
-    webservice.addBeforeInterceptor("testService", beforeInterceptorCallback);
+    var beforeInt = webservice.testService.interceptors.before.add(beforeInterceptorCB);
       
     var repeat = 4;
     callWebService("testService", {}, repeat, function() {
-      test.assertEq("abcabcabcabc", value);
-      webservice.removeBeforeInterceptor("testService", beforeInterceptorCallback);
-      webservice.removeAfterInterceptor("testService");
+      test.assertEq("aaaabbbbcccc", value);
+      webservice.testService.interceptors.before.remove(beforeInt);
+      webservice.testService.interceptors.after.remove();
       
       callWebService("testService", {}, repeat, function() {
-        test.assertEq("abcabcabcabcbbbb", value);
+        test.assertEq("aaaabbbbccccbbbb", value);
         test.done();
       });
     });
@@ -595,16 +587,181 @@ define(["elaiJS/webservice", "elaiJS/multicallback"],
       callback(testValue);
     });
     
-    webservice.addBeforeInterceptor("testService", function(params, serviceParams, callback) {
-      serviceParams.useCache = true;
-      callback(params, serviceParams);
+    webservice.testService.interceptors.before.add(function(context) {
+      context.serviceParams.useCache = true;
+      return context;
     });
     
     var repeat = 4;
     callWebService("testService", {}, repeat, function() {
       test.assertEq(1, count);
       
-      webservice.removeBeforeInterceptor("testService");
+      webservice.testService.interceptors.before.remove();
+      test.done();
+    });
+  };
+  
+  self.beforeInterceptorError = function (test) {
+    var testValue = "ElaiJS";
+    
+    webservice.addService("testService", function(params, callback) {
+      callback(testValue);
+    });
+    
+    webservice.testService.interceptors.before.add(function(context) {
+      throw Error();
+    });
+    
+    webservice.testService.interceptors.before.add(undefined, function(context) {
+    	test.done();
+    	return context;
+    });
+    
+    webservice.testService();
+  };
+  
+  self.beforeInterceptorErrorNotCaugth = function (test) {
+    var testValue = "ElaiJS";
+    
+    webservice.addService("testService", function(params, callback) {
+      callback(testValue);
+    });
+    
+    webservice.testService.interceptors.before.add(function(context) {
+      throw Error();
+    });
+    
+    webservice.testService.interceptors.before.add(undefined, function() {
+    	throw Error();
+    });
+    
+    webservice.testService().catch(test.done);
+  };
+  
+  self.afterInterceptorError = function (test) {
+    var testValue = "ElaiJS";
+    
+    webservice.addService("testService", function(params, callback) {
+      callback(testValue);
+    });
+    
+    webservice.testService.interceptors.after.add(function(context) {
+      throw Error();
+    });
+    
+    webservice.testService().catch(test.done.bind(test));
+  };
+  
+  self.afterInterceptorErrorCaught = function (test) {
+    var testValue = "ElaiJS";
+    
+    webservice.addService("testService", function(params, callback) {
+      callback(testValue);
+    });
+    
+    webservice.testService.interceptors.after.add(function(context) {
+      throw Error();
+    });
+    
+    webservice.testService.interceptors.after.add(test.fail, function(context) {
+      return context;
+    });
+    
+    webservice.testService().then(test.done);
+  };
+  
+  self.afterInterceptorServiceError = function (test) {
+    var testValue = "ElaiJS";
+    
+    webservice.addService("testService", function(params, callback) {
+      throw testValue;
+    });
+    
+    webservice.testService.interceptors.after.add(test.fail);
+    
+    webservice.testService.interceptors.after.add(test.fail, function(context) {
+    	test.assertDefined(context.service);
+    	test.assertDefined(context.params);
+    	test.assertDefined(context.serviceParams);
+    	test.assertEq(testValue, context.error);
+      return context;
+    });
+    
+    webservice.testService().then(test.done);
+  };
+  
+  self.afterInterceptorServiceErrorUncaught = function (test) {
+    var testValue = "ElaiJS";
+    
+    webservice.addService("testService", function(params, callback) {
+      throw testValue;
+    });
+    
+    webservice.testService().catch(function(error) {
+    	test.assertEq(testValue, error);
+      test.done();
+    });
+  };
+  
+  self.afterInterceptorServiceErrorReject = function (test) {
+    var testValue = "ElaiJS";
+    
+    webservice.addService("testService", function(params, callback, reject) {
+      reject(testValue);
+    });
+    
+    webservice.testService.interceptors.after.add(test.fail);
+    
+    webservice.testService.interceptors.after.add(test.fail, function(context) {
+    	test.assertDefined(context.service);
+    	test.assertDefined(context.params);
+    	test.assertDefined(context.serviceParams);
+    	test.assertEq(testValue, context.error);
+      return context;
+    });
+    
+    webservice.testService().then(test.done);
+  };
+  
+  self.afterInterceptorServiceErrorRejectUncaught = function (test) {
+    var testValue = "ElaiJS";
+    
+    webservice.addService("testService", function(params, callback, reject) {
+      reject(testValue);
+    });
+    
+    webservice.testService.interceptors.after.add(test.fail);
+    
+    webservice.testService().catch(function(error) {
+    	test.assertEq(testValue, error);
+      test.done();
+    });
+  };
+  
+  self.serviceErrorRejectUncaught = function (test) {
+    var testValue = "ElaiJS";
+    
+    webservice.addService("testService", function(params, callback, reject) {
+      reject(testValue);
+    });
+    
+    webservice.testService().catch(function(error) {
+    	test.assertEq(testValue, error);
+      test.done();
+    });
+  };
+    
+  self.serviceErrorUncaught = function (test) {
+    var testValue = "ElaiJS";
+    
+    webservice.addService("testService", function(params, callback) {
+      throw testValue;
+    });
+    
+    webservice.testService.interceptors.after.add(test.fail);
+    
+    webservice.testService().catch(function(error) {
+    	test.assertEq(testValue, error);
       test.done();
     });
   };
@@ -632,7 +789,7 @@ define(["elaiJS/webservice", "elaiJS/multicallback"],
       throw new Error();
     });
     
-    webservice.testErrorService({}, test.fail, test.done);
+    webservice.testErrorService({}).then(test.fail, test.done);
   };
   
   self.checkErrorHandler2 = function (test) {
@@ -640,7 +797,7 @@ define(["elaiJS/webservice", "elaiJS/multicallback"],
       errCallback();
     });
     
-    webservice.testErrorService({}, test.fail, test.done);
+    webservice.testErrorService({}).then(test.fail, test.done);
   };
   
   self.checkErrorHandlerWithInterceptor = function (test) {
@@ -648,11 +805,11 @@ define(["elaiJS/webservice", "elaiJS/multicallback"],
       callback();
     });
     
-    webservice.addBeforeInterceptor("testErrorService", function(params, serviceParams, callback, errCallback) {
+    webservice.testErrorService.interceptors.before.add(function(params, serviceParams, callback, errCallback) {
       throw new Error();
     });
     
-    webservice.testErrorService({}, test.fail, test.done);
+    webservice.testErrorService({}).then(test.fail, test.done);
   };
   
   self.checkErrorHandlerWithInterceptor2 = function (test) {
@@ -660,11 +817,11 @@ define(["elaiJS/webservice", "elaiJS/multicallback"],
       callback();
     });
     
-    webservice.addBeforeInterceptor("testErrorService", function(params, serviceParams, callback, errCallback) {
+    webservice.testErrorService.interceptors.before.add(function(params, serviceParams, callback, errCallback) {
       errCallback();
     });
     
-    webservice.testErrorService({}, test.fail, test.done);
+    webservice.testErrorService({}).then(test.fail, test.done);
   };
   
 	return self;
