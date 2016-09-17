@@ -1,5 +1,5 @@
 define(["elaiJS/helper"], function(helper) {
-	if(!window.Promise)
+	if(window.Promise)
 		return window.Promise;
 	
 	function PromiseElai(resolver) {
@@ -9,11 +9,13 @@ define(["elaiJS/helper"], function(helper) {
 		this.pendingThens = [];
 		this.status = "pending";
 		
-		try {
-			resolver(resolved.bind(this), rejected.bind(this));
-		} catch(e) {
-			rejected.call(this, e);
-		}
+		setTimeout(function() {
+			try {
+				resolver(resolved.bind(this), rejected.bind(this));
+			} catch(e) {
+				rejected.call(this, e);
+			}
+		}.bind(this));
 	}
 
 	PromiseElai.prototype = {
@@ -125,7 +127,7 @@ define(["elaiJS/helper"], function(helper) {
 		while(this.pendingThens.length > 0)
 			this.pendingThens.shift()();
 		
-		return this;
+		return value;
 	}
 
 	function isThenable(obj) {
