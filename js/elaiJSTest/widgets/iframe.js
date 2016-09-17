@@ -1,4 +1,4 @@
-define(["elaiJS/multicallback"], function(multicallback) {
+define([], function() {
 	'use strict';
 
 	var properties = {};
@@ -8,14 +8,13 @@ define(["elaiJS/multicallback"], function(multicallback) {
 
 	properties.builder = function(proto) {
 	  
-    proto._render = function _render(callback) {
+    proto._render = function _render() {
       if(this.elementDOM && !this.params.canRemoveRender)
-        return callback();
+        return;
       
       this.elementDOM = createIFrame.call(this);
 	    var elemParent = this.getElementParent();
       elemParent.appendChild(this.elementDOM);
-      callback();
     };
 	  
     proto.getElementParent = function() {

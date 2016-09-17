@@ -6,15 +6,13 @@ define([  "elaiJS/configuration", "elaiJS/theme", "elaiJS/language",
 	var properties = {};
 	properties.builder = function(proto) {
 	  
-	  proto._create = function(callback) {
+	  proto._create = function() {
 	    var _this = this;
       localStorage.bind("theme", function(event) {
         var value = event.data.newValue;
   		  theme.setTheme(value);
   		  selectIndex.call(_this, "themes", value);
       });
-      
-      callback();
 	  };
 	  
 		proto.beforeRender = function() {
@@ -22,7 +20,7 @@ define([  "elaiJS/configuration", "elaiJS/theme", "elaiJS/language",
 		  this.templateData = new Date();
 		};
 		
-		proto._render = function(callback) {
+		proto._render = function() {
 		  var codeLang = lang.getLanguage();
 		  manageSelect.call(this, "languages", codeLang, changeLangLoc);
 		  
@@ -32,12 +30,10 @@ define([  "elaiJS/configuration", "elaiJS/theme", "elaiJS/language",
 		  var modeName = mode.getMode();
 		  manageSelect.call(this, "modes", modeName, changeMode);
 
-      var _this = this;		  
+      var _this = this;
 		  this.timeout = setInterval(function() {
 		    _this.refreshRender();
 		  }, 1000);
-		  
-		  callback();
 		};
 		
 		function manageSelect(className, defaultValue, onChange) {
@@ -75,10 +71,9 @@ define([  "elaiJS/configuration", "elaiJS/theme", "elaiJS/language",
 		  mode.setMode(newValue);
 		}
 		
-		proto._refreshRender = function _refreshRender(callback) {
+		proto._refreshRender = function _refreshRender() {
 		  var elemDate = this.elementDOM.getElementsByClassName("date")[0];
 		  elemDate.innerHTML = loc.toLocaleString(new Date());
-		  callback();
 		};
 		
 		proto._destroy = function _destroy() {

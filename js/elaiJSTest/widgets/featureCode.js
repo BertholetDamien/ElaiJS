@@ -1,13 +1,11 @@
 define(["elaiJS/plugin"], function(pluginManager) {
   return function() {
-		this._initialize = function _initialize(callback) {
+		this._initialize = function _initialize() {
       this.setFeature(this.params.feature);
       this.inDialog = this.params.inDialog !== false ? true : false;
       
       if(this.inDialog)
-		    pluginManager.applyPlugin(getDialogPluginInfo(), this, callback);
-		  else
-		    callback();
+		    return pluginManager.applyPlugin(getDialogPluginInfo(), this);
 		};
 		
 		function getDialogPluginInfo() {
@@ -48,10 +46,7 @@ define(["elaiJS/plugin"], function(pluginManager) {
 		    elementDOM.classList.remove(className);
 		}
 		
-		this._render = function _render(callback) {
-			refreshClassS.call(this);
-			callback();
-		};
+		this._render = refreshClassS;
 		
 		this.findDOMElement = function findDOMElement() {
 		  if(this.inDialog)

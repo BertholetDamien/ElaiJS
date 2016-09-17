@@ -48,6 +48,7 @@ define([	"elaiJS/configuration", "elaiJS/webservice",
     };
     elaiJS.storagePath = location.pathname.split(".")[0].substring(1).replace(/\//g, "_");
     
+    elaiJS.defaultPluginPriority = 100;
    	elaiJS.defaultServiceParams = {useCache: false, searchInCache: true};
     
     elaiJS.ressources = {
@@ -169,7 +170,7 @@ define([	"elaiJS/configuration", "elaiJS/webservice",
     var urlFile = helper.getElaiJSAttribute("config");
     if(urlFile)
       return webservice.loadJSONFile(urlFile);
-    return Promise.resolved();
+    return Promise.resolve();
 	}
 
 	return self;

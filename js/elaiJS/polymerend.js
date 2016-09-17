@@ -1,16 +1,14 @@
 define([  "elaiJS/configuration", "elaiJS/mode", "elaiJS/helper",
-					"elaiJS/binder", "elaiJS/rendererFactory"],
-			    function( config, mode, helper, binder, rendererFactory) {
+					"elaiJS/binder", "elaiJS/rendererFactory", "elaiJS/promise"],
+			    function( config, mode, helper, binder, rendererFactory, Promise) {
 	'use strict';
-	var polymerLoaded;
 	
 	return function(widget, pluginInfo) {
 	  var rendererInfo = {
-	    isLibLoaded: function() {return polymerLoaded;},
+	    loadLib: loadPolymer,
 	    render: render
 	  };
 	  binder.addAllFunctions(rendererInfo);
-	  loadPolymer();
 	  
 	  var plugin = {initializeVariablesBeforeWidget: initializeVariables};
 	  plugin = rendererFactory(rendererInfo, pluginInfo, plugin);
@@ -20,38 +18,37 @@ define([  "elaiJS/configuration", "elaiJS/mode", "elaiJS/helper",
 		}
 		
 		function loadPolymer() {
-		  if(window.WebComponents)
-		    return polymerLoaded();
-		  
-      require([config.elaiJS.polymereLib]);
-      window.addEventListener('WebComponentsReady', polymerLoaded);
-		}
-		
-		function polymerLoaded() {
-		  polymerLoaded = true;
-      rendererInfo.fire("libLoaded");
+			return new Promise(function(resolve, reject) {
+				if(window.WebComponents)
+			    resolve()
+			  
+	      require([config.elaiJS.polymereLib]);
+	      window.addEventListener('WebComponentsReady', resolve);
+			});
 		}
 		
   /************************************************************************
 	 ************************** Render Template *****************************
 	 ************************************************************************/
-		function render(callback) {
-      var info = getWebComponentInfo.call(this);
-      var ressourceName = info.ressource || "WebComponent";
-      var componentName = mode.getRessource(ressourceName, info);
-      
-      this.elementPolymer = document.createElement(componentName);
-      if(this.viewData)
-        this.elementPolymer.data = this.viewData;
-      this.elementPolymer.widget = this;
-        
-      addAttachedEvent.call(this, callback);
-      addViewEvents.call(this);
-      
-      while(this.elementDOM.children.length > 0)
-        this.elementDOM.removeChild(this.elementDOM.children[0]);
-      
-      this.elementDOM.appendChild(this.elementPolymer);
+		function render() {
+			return new Promise(function(resolve, reject) {
+	      var info = getWebComponentInfo.call(this);
+	      var ressourceName = info.ressource || "WebComponent";
+	      var componentName = mode.getRessource(ressourceName, info);
+	      
+	      this.elementPolymer = document.createElement(componentName);
+	      if(this.viewData)
+	        this.elementPolymer.data = this.viewData;
+	      this.elementPolymer.widget = this;
+	        
+	      addAttachedEvent.call(this, resolve);
+	      addViewEvents.call(this);
+	      
+	      while(this.elementDOM.children.length > 0)
+	        this.elementDOM.removeChild(this.elementDOM.children[0]);
+	      
+	      this.elementDOM.appendChild(this.elementPolymer);
+      }.bind(this));
 		}
 		
 		function addViewEvents() {

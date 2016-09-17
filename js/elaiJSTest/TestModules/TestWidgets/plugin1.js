@@ -13,10 +13,9 @@ define([  "elaiJS/configuration", "elaiJS/helper", "elaiJS/mode"],
           this.cute = "love";
         }
 		  },
-	    initializeBeforeWidget: function(callback) {
+	    initializeBeforeWidget: function() {
         this.kindness = 42;
         widget.here.push("plugin1");
-        callback();
 	    }
 		};
 	};

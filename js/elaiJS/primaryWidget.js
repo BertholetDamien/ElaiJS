@@ -1,5 +1,6 @@
-define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder", "elaiJS/helper"],
-        function(widgetManager, multicallback, binder, helper) {
+define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder",
+				"elaiJS/helper", "elaiJS/promise"],
+        function(widgetManager, multicallback, binder, helper, Promise) {
 	'use strict';
 	var properties = {};
 
@@ -7,20 +8,20 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder", "elaiJS/helper
 
 	properties.builder = function() {
 
-		this.create = function create(callback, skipEvent) {
+		this.create = function create(skipEvent) {
 		  this.before("create", skipEvent);
-		  var fireCallback = this.buildAfterCB("create", callback, skipEvent);
-		  executeAsynCycleLifeFcts.call(this, "create", false, fireCallback);
+		  var fireCallback = this.buildAfterCB("create", undefined, skipEvent);
+		  return executeAsynCycleLifeFcts.call(this, "create", false).then(fireCallback);
 		};
     
-		this.initialize = function initialize(params, callback, skipEvent) {
+		this.initialize = function initialize(params, skipEvent) {
 		  this.before("initialize", skipEvent);
       
       this.initializeVariables();
 			this.params = params || {};
 			
-		  var fireCallback = this.buildAfterCB("initialize", callback, skipEvent);
-		  executeAsynCycleLifeFcts.call(this, "initialize", false, fireCallback);
+		  var fireCallback = this.buildAfterCB("initialize", undefined, skipEvent);
+		  return executeAsynCycleLifeFcts.call(this, "initialize", false).then(fireCallback);
 		};
 		
 		this.initializeVariables = function initializeVariables(skipEvent) {
@@ -34,33 +35,31 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder", "elaiJS/helper
 		  this.after("initializeVariables", skipEvent);
 		};
 		
-		this.refresh = function refresh(callback, skipEvent) {
+		this.refresh = function refresh(skipEvent) {
 		  this.before("refresh", skipEvent);
 		  
-		  var fireCallback = this.buildAfterCB("refresh", callback, skipEvent);
-		  this.refreshData(function() {
-		    this.refreshRender(function() {
-		      callChildrenIfNeeded.call(this, "refresh", fireCallback);
-		    }, false);
+		  var fireCallback = this.buildAfterCB("refresh", undefined, skipEvent);
+		  return this.refreshData().then(function() {
+		    return this.refreshRender(false).then(function() {
+		      return callChildrenIfNeeded.call(this, "refresh").then(fireCallback);
+		    });
 		  });
 		};
 		
-		this.refreshData = function refreshData(callback, skipEvent) {
+		this.refreshData = function refreshData(skipEvent) {
 		  this.before("refreshData", skipEvent);
 		  
-		  this.fetchData(function(rowData) {
+		  return this.fetchData().then(function(rowData) {
 		    this.setData(rowData, true);
 		    this.after("refreshData", skipEvent);
-		    if(helper.isFunction(callback))
-		      callback.call(this);
 		  });
 		};
 		
-		this.fetchData = function fetchData(callback, skipEvent) {
+		this.fetchData = function fetchData(skipEvent) {
 		  this.before("fetchData", skipEvent);
 		  
-		  var fireCallback = this.buildAfterCB("fetchData", callback, skipEvent);
-		  executeAsynCycleLifeFcts.call(this, "fetchData", false, fireCallback);
+		  var fireCallback = this.buildAfterCB("fetchData", undefined, skipEvent);
+		  return executeAsynCycleLifeFcts.call(this, "fetchData", false).then(fireCallback);
 		};
 		
 		this.setData = function setData(data, needProcess, skipEvent) {
@@ -87,19 +86,21 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder", "elaiJS/helper
 		  return processedData;
 		};
 		
-		this.refreshRender = function refreshRender(callback, callChildren, skipEvent) {
+		this.refreshRender = function refreshRender(callChildren, skipEvent) {
 			this.before("refreshRender", skipEvent);
-			var fireCallback = this.buildAfterCB("refreshRender", callback, skipEvent);
-		  executeAsynCycleLifeFcts.call(this, "refreshRender", false, fireCallback);
+			var fireCallback = this.buildAfterCB("refreshRender", undefined, skipEvent);
+		  return executeAsynCycleLifeFcts.call(this, "refreshRender", false).then(fireCallback);
 		};
 
-		this.render = function render(renderParams, callback, skipEvent) {
+		this.render = function render(renderParams, skipEvent) {
+			if(!this)
+				console.log(renderParams);
 		  this.before("render", skipEvent);
 		  
 		  this.renderParams = renderParams;
 				
-		  var fireCallback = this.buildAfterCB("render", callback, skipEvent);
-			executeAsynCycleLifeFcts.call(this, "render", true, fireCallback);
+		  var fireCallback = this.buildAfterCB("render", undefined, skipEvent);
+			return executeAsynCycleLifeFcts.call(this, "render", true).then(fireCallback);
 		};
 		
 		this.removeRender = function removeRender(callChildren, skipEvent) {
@@ -108,13 +109,13 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder", "elaiJS/helper
 		  this.after("removeRender", skipEvent);
 		};
 
-		this.reload = function reload(params, renderParams, callback, skipEvent) {
+		this.reload = function reload(params, renderParams, skipEvent) {
 		  this.before("reload", skipEvent);
 
-			var fireCallback = this.buildAfterCB("reload", callback, skipEvent);
-			this.initialize(params || this.params, function () {
+			var fireCallback = this.buildAfterCB("reload", undefined, skipEvent);
+			return this.initialize(params || this.params, function () {
 				this.removeRender(false);
-				this.render(renderParams || this.renderParams, fireCallback);
+				return this.render(renderParams || this.renderParams).then(fireCallback);
 			});
 		};
 		
@@ -142,17 +143,17 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder", "elaiJS/helper
 		/**********************************************************************
 		******************************* Helpers *******************************
 		**********************************************************************/
-		function executeAsynCycleLifeFcts(name, callChildren, callback) {
+		function executeAsynCycleLifeFcts(name, callChildren) {
 		  var _this = this;
-      this.callPluginsFct(name + "BeforeWidget", function() {
-        callInternalWidgetFct.call(_this, name, function(result) {
-          _this.callPluginsFct(name + "AfterWidget", function() {
-            if(callChildren)
-              callChildrenIfNeeded.call(_this, name, function() {
-                callback(result);
-              });
-            else
-              callback(result);
+		  
+      return this.callPluginsFct(name + "BeforeWidget").then(function() {
+        return callInternalWidgetFct.call(_this, name).then(function(result) {
+          return _this.callPluginsFct(name + "AfterWidget").then(function() {
+            if(!callChildren)
+          		return result;
+            return callChildrenIfNeeded.call(_this, name).then(function() {
+            	return result;
+            });
           });
         });
       });
@@ -167,40 +168,34 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder", "elaiJS/helper
       return result;
 		}
 		
-		function callInternalWidgetFct(name, callback) {
-		  var fctName = "_" + name;
-		  if(helper.isFunction(this[fctName]))
-        return this[fctName](callback);
-      
-      if(helper.isFunction(callback))
-        callback();
+		function callInternalWidgetFct(name) {
+			return Promise.resolve().then(function() {
+			  var fctName = "_" + name;
+			  if(helper.isFunction(this[fctName]))
+	        return this[fctName]();
+			}.bind(this));
 		}
 		
-		this.callPluginsFct = function callPluginsFct(name, callback) {
+		this.callPluginsFct = function callPluginsFct(name) {
 		  this.before(name + "Plugins");
-		  var fireCallback = this.buildAfterCB(name + "Plugins", callback);
+		  var fireCallback = this.buildAfterCB(name + "Plugins");
 		  
-		  if(!this.plugins)
-		    return fireCallback();
-		  
-		  var count = this.plugins.length;
-		  var multiCallBackFunction = multicallback(count, fireCallback);
-		  
-      for(var i = 0 ; i < count ; ++i) {
+		  var promises = [];
+      for(var i in this.plugins) {
         var plugin = this.plugins[i].plugin;
         if(helper.isFunction(plugin[name]))
-          plugin[name].call(this, multiCallBackFunction);
-        else if(multiCallBackFunction)
-          multiCallBackFunction();
+          promises.push(plugin[name].call(this));
       }
+      
+      return Promise.all(promises).then(fireCallback);
 		};
 		
-		function callChildrenIfNeeded(name, callback, overrideValue) {
-		  var needChildren = isNeedChildren.call(this, name, overrideValue);
-      if(needChildren)
-        this[name + "Children"](callback);
-      else if(helper.isFunction(callback))
-        callback();
+		function callChildrenIfNeeded(name, overrideValue) {
+			return Promise.resolve().then(function() {
+			  var needChildren = isNeedChildren.call(this, name, overrideValue);
+	      if(needChildren)
+	        return this[name + "Children"]();
+			}.bind(this));
 		}
 		
 		function isNeedChildren(name, defaultValue) {
@@ -263,7 +258,7 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder", "elaiJS/helper
       this.after("addChild", skipEvent);
 		};
 		
-		this.createChild = function createChild(widgetInfo, id, params, callback, skipEvent) {
+		this.createChild = function createChild(widgetInfo, id, params, skipEvent) {
 		  this.before("createChild", skipEvent);
 		  
 			if(!helper.isObject(widgetInfo))
@@ -272,19 +267,18 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder", "elaiJS/helper
         widgetInfo.mode = this.mode;
       
       var _this = this;
-      var fireCallback = this.buildAfterCB("createChild", callback, skipEvent);
-			widgetManager.create(widgetInfo, id, params, function (widget) {
+      var fireCallback = this.buildAfterCB("createChild", undefined, skipEvent);
+			return widgetManager.create(widgetInfo, id, params).then(function (widget) {
 				_this.addChild(widget);
 				fireCallback(widget);
+				return widget;
 			});
 		};
 		
-		this.createChildAndRender = function (widgetInfo, id, params, renderParams, callback) {
-		  this.createChild(widgetInfo, id, params, function(child) {
-		  	var _this = this;
-		    child.render(renderParams, function() {
-		      if(helper.isFunction(callback))
-		        callback.call(_this, child);
+		this.createChildAndRender = function (widgetInfo, id, params, renderParams) {
+		  return this.createChild(widgetInfo, id, params).then(function(child) {
+		    return child.render(renderParams).then(function() {
+		    	return child;
 		    });
 		  });
 		};
@@ -297,57 +291,44 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder", "elaiJS/helper
 		}
 		
 		this.removeRenderChildren = function removeRender(skipEvent) {
-			this.applyOnChildren("removeRender", undefined, undefined, skipEvent);
+			return this.applyOnChildren("removeRender", undefined, skipEvent);
 		};
 		
-		this.renderChildren = function renderChildren(callback, skipEvent) {
-			this.applyOnChildren("render", function(child, next) {
-			  child.render(undefined, next);
-			}, callback, skipEvent);
+		this.renderChildren = function renderChildren(skipEvent) {
+			return this.applyOnChildren("render", function(child) {
+			  return child.render(undefined);
+			}, skipEvent);
 		};
 
-		this.reloadChildren = function reloadChildren(callback, skipEvent) {
-			this.applyOnChildren("reload", function(child, next) {
-			  child.reload(undefined, undefined, next);
-			}, callback, skipEvent);
+		this.reloadChildren = function reloadChildren(skipEvent) {
+			return this.applyOnChildren("reload", function(child) {
+			  return child.reload(undefined, undefined);
+			}, skipEvent);
 		};
 
-		this.refreshChildren = function refreshChildren(callback, skipEvent) {
-		  this.applyOnChildren("refresh", function(child, next) {
-			  child.refresh(next);
-			}, callback, skipEvent);
+		this.refreshChildren = function refreshChildren(skipEvent) {
+		  return this.applyOnChildren("refresh", undefined, skipEvent);
 		};
 		
 		this.destroyChildren = function destroyChildren(skipEvent) {
-		  this.applyOnChildren("destroy", undefined, undefined, skipEvent);
+		  return this.applyOnChildren("destroy", undefined, skipEvent);
 		};
 		
-		this.applyOnChildren = function applyOnChildren(actionName, action, callback, skipEvent) {
-		  this.before(actionName + "Children", skipEvent);
-		  
-		  if(!action) {
-		    action = function(child, next) {
-		        child[actionName]();
-		        next();
-		    };
-		  }
-		  
-		  var fireCallback = this.buildAfterCB(actionName + "Children", callback, skipEvent);
-		  var multiCallBackFunction = getChildrenMutilCallback.call(this, fireCallback);
-			for(var key in this.children) {
-		    action(this.children[key], multiCallBackFunction);
+		this.applyOnChildren = function applyOnChildren(actionName, action, skipEvent) {
+			this.before(actionName + "Children", skipEvent);
+			
+			if(!action) {
+				action = function(child) {
+					return child[actionName]();
+				};
 			}
+			
+			var fireCallback = this.buildAfterCB(actionName + "Children", undefined, skipEvent);
+			var promises = [];
+			for(var key in this.children)
+				promises.push(action(this.children[key]));
+ 			return Promise.all(promises).then(fireCallback);
 		};
-
-		function getChildrenMutilCallback(callback) {
-			var count = Object.keys(this.children).length;
-			if(count === 0 && callback) {
-				callback();
-				return;
-			}
-
-			return multicallback(count, callback);
-		}
 		
 		function addChildrenActionByID(action) {
 		  this[action + "ChildByID"] = function(id, args) {

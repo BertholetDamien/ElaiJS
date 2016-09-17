@@ -1,14 +1,13 @@
-define([  "elaiJS/multicallback", "elaiJS/mode"],
-          function(multicallback, mode) {
+define([  "elaiJS/promise", "elaiJS/mode"],
+          function(Promise, mode) {
 	var properties = {};
 
 	properties.builder = function(proto) {
     proto.module = undefined;
     proto.featureSelected = undefined;
     
-    proto._create = function _create(callback) {
+    proto._create = function _create() {
       mode.bind(mode.EVENT.modeChanged, modeChanged, undefined, this);
-      callback();
     };
     
     function modeChanged() {
@@ -17,13 +16,13 @@ define([  "elaiJS/multicallback", "elaiJS/mode"],
       featuresChanged.call(this);
     }
     
-    proto._initialize = function _initialize(callback) {
+    proto._initialize = function _initialize() {
       this.module = this.params.module;
-      this.module.bind("test_module_cancelled", refreshClassS, undefined, this);
-      this.module.bind("test_module_loading", refreshClassS, undefined, this);
-      this.module.bind("test_module_loaded", refreshClassS, undefined, this);
-      this.module.bind("test_module_start", refreshClassS, undefined, this);
-
+      this.module.bind("test_module_cancelled", refreshClassS.bind(this));
+      this.module.bind("test_module_loading", refreshClassS.bind(this));
+      this.module.bind("test_module_loaded", refreshClassS.bind(this));
+      this.module.bind("test_module_start", refreshClassS.bind(this));
+			
       this.module.bind("features_changed", featuresChanged, undefined, this);
       this.module.bind("test_module_end", moduleEndTest, undefined, this);
 
@@ -31,15 +30,15 @@ define([  "elaiJS/multicallback", "elaiJS/mode"],
         this.bindOne("afterRender", runModule, undefined, this);
       
       this.collapsed = this.params.neverCollapsed ? false : true;
-      createModuleTitleChild.call(this, callback);
+      return createModuleTitleChild.call(this);
     };
 		
     function featuresChanged() {
       this.destroyChildsByName("feature");
-      createFeaturesChild.call(this, this.render);
+      createFeaturesChild.call(this).then(this.render.bind(this));
 
       var _this = this;
-      this.render(undefined, function() {
+      this.render().then(function() {
         if(_this.featureSelected) {
           var feature = findFeature.call(_this, _this.featureSelected.name);
           selectFeature.call(_this, feature);
@@ -57,24 +56,25 @@ define([  "elaiJS/multicallback", "elaiJS/mode"],
       return undefined;
     }
 		
-    function createModuleTitleChild(callback) {
+    function createModuleTitleChild() {
       var info = {name: "moduleTitle", mode: null};
       var id = this.id + "_title";
       var params = {module: this.module};
-      this.createChild(info, id, params, callback);
+      return this.createChild(info, id, params);
     }
 
-    function createFeaturesChild(callback) {
-      var count = this.module.features.length;
-      var multiCallBackFunction = multicallback(count, callback, this);
-      for(var i = 0 ; i < count ; ++i) {
+    function createFeaturesChild() {
+      var promises = [];
+      for(var i in this.module.features) {
         var feature = this.module.features[i];
 
         var info = {name: "feature", mode: null};
         var id = getFeatureWidgetID.call(this, feature);
         var params = {feature: feature};
-        this.createChild(info, id, params, multiCallBackFunction);
+        promises.push(this.createChild(info, id, params));
       }
+      
+      return Promise.all(promises);
     }
 
     function findElemFeature(feature) {
@@ -110,7 +110,7 @@ define([  "elaiJS/multicallback", "elaiJS/mode"],
         this.elementDOM.classList.remove(className);
     }
 
-    proto._render = function _render(callback) {
+    proto._render = function _render() {
       this.elemFeaturesArea = this.elementDOM.getElementsByClassName("features_area")[0];
 
       if(!this.params.neverCollapsed)
@@ -120,7 +120,6 @@ define([  "elaiJS/multicallback", "elaiJS/mode"],
         this.elementDOM.classList.add("selectable");
 
       refreshClassS.call(this);
-      callback();
     };
 
     function bindCollapsedExpanded() {
@@ -137,7 +136,7 @@ define([  "elaiJS/multicallback", "elaiJS/mode"],
 
     proto.afterRenderChildren = function afterRenderChildren() {
       if(this.params.selectable)
-        bindFeaturesSelection.call(this);		  
+        bindFeaturesSelection.call(this);
     };
 
     function bindFeaturesSelection() {
@@ -178,9 +177,8 @@ define([  "elaiJS/multicallback", "elaiJS/mode"],
     }
 
     function runModule() {
-      var _this = this;
-      setTimeout(function() {
-        _this.module.run();
+      this.async(function() {
+      	this.module.run();
       }, 10);
     }
 

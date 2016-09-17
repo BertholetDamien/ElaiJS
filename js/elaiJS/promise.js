@@ -1,5 +1,5 @@
 define(["elaiJS/helper"], function(helper) {
-	if(window.Promise)
+	if(!window.Promise)
 		return window.Promise;
 	
 	function PromiseElai(resolver) {
@@ -8,7 +8,7 @@ define(["elaiJS/helper"], function(helper) {
 
 		this.pendingThens = [];
 		this.status = "pending";
-
+		
 		try {
 			resolver(resolved.bind(this), rejected.bind(this));
 		} catch(e) {
@@ -81,13 +81,13 @@ define(["elaiJS/helper"], function(helper) {
 	function then(onResolved, onRejection) {
 		var promise = this;
 		return new PromiseElai(function(resolve, reject) {
-			if(promise.status === "pending")
-				promise.pendingThens.push(promiseSettled);
-			else
-				promiseSettled();
-
-			function promiseSettled() {
-				setTimeout(function() {
+			setTimeout(function() {
+				if(promise.status === "pending")
+					promise.pendingThens.push(promiseSettled);
+				else
+					promiseSettled();
+	
+				function promiseSettled() {
 					var callback = (promise.status === "fulfilled") ? onResolved : onRejection;
 					if(!helper.isFunction(callback)) {
 						callback = (promise.status === "fulfilled") ? resolve : reject;
@@ -99,8 +99,8 @@ define(["elaiJS/helper"], function(helper) {
 					} catch(e) {
 						reject(e);
 					}
-				});
-			}
+				}
+			});
 		});
 	}
 

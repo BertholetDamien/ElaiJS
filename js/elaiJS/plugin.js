@@ -1,38 +1,28 @@
-define(["elaiJS/webservice", "elaiJS/multicallback",
-        "elaiJS/configuration", "elaiJS/helper"],
-            function(webservice, multicallback, config, helper) {
+define(["elaiJS/webservice", "elaiJS/configuration", "elaiJS/helper"],
+				function(webservice, config, helper) {
 	'use strict';
-  var DEFAULT_PRIORITY = 100;
-
 	var self = {};
 
-	self.applyDefaultPlugins = function applyDefaultPlugins(widget, widgetPrototype, callback) {
+	self.applyDefaultPlugins = function applyDefaultPlugins(widget, widgetPrototype) {
     var pluginsInfo = getPluginsInfo(widgetPrototype);
-    self.applyPlugins(pluginsInfo, widget, callback);
+    return self.applyPlugins(pluginsInfo, widget);
 	};
 	
-	self.applyPlugins = function applyPlugins(pluginsInfo, widget, callback) {
-    var countPlugins = Object.keys(pluginsInfo).length;
-    if(countPlugins === 0) {
-      callback();
-      return;
-	  }
-    
-		var multiCallBackFunction = multicallback(countPlugins, callback);
+	self.applyPlugins = function applyPlugins(pluginsInfo, widget) {
+		var promises = [];
     for(var name in pluginsInfo)
-      self.applyPlugin(pluginsInfo[name], widget, multiCallBackFunction);
+      promises.push(self.applyPlugin(pluginsInfo[name], widget));
+    return Promise.all(promises);
 	};
 
-	self.applyPlugin = function applyPlugin(pluginInfo, widget, callback) {
+	self.applyPlugin = function applyPlugin(pluginInfo, widget) {
     if(pluginInfo.mode === undefined)
       pluginInfo.mode = widget.mode;
     if(pluginInfo.priority === undefined)
-      pluginInfo.priority = DEFAULT_PRIORITY;
+      pluginInfo.priority = config.elaiJS.defaultPluginPriority;
 
-    createPlugin(pluginInfo, widget, function(plugin) {
-      addPlugin(plugin, pluginInfo, widget);
-      if(helper.isFunction(callback))
-        callback();
+    return createPlugin(pluginInfo, widget).then(function(plugin) {
+      return addPlugin(plugin, pluginInfo, widget);
 	  });
 	};
 
@@ -99,9 +89,6 @@ define(["elaiJS/webservice", "elaiJS/multicallback",
 	}
 
 	function addPlugin(plugin, pluginInfo, widget) {
-    var name = pluginInfo.name;
-    var mode = pluginInfo.mode;
-
     if(!widget.plugins)
       widget.plugins = [];
     
@@ -109,6 +96,7 @@ define(["elaiJS/webservice", "elaiJS/multicallback",
     widget.plugins = sortPlugins(widget.plugins);
     
     bindPluginEvent(plugin, widget);
+    return plugin;
 	}
 	
 	function sortPlugins(plugins) {
@@ -130,15 +118,10 @@ define(["elaiJS/webservice", "elaiJS/multicallback",
     }
 	}
 
-	function createPlugin(pluginInfo, widget, callback) {
-	  getPrototypeOf(pluginInfo, function(pluginPrototype) {
-      var plugin = pluginPrototype(widget, pluginInfo) || {};
-      callback(plugin);
+	function createPlugin(pluginInfo, widget) {
+	  return webservice.loadPlugin(pluginInfo).then(function(pluginPrototype) {
+      return pluginPrototype(widget, pluginInfo) || {};
 	  });
-	}
-
-	function getPrototypeOf(pluginInfo, callback) {
-    webservice.loadPlugin(pluginInfo).then(callback);
 	}
 
 	return self;

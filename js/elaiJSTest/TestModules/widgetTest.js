@@ -11,7 +11,7 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
   };
   
   self.createWidget = function(test) {
-    widgetManager.create("widget1", "w1", undefined, function(widget) {
+    widgetManager.create("widget1", "w1").then(function(widget) {
       if(widget) {
         test.assertEq("w1", widget.id);
         test.done();
@@ -23,17 +23,15 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
   };
   
   self.alreadyExists = function(test) {
-    try {
-      widgetManager.create("widget1", "w1", undefined, function(widget) {
-        test.fail();
-      });
-    } catch (e) {
-      widgetManager.create("widget1", "w1-2", undefined, function(widget) {
-        widgetManager.create("widget2", "w2", undefined, function(widget) {
-          test.done();
-        });
-      });
-    }
+    widgetManager.create("widget1", "w1").then(function(widget) {
+      test.fail();
+    }, function () {
+	    widgetManager.create("widget1", "w1-2").then(function(widget) {
+	      widgetManager.create("widget2", "w2").then(function(widget) {
+	        test.done();
+	      });
+	    });
+    });
   };
   
   self.get = function(test) {
@@ -62,7 +60,7 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
     widgetManager.remove(w1);
     this.assertUndefined(widgetManager.get("w1"));
     
-    widgetManager.create("widget1", "w1", undefined, function(widget) {
+    widgetManager.create("widget1", "w1").then(function(widget) {
       test.assertEq("w1", widget.id);
       test.assertDefined(widgetManager.get("w1"));
       test.done();
@@ -76,7 +74,7 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
     widgetManager.removeByID("w1");
     this.assertUndefined(widgetManager.get("w1"));
     
-    widgetManager.create("widget1", "w1", undefined, function(widget) {
+    widgetManager.create("widget1", "w1").then(function(widget) {
       test.assertEq("w1", widget.id);
       test.assertDefined(widgetManager.get("w1"));
       test.done();

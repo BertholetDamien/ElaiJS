@@ -1,18 +1,17 @@
 define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/language",
           "elaiJS/localisation", "elaiJS/helper", "elaiJS/binder",
-          "elaiJS/rendererFactory"],
+          "elaiJS/rendererFactory", "elaiJS/promise"],
 			    function( config, webservice, lang, loc, helper, binder,
-			              rendererFactory) {
+			              rendererFactory, Promise) {
 	'use strict';
 	var mustache;
 	
 	return function(widget, pluginInfo) {
     var rendererInfo = {
-      isLibLoaded: function() {return mustache !== undefined;},
+      loadLib: loadMustache,
       getHTML: getDisplayContent
     };
     binder.addAllFunctions(rendererInfo);
-    loadMustache();
     
     var plugin = {
       events: {
@@ -43,13 +42,15 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/language",
 		}
 	  
 		function loadMustache() {
-		  if(mustache)
-		    return;
-		  
-		  require([config.elaiJS.mustacheLib], function(moduleMustache) {
-        mustache = moduleMustache;
-        rendererInfo.fire("libLoaded");
-      });
+			return new Promise(function(resolve, reject) {
+			  if(mustache)
+			    resolve(mustache);
+			  
+			  require([config.elaiJS.mustacheLib], function(moduleMustache) {
+	        mustache = moduleMustache;
+	        resolve(mustache);
+	      }, reject);
+			});
 		}
 		
   /************************************************************************

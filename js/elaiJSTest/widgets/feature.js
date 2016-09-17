@@ -5,14 +5,14 @@ define([], function() {
 	properties.builder = function(proto) {
     proto.feature = undefined;
     
-		proto._initialize = function _initialize(callback) {
+		proto._initialize = function _initialize() {
 			this.feature = this.params.feature;
 			
 			this.feature.bind("test_feature_start", refreshClassS, undefined, this);
 			this.feature.bind("test_feature_end", this.render, undefined, this);
 			
 			var featureMessageID = "featuremessage_" + this.id;
-			this.createChild("featureMessage", featureMessageID, this.feature, callback);
+			return this.createChild("featureMessage", featureMessageID, this.feature);
 		};
 		
 		function refreshClassS() {
@@ -28,15 +28,14 @@ define([], function() {
 		    this.elementDOM.classList.remove(className);
 		}
 		
-		proto._render = function _render(callback) {
+		proto._render = function _render() {
 			var elemCodeIcon = this.elementDOM.getElementsByClassName("code_icon")[0];
-      var _this = this;			
+      var _this = this;
 			elemCodeIcon.onclick = function(event) {
 		    showFeatureCode.call(_this);
 			};
 			
 			refreshClassS.call(this);
-			callback();
 		};
 		
 		proto.needRenderChildren = false;
@@ -45,17 +44,16 @@ define([], function() {
 		  if(this.wFeatureCode)
 		    this.wFeatureCode.render();
 		  else
-		    createFeatureCodeWidget.call(this, showFeatureCode);
+		    createFeatureCodeWidget.call(this).then(showFeatureCode);
 		}
 		
-		function createFeatureCodeWidget(callback) {
+		function createFeatureCodeWidget() {
 		  var _this = this;
 		  var params = {feature: this.feature};
       var featureMessageID = "featurecode_" + this.id;
       
-		  this.createChild("featureCode", featureMessageID, params, function(child) {
+		  return this.createChild("featureCode", featureMessageID, params).then(function(child) {
         _this.wFeatureCode = child;
-        callback.call(_this);
 			});
 		}
 		

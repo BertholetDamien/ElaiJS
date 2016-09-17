@@ -1,6 +1,6 @@
-define([  "elaiJS/multicallback", "elaiJS/navigator",
+define([  "elaiJS/promise", "elaiJS/navigator",
           "elaiJSTest/modules/moduleTestor"],
-          function(multicallback, navigator, ModuleTestor) {
+          function(Promise, navigator, ModuleTestor) {
 	'use strict';
 
 	var properties = {};
@@ -8,33 +8,32 @@ define([  "elaiJS/multicallback", "elaiJS/navigator",
 	properties.builder = function(proto) {
 	  proto.modules = undefined;
 
-		proto._initialize = function _initialize(callback) {
+		proto._initialize = function _initialize() {
 		  var moduleName = navigator.getCurrentPageInfo().name;
 		  this.module = new ModuleTestor(1, moduleName);
 		  
-		  var multiCBFct = multicallback(2, callback, this);
-		  createModuleChild.call(this, multiCBFct);
-		  createFeatureCodeChild.call(this, multiCBFct);
+		  return Promise.all([
+		  	createModuleChild.call(this),
+		  	createFeatureCodeChild.call(this)
+		  ]);
 		};
 		
-		function createModuleChild(callback) {
+		function createModuleChild() {
 		  var _this = this;
 		  var moduleParams = {  module: this.module,
 		                        neverCollapsed: true,
 		                        selectable: true};
-		  this.createChild("module", "module", moduleParams, function(widget) {
+		  return this.createChild("module", "module", moduleParams).then(function(widget) {
 		    _this.wModule = widget;
 		    bindModuleWidgetSelection.call(_this);
-		    callback();
 		  });
 		}
 		
-		function createFeatureCodeChild(callback) {
+		function createFeatureCodeChild() {
 		  var _this = this;
 		  var featureParams = {inDialog: false};
-		  this.createChild("featureCode", "featureDetail", featureParams, function(widget) {
+		  return this.createChild("featureCode", "featureDetail", featureParams).then(function(widget) {
 		    _this.wFeatureCode = widget;
-		    callback();
 		  });
 		}
 		

@@ -42,7 +42,7 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper", "elaiJS/plugin
       test.assertUndefined(widget.cute);
       test.assertUndefined(widget.kindness);
       
-      pluginManager.applyPlugin({name: "plugin1"}, widget, function() {
+      pluginManager.applyPlugin({name: "plugin1"}, widget).then(function() {
         test.assertEq(true, widget.hasPlugin1);
 
         widget.initialize({}, function() {
@@ -67,7 +67,7 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper", "elaiJS/plugin
         plugin2: {name: "plugin2"}
       };
       
-      pluginManager.applyPlugins(plugins, widget, function() {
+      pluginManager.applyPlugins(plugins, widget).then(function() {
         test.assertEq(true, widget.hasPlugin1);
         test.assertEq(true, widget.hasPlugin2);
 
@@ -94,7 +94,7 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper", "elaiJS/plugin
         plugin2: {name: "plugin2", priority: 99}
       };
       
-      pluginManager.applyPlugins(plugins, widget, function() {
+      pluginManager.applyPlugins(plugins, widget).then(function() {
         test.assertEq(true, widget.hasPlugin1);
         test.assertEq(true, widget.hasPlugin2);
 

@@ -6,22 +6,19 @@ define([], function() {
   
 	properties.builder = function(proto) {
 
-		proto._initialize = function _initialize(callback) {
+		proto._initialize = function _initialize() {
 			this.feature = this.params;
 			this.feature.bind("test_feature_end", this.refreshRender, undefined, this);
-		  callback();
 		};
 		
 		proto._render = this._refreshRender;
 		
-		proto._refreshRender = function _refreshRender(callback) {
+		proto._refreshRender = function _refreshRender() {
 		  var message = (this.feature.failed) ? this.feature.errorInfo.message : undefined;
 		  
 		  var elemBody = document.getElementById(this.id);
 		  if(elemBody)
 		    elemBody.innerHTML = message ? "Message: " + message : "";
-		  
-	    callback();
 		};
 		
 		proto._destroy = function _destory() {

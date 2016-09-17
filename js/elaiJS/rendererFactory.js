@@ -1,4 +1,4 @@
-define(["elaiJS/helper"], function(helper) {
+define(["elaiJS/helper", "elaiJS/promise"], function(helper, Promise) {
 	'use strict';
 	
 	return function(rendererInfo, pluginInfo, plugin) {
@@ -6,40 +6,33 @@ define(["elaiJS/helper"], function(helper) {
 	  var renderBeforeWidget              = plugin.renderBeforeWidget;
 	  var removeRenderBeforeWidget        = plugin.removeRenderBeforeWidget;
 	  
-		function waitLib(callback) {
-		  if(rendererInfo.isLibLoaded.call(this))
-		    return callback.call(this);
-		  
-		  rendererInfo.bindOne("libLoaded", callback, undefined, this);
-		}
-		
 		function initializeVariables() {
 			this.elementDOM = undefined;
 			if(helper.isFunction(initializeVariablesBeforeWidget))
 		    initializeVariablesBeforeWidget.call(this);
 		}
 		
-    function render(callback) {
-      waitLib.call(this, function() {
-        _render.call(this, callback);
-      });
+    function render() {
+      return rendererInfo.loadLib().then(_render.bind(this));
 		}
 		
-    function _render(callback) {
+    function _render() {
       var _this = this;
       initDOMELement.call(this);
       
       if(helper.isFunction(rendererInfo.render))
         return rendererInfo.render.call(this, callback);
       
-			rendererInfo.getHTML.call(this, function(html) {
-				setElementDOMHTML.call(_this, html);
-		    
-		    if(helper.isFunction(removeRenderBeforeWidget))
-			    removeRenderBeforeWidget.call(this, callback);
-        else
-		      callback();
-			});
+      return new Promise(function(resolve, reject) {
+				rendererInfo.getHTML.call(this, function(html) {
+					setElementDOMHTML.call(_this, html);
+			    
+			    if(helper.isFunction(removeRenderBeforeWidget))
+				    removeRenderBeforeWidget.call(this, resolve);
+		      else
+			      resolve();
+				});
+      }.bind(this));
 		}
 		
 		function initDOMELement() {
@@ -54,7 +47,6 @@ define(["elaiJS/helper"], function(helper) {
 		  var elem;
 		  if(helper.isFunction(this.findDOMElement))
 		    elem = this.findDOMElement();
-			 
 			 return elem || document.getElementById(this.id);
 		}
 

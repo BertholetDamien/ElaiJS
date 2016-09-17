@@ -1,6 +1,6 @@
 define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/plugin",
-          "elaiJS/helper", "elaiJS/mode"],
-          function(config, webservice, pluginManager, helper, mode) {
+          "elaiJS/helper", "elaiJS/mode", "elaiJS/promise"],
+          function(config, webservice, pluginManager, helper, mode, Promise) {
 	'use strict';
   
 	var self = {};
@@ -10,7 +10,7 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/plugin",
   
 	self.widgets = widgets;
   
-	self.create = function create(widgetInfo, id, params, callback) {
+	self.create = function create(widgetInfo, id, params) {
 		if(!id)
 			throw new Error("ID are required");
 		
@@ -18,18 +18,15 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/plugin",
     
 		if(!widgetInfo.name)
 			throw new Error("Name are required");
-    
-		buildPrototypeInstance(widgetInfo, function (widgetPrototype) {
-			createWidget(widgetInfo, id, params, widgetPrototype, callback);
+			
+		return buildPrototypeInstance(widgetInfo).then(function(widgetPrototype) {
+			return createWidget(widgetInfo, id, params, widgetPrototype);
 		});
 	};
 	
-	self.createAndRender = function createAndRender(widgetInfo, id, params, renderParams, callback) {
-		self.create(widgetInfo, id, params, function(widget) {
-		  widget.render(renderParams, function() {
-		    if(helper.isFunction(callback))
-		      callback(widget);
-		  });
+	self.createAndRender = function createAndRender(widgetInfo, id, params, renderParams) {
+		return self.create(widgetInfo, id, params).then(function(widget) {
+			return widget.render(renderParams);
 		});
 	};
 
@@ -89,14 +86,14 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/plugin",
 			self.remove(widget.children[key]);
 	}
 
-	function createWidget(widgetInfo, id, params, widgetPrototype, callback) {
+	function createWidget(widgetInfo, id, params, widgetPrototype) {
 		var widget = instanciateWidget(widgetInfo, id, widgetPrototype);
     self.add(widget);
     
-    pluginManager.applyDefaultPlugins(widget, widgetPrototype, function() {
-      widget.create(function() {
-		    widget.initialize(params, function() {
-		      callback(widget);
+    return pluginManager.applyDefaultPlugins(widget, widgetPrototype).then(function() {
+    	return widget.create().then(function() {
+	    	return widget.initialize(params).then(function() {
+					return widget;
 		    });
       });
 	  });
@@ -134,25 +131,22 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/plugin",
 	/**************************************************************************
 	************************** Prototype Management **************************
 	**************************************************************************/
-	function buildPrototypeInstance(widgetInfo, callback) {
-    getWidgetPrototypeInfo(widgetInfo, function(widgetPrototypeInfo) {
-  		callback(buildWidgetPrototypeInfoInstance(widgetPrototypeInfo));
-    });
+	function buildPrototypeInstance(widgetInfo) {
+		return getWidgetPrototypeInfo(widgetInfo).then(buildWidgetPrototypeInfoInstance);
 	}
 	
-	function getWidgetPrototypeInfo(widgetInfo, callback) {
+	function getWidgetPrototypeInfo(widgetInfo) {
 		var widgetProtoInfo;
 		if(widgetsProtoInfo[widgetInfo.name])
 			widgetProtoInfo = widgetsProtoInfo[widgetInfo.name][widgetInfo.mode];
     
-		if(!widgetProtoInfo)
-			loadWidgetPrototype(helper.clone(widgetInfo), callback);
-		else if(helper.isFunction(callback))
-		  callback(widgetProtoInfo);
+		if(widgetProtoInfo)
+			return Promise.resolve(widgetProtoInfo);
+		return loadWidgetPrototype(helper.clone(widgetInfo));
 	}
 
-	function loadWidgetPrototype(widgetInfo, callback) {
-		webservice.loadWidget(widgetInfo).then(function(properties) {
+	function loadWidgetPrototype(widgetInfo) {
+		return webservice.loadWidget(widgetInfo).then(function(properties) {
 		  if(helper.isFunction(properties))
 		    properties = {builder: properties};
 	    
@@ -161,10 +155,10 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/plugin",
 			
 			var widgetParentInfo = buildWidgetParentInfo(widgetInfo, properties);
 			if(widgetParentInfo === null)
-			  return callback(addWidgetProtoInfo(widgetInfo, properties));
+			  return Promise.resolve(addWidgetProtoInfo(widgetInfo, properties));
 			
-			getWidgetPrototypeInfo(widgetParentInfo, function(widgetParentProtoInfo) {
-		    callback(addWidgetProtoInfo(widgetInfo, properties, widgetParentProtoInfo));
+			return getWidgetPrototypeInfo(widgetParentInfo).then(function(widgetParentProtoInfo) {
+				return addWidgetProtoInfo(widgetInfo, properties, widgetParentProtoInfo);
 			});
 		});
 	}
@@ -184,11 +178,11 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/plugin",
 			widgetsProtoInfo[widgetInfo.name] = {};
     
     var widgetProtoInfo =   {
-                              properties: properties,
-                              name:       widgetInfo.name,
-                              mode:       widgetInfo.mode,
-                              parent:     parentPrototypeInfo
-                            };
+      properties: properties,
+      name:       widgetInfo.name,
+      mode:       widgetInfo.mode,
+      parent:     parentPrototypeInfo
+    };
 		widgetsProtoInfo[widgetInfo.name][widgetInfo.mode] = widgetProtoInfo;
     return widgetProtoInfo;
 	}

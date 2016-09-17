@@ -34,9 +34,9 @@ define([  "elaiJS/binder", "elaiJS/ressources", "elaiJS/widget",
       this.loading = true;
       this.fire("test_module_loading");
       
-      widgetManager.create("testIFrame", this.name + "IFrame", this, function(widget) {
+      widgetManager.create("testIFrame", this.name + "IFrame", this).then(function(widget) {
         _this.wTestIFrame = widget;
-        _this.wTestIFrame.render(undefined, function() {
+        _this.wTestIFrame.render(undefined).then(function() {
           initializeElaiJSTestIFrame.call(_this, callback);
         });
       });
@@ -45,6 +45,7 @@ define([  "elaiJS/binder", "elaiJS/ressources", "elaiJS/widget",
     function initializeElaiJSTestIFrame(callback) {
       if(this.destroy === true)
         return;
+    	
       this.elaiJSTestIFrame = this.wTestIFrame.getElaiJSTestIFrame();
       
       initializeFeatures.call(this, this.elaiJSTestIFrame.features);

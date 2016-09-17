@@ -1,34 +1,30 @@
-define(["elaiJS/multicallback", "elaiJS/defaultConfiguration"],
-        function(multicallback, defaultConf) {
+define(["elaiJS/promise", "elaiJS/defaultConfiguration"],
+        function(Promise, defaultConf) {
 	'use strict';
 
 	var properties = {};
 	properties.parent = "iframe";
 	
-	properties.builder = function(proto) {
-	  proto._initialize = function _initialize(callback) {
+	properties.builder = function() {
+	  this._initialize = function _initialize() {
 	    this.params = {
 	        needDisplay: false,
 	        canRemoveRender: false,
 	        iframeSrc: "testiframe.html?module=" + this.params.name
 	    };
-	    
-	    callback();
 	  };
 	  
-	  proto._render = function _render(callback) {
-	    var _this = this;
+	  this._render = function _render(callback) {
+      this.super._render.call(this);
       
-      this.super._render.call(this, function() {
-        _this.elementDOM.contentWindow.callbackReady = callback;
-      });
+      return new Promise(function(resolve, reject) {
+      	this.elementDOM.contentWindow.callbackReady = resolve;
+      }.bind(this));
 	  };
     
-	  proto.getElaiJSTestIFrame = function() {
+	  this.getElaiJSTestIFrame = function() {
       return this.elementDOM.contentWindow.elaiJSTestIFrame;
 	  };
-	  
-		return proto;
 	};
 
 	return properties;

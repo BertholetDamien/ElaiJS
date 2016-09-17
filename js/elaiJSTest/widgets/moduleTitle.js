@@ -7,7 +7,7 @@ define([  "elaiJS/multicallback"],
   
 	properties.builder = function(proto) {
     
-		proto._initialize = function _initialize(callback) {
+		proto._initialize = function _initialize() {
 			this.module = this.params.module;
       
       this.module.bind("test_module_cancelled", render, undefined, this);
@@ -16,11 +16,9 @@ define([  "elaiJS/multicallback"],
 			this.module.bind("test_module_start", render, undefined, this);
 			this.module.bind("test_feature_end", render, undefined, this);
 			this.module.bind("test_module_end", render, undefined, this);
-			
-			callback();
 		};
 		
-		proto._render = function _render(callback) {
+		proto._render = function _render() {
 		  var _this = this;
 		  
 		  var elemReloadIcon = this.elementDOM.getElementsByClassName("reload_icon")[0];
@@ -32,8 +30,6 @@ define([  "elaiJS/multicallback"],
 		  elemCancelIcon.onclick = function() {
 		    _this.module.cancel();
 		  };
-		  
-		  callback();
 		};
 		
 		function render(event) {

@@ -1,6 +1,6 @@
-define([  "elaiJS/multicallback", "elaiJS/configuration",
+define([  "elaiJS/promise", "elaiJS/configuration",
           "elaiJSTest/modules/moduleTestor"],
-          function(multicallback, config, ModuleTestor) {
+          function(Promise, config, ModuleTestor) {
 	'use strict';
 
 	var properties = {};
@@ -8,10 +8,10 @@ define([  "elaiJS/multicallback", "elaiJS/configuration",
 	properties.builder = function(proto) {
 	  proto.modules = undefined;
 
-		proto._initialize = function _initialize(callback) {
+		proto._initialize = function _initialize() {
 		  this.modules = buildModules();
 		  
-		  createModulesWidget.call(this, callback);
+		  return createModulesWidget.call(this);
 		};
 		
 	  function buildModules() {
@@ -22,17 +22,16 @@ define([  "elaiJS/multicallback", "elaiJS/configuration",
       return modules;
     }
     
-    function createModulesWidget(callback) {
-      var count = this.modules.length;
-      
-      var multiCallBackFunction = multicallback(count, callback);
-      for(var i = 0 ; i < count ; ++i)
-        createModuleWidget.call(this, this.modules[i], multiCallBackFunction);
+    function createModulesWidget() {
+      var promises = [];
+      for(var i in this.modules)
+        createModuleWidget.call(this, this.modules[i]);
+     	return Promise.all(promises);
     }
 		
-		function createModuleWidget(module, callback) {
+		function createModuleWidget(module) {
 		  var id = "module" + module.index;
-	    this.createChild("module", id, {module: module}, callback);
+	    return this.createChild("module", id, {module: module});
 		}
 		
 		proto._destroy = function _destroy() {

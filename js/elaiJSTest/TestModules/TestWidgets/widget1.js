@@ -3,7 +3,7 @@ define([], function() {
   var properties = {};
   
   properties.builder = function(proto) {
-    proto._create = function(callback) {
+    proto._create = function() {
       this.created = true;
       this.count = {
         init: 0,
@@ -17,23 +17,19 @@ define([], function() {
         destroy: 0,
         remove: 0
       };
-      
-      callback();
     };
     
-    proto._initialize = function(callback) {
+    proto._initialize = function() {
       this.love = this.params.love;
       ++this.count.init;
-      callback();
     };
     
     proto._initializeVariables = function() {
       ++this.count.initVars;
     };
     
-    proto._fetchData = function(callback) {
+    proto._fetchData = function() {
       ++this.count.fetchData;
-      callback();
     };
     
     proto._processRowData = function(rowData) {
@@ -41,14 +37,12 @@ define([], function() {
       return rowData;
     };
     
-    proto._refreshRender = function(callback) {
+    proto._refreshRender = function() {
       ++this.count.refreshRender;
-      callback();
     };
     
-    proto._render = function(callback) {
+    proto._render = function() {
       ++this.count.render;
-      callback();
     };
     
     proto._destroy = function() {
