@@ -13,7 +13,7 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper", "elaiJS/plugin
   self.defaultPlugin = function(test) {
     config.elaiJS.defaultPlugins = {"plugin1": {}};
     
-    widgetManager.create("widget1", "w1", undefined, function(widget) {
+    widgetManager.create("widget1", "w1").then(function(widget) {
       test.assertEq("love", widget.cute);
       test.assertEq(42, widget.kindness);
       test.assertEq(true, widget.hasPlugin1);
@@ -25,7 +25,7 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper", "elaiJS/plugin
   self.noDefault = function(test) {
     config.elaiJS.defaultPlugins = undefined;
     
-    widgetManager.create("widget1", "noPlugin", undefined, function(widget) {
+    widgetManager.create("widget1", "noPlugin").then(function(widget) {
       test.assertUndefined(widget.hasPlugin1);
       test.assertUndefined(widget.cute);
       test.assertUndefined(widget.kindness);
@@ -37,7 +37,7 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper", "elaiJS/plugin
   self.applyPlugin = function(test) {
     config.elaiJS.defaultPlugins = undefined;
     
-    widgetManager.create("widget1", "applyPlugin", undefined, function(widget) {
+    widgetManager.create("widget1", "applyPlugin").then(function(widget) {
       test.assertUndefined(widget.hasPlugin1);
       test.assertUndefined(widget.cute);
       test.assertUndefined(widget.kindness);
@@ -45,7 +45,7 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper", "elaiJS/plugin
       pluginManager.applyPlugin({name: "plugin1"}, widget).then(function() {
         test.assertEq(true, widget.hasPlugin1);
 
-        widget.initialize({}, function() {
+        widget.initialize({}).then(function() {
           test.assertEq("love", widget.cute);
           test.assertEq(42, widget.kindness);
         
@@ -58,7 +58,7 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper", "elaiJS/plugin
   self.applyPlugins = function(test) {
     config.elaiJS.defaultPlugins = undefined;
     
-    widgetManager.create("widget1", "applyPlugins", undefined, function(widget) {
+    widgetManager.create("widget1", "applyPlugins").then(function(widget) {
       test.assertUndefined(widget.hasPlugin1);
       test.assertUndefined(widget.hasPlugin2);
       
@@ -71,7 +71,7 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper", "elaiJS/plugin
         test.assertEq(true, widget.hasPlugin1);
         test.assertEq(true, widget.hasPlugin2);
 
-        widget.initialize({}, function() {
+        widget.initialize({}).then(function() {
           test.assertEq(2, widget.here.length);
           test.assertEq("plugin1", widget.here[0]);
           test.assertEq("plugin2", widget.here[1]);
@@ -85,7 +85,7 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper", "elaiJS/plugin
   self.applyPluginPriority = function(test) {
     config.elaiJS.defaultPlugins = undefined;
     
-    widgetManager.create("widget1", "priority", undefined, function(widget) {
+    widgetManager.create("widget1", "priority").then(function(widget) {
       test.assertUndefined(widget.hasPlugin1);
       test.assertUndefined(widget.hasPlugin2);
       
@@ -98,7 +98,7 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper", "elaiJS/plugin
         test.assertEq(true, widget.hasPlugin1);
         test.assertEq(true, widget.hasPlugin2);
 
-        widget.initialize({}, function() {
+        widget.initialize({}).then(function() {
           test.assertEq(2, widget.here.length);
           test.assertEq("plugin2", widget.here[0]);
           test.assertEq("plugin1", widget.here[1]);
@@ -112,7 +112,7 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper", "elaiJS/plugin
   self.propertyPlugin = function(test) {
     config.elaiJS.defaultPlugins = undefined;
     
-    widgetManager.create("widgetPlugin1", "property", undefined, function(widget) {
+    widgetManager.create("widgetPlugin1", "property").then(function(widget) {
       test.assertEq(true, widget.hasPlugin1);
       test.assertUndefined(widget.hasPlugin2);
       test.assertEq(1, widget.here.length);
@@ -126,7 +126,7 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper", "elaiJS/plugin
   self.propertyPluginDefault = function(test) {
     config.elaiJS.defaultPlugins = {plugin2: {}};
     
-    widgetManager.create("widgetPlugin1", "propertyDefault", undefined, function(widget) {
+    widgetManager.create("widgetPlugin1", "propertyDefault").then(function(widget) {
       test.assertEq(true, widget.hasPlugin1);
       test.assertUndefined(widget.hasPlugin2);
       test.assertEq(1, widget.here.length);
@@ -140,7 +140,7 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper", "elaiJS/plugin
   self.propertyPluginParent = function(test) {
     config.elaiJS.defaultPlugins = undefined;
     
-    widgetManager.create("widgetPlugin2", "propertyParent", undefined, function(widget) {
+    widgetManager.create("widgetPlugin2", "propertyParent").then(function(widget) {
       test.assertEq(true, widget.hasPlugin1);
       test.assertEq(true, widget.hasPlugin2);
       test.assertEq(2, widget.here.length);

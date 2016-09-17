@@ -11,7 +11,7 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
   };
 
   self.createWidgetWithParams = function(test) {
-    widgetManager.create("widget1", "w1", {love: 42}, function(widget) {
+    widgetManager.create("widget1", "w1", {love: 42}).then(function(widget) {
       test.assertEq("w1", widget.id);
       test.assertEq(42, widget.params.love);
       test.assertEq(42, widget.love);
@@ -21,56 +21,63 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
   };
   
   self.internalCycleLife = function(test) {
-    widgetManager.create("widget1", "internalCycleLife", {love: 42}, function(widget) {
+    widgetManager.create("widget1", "internalCycleLife", {love: 42}).then(function(widget) {
       test.assertEq("internalCycleLife", widget.id);
       test.assertTrue(widget.created);
       
       test.assertEq(1, widget.count.init);
       test.assertEq(1, widget.count.initVars);
       
-      widget.render();
-      test.assertEq(1, widget.count.render);
-      
-      widget.reload();
-      test.assertEq(2, widget.count.init);
-      test.assertEq(2, widget.count.initVars);
-      test.assertEq(2, widget.count.render);
-      test.assertEq(1, widget.count.removeRender);
-      
-      widget.refresh();
-      test.assertEq(1, widget.count.fetchData);
-      test.assertEq(1, widget.count.processRowData);
-      test.assertEq(1, widget.count.refreshRender);
-      
-      widget.initialize();
-      test.assertEq(3, widget.count.init);
-      test.assertEq(3, widget.count.initVars);
-      
-      widget.initializeVariables();
-      test.assertEq(3, widget.count.init);
-      test.assertEq(4, widget.count.initVars);
-      
-      widget.refreshData();
-      test.assertEq(2, widget.count.fetchData);
-      test.assertEq(2, widget.count.processRowData);
-      
-      widget.processRowData();
-      test.assertEq(3, widget.count.processRowData);
-      
-      widget.fetchData();
-      test.assertEq(3, widget.count.fetchData);
-      
-      widget.refreshRender();
-      test.assertEq(2, widget.count.refreshRender);
-      
-      test.done();
+      widget.render().then(function() {
+        test.assertEq(1, widget.count.render);
+        
+        widget.reload().then(function() {
+          test.assertEq(2, widget.count.init);
+          test.assertEq(2, widget.count.initVars);
+          test.assertEq(2, widget.count.render);
+          test.assertEq(1, widget.count.removeRender);
+          
+          widget.refresh().then(function() {
+            test.assertEq(1, widget.count.fetchData);
+            test.assertEq(1, widget.count.processRowData);
+            test.assertEq(1, widget.count.refreshRender);
+            
+            widget.initialize().then(function() {
+              test.assertEq(3, widget.count.init);
+              test.assertEq(3, widget.count.initVars);
+              
+              widget.initializeVariables();
+              test.assertEq(3, widget.count.init);
+              test.assertEq(4, widget.count.initVars);
+              
+              widget.refreshData().then(function() {
+                test.assertEq(2, widget.count.fetchData);
+                test.assertEq(2, widget.count.processRowData);
+                
+                widget.processRowData();
+                test.assertEq(3, widget.count.processRowData);
+                
+                widget.fetchData().then(function() {
+                  test.assertEq(3, widget.count.fetchData);
+                  
+                  widget.refreshRender().then(function() {
+                    test.assertEq(2, widget.count.refreshRender);
+                    
+                    test.done();
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
     });
   };
   
   self.refreshData = function(test) {
     var widget = widgetManager.get("w1");
-    widget._fetchData = function(callback) {
-      callback({hope: "happy", love: 42});
+    widget._fetchData = function() {
+      return {hope: "happy", love: 42};
     };
     
     widget._processRowData = function() {
@@ -81,7 +88,7 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
       return data;
     };
     
-    widget.refreshData(function() {
+    widget.refreshData().then(function() {
       test.assertEq(42, widget.rowData.love);
       test.assertEq("happy", widget.rowData.hope);
       
@@ -207,9 +214,9 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
   };
   
   self.cycleLifePreparation = function(test) {
-    widgetManager.create("widget2", "cycleLife", undefined, function(widget) {
+    widgetManager.create("widget2", "cycleLife").then(function(widget) {
       widget.addEventFunctions();
-      widget.create(function() {
+      widget.create().then(function() {
         checkCycleResult(test, widget.cycleLife, getCycleLife("create"));
       });
     });
@@ -219,7 +226,7 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
     var widget = widgetManager.get("cycleLife");
     widget.cycleLife = [];
     
-    widget.initialize({}, function() {
+    widget.initialize({}).then(function() {
       checkCycleResult(test, widget.cycleLife,
               ["beforeInitialize"]
                 .concat(getCycleLife("initializeVariables"))
@@ -239,7 +246,7 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
     var widget = widgetManager.get("cycleLife");
     widget.cycleLife = [];
     
-    widget.refresh(function() {
+    widget.refresh().then(function() {
       checkCycleResult(test, widget.cycleLife,
               ["beforeRefresh"]
                 .concat(getRefreshDataCycleLife())
@@ -253,7 +260,7 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
     var widget = widgetManager.get("cycleLife");
     widget.cycleLife = [];
     
-    widget.refreshData(function() {
+    widget.refreshData().then(function() {
       checkCycleResult(test, widget.cycleLife, getRefreshDataCycleLife());
     });
   };
@@ -262,7 +269,7 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
     var widget = widgetManager.get("cycleLife");
     widget.cycleLife = [];
     
-    widget.fetchData(function() {
+    widget.fetchData().then(function() {
       checkCycleResult(test, widget.cycleLife, getCycleLife("fetchData"));
     });
   };
@@ -297,7 +304,7 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
     var widget = widgetManager.get("cycleLife");
     widget.cycleLife = [];
     
-    widget.refreshRender(function() {
+    widget.refreshRender().then(function() {
       checkCycleResult(test, widget.cycleLife, getCycleLife("refreshRender"));
     });
   };
@@ -306,7 +313,7 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
     var widget = widgetManager.get("cycleLife");
     widget.cycleLife = [];
     
-    widget.render({}, function() {
+    widget.render({}).then(function() {
       checkCycleResult(test, widget.cycleLife, getCycleLife("render", true));
     });
   };
@@ -315,7 +322,7 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
     var widget = widgetManager.get("cycleLife");
     widget.cycleLife = [];
     
-    widget.reload({}, {}, function() {
+    widget.reload({}, {}).then(function() {
       checkCycleResult(test, widget.cycleLife,
               ["beforeReload"]
                 .concat("beforeInitialize")
@@ -363,7 +370,6 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
                 .concat(endCycleLife("destroy")));
   };
   
-  
   function getRefreshDataCycleLife() {
     return ["beforeRefreshData"]
             .concat(getCycleLife("fetchData"))
@@ -404,8 +410,8 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
   }
   
   self.addChild = function(test) {
-    widgetManager.create("widget1", "parent1", undefined, function(wParent) {
-      widgetManager.create("widget1", "child1", undefined, function(wChild1) {
+    widgetManager.create("widget1", "parent1").then(function(wParent) {
+      widgetManager.create("widget1", "child1").then(function(wChild1) {
         test.assertDefined(widgetManager.get(wChild1.id));
         wChild1.remove();
         test.assertUndefined(widgetManager.get(wChild1.id));
@@ -423,7 +429,7 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
   
   self.addChildMultiple = function(test) {
     var wParent = widgetManager.get("parent1");
-    widgetManager.create("widget2", "child2", undefined, function(wChild2) {
+    widgetManager.create("widget2", "child2").then(function(wChild2) {
       test.assertEq(1, Object.keys(wParent.children).length);
       wParent.addChild(wChild2);
       
@@ -465,7 +471,7 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
     var wChild1 = widgetManager.get("child1");
     this.assertEq(0, Object.keys(wChild1.children).length);
     
-    wChild1.createChild("widget2", "subchild2", undefined, function(wSubChild2) {
+    wChild1.createChild("widget2", "subchild2").then(function(wSubChild2) {
       test.assertDefined(widgetManager.get(wSubChild2.id));
       
       test.assertEq(1, Object.keys(wChild1.children).length);
@@ -515,7 +521,7 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
   };
   
   self.widgetParent1 = function(test) {
-    widgetManager.create("widgetParent1", "widgetParent1", undefined, function(widget) {
+    widgetManager.create("widgetParent1", "widgetParent1").then(function(widget) {
       test.assertEq(1, widget.only1());
       test.assertUndefined(widget.only2);
       test.assertUndefined(widget.only3);
@@ -528,7 +534,7 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
   };
   
   self.widgetParent2 = function(test) {
-    widgetManager.create("widgetParent2", "widgetParent2", undefined, function(widget) {
+    widgetManager.create("widgetParent2", "widgetParent2").then(function(widget) {
       test.assertEq(1, widget.only1());
       test.assertEq(2, widget.only2());
       test.assertUndefined(widget.only3);
@@ -543,7 +549,7 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
   };
   
   self.widgetParent3 = function(test) {
-    widgetManager.create("widgetParent3", "widgetParent3", undefined, function(widget) {
+    widgetManager.create("widgetParent3", "widgetParent3").then(function(widget) {
       test.assertEq(1, widget.only1());
       test.assertEq(2, widget.only2());
       test.assertEq(3, widget.only3());

@@ -42,8 +42,8 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder",
 		  return this.refreshData().then(function() {
 		    return this.refreshRender(false).then(function() {
 		      return callChildrenIfNeeded.call(this, "refresh").then(fireCallback);
-		    });
-		  });
+		    }.bind(this));
+		  }.bind(this));
 		};
 		
 		this.refreshData = function refreshData(skipEvent) {
@@ -52,7 +52,7 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder",
 		  return this.fetchData().then(function(rowData) {
 		    this.setData(rowData, true);
 		    this.after("refreshData", skipEvent);
-		  });
+		  }.bind(this));
 		};
 		
 		this.fetchData = function fetchData(skipEvent) {
@@ -93,8 +93,6 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder",
 		};
 
 		this.render = function render(renderParams, skipEvent) {
-			if(!this)
-				console.log(renderParams);
 		  this.before("render", skipEvent);
 		  
 		  this.renderParams = renderParams;
@@ -113,10 +111,10 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder",
 		  this.before("reload", skipEvent);
 
 			var fireCallback = this.buildAfterCB("reload", undefined, skipEvent);
-			return this.initialize(params || this.params, function () {
+			return this.initialize(params || this.params).then(function () {
 				this.removeRender(false);
 				return this.render(renderParams || this.renderParams).then(fireCallback);
-			});
+			}.bind(this));
 		};
 		
 		this.destroy = function destroy(skipEvent) {
@@ -147,7 +145,7 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder",
 		  var _this = this;
 		  
       return this.callPluginsFct(name + "BeforeWidget").then(function() {
-        return callInternalWidgetFct.call(_this, name).then(function(result) {
+        return callInternalWidgetFctPromise.call(_this, name).then(function(result) {
           return _this.callPluginsFct(name + "AfterWidget").then(function() {
             if(!callChildren)
           		return result;
@@ -160,25 +158,26 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder",
 		}
 		
 		function executeSyncCycleLifeFcts(name, callChildren) {
-      this.callPluginsFct(name + "BeforeWidget");
+      callPluginsFctSync.call(this, name + "BeforeWidget");
       var result = callInternalWidgetFct.call(this, name);
-      this.callPluginsFct(name + "AfterWidget");
+      callPluginsFctSync.call(this, name + "AfterWidget");
       if(callChildren)
-        callChildrenIfNeeded.call(this, name);
+        callChildrenIfNeededSync.call(this, name);
       return result;
 		}
 		
+		function callInternalWidgetFctPromise(name) {
+			return Promise.resolve(name).then(callInternalWidgetFct.bind(this));
+		}
+
 		function callInternalWidgetFct(name) {
-			return Promise.resolve().then(function() {
-			  var fctName = "_" + name;
-			  if(helper.isFunction(this[fctName]))
-	        return this[fctName]();
-			}.bind(this));
+			var fctName = "_" + name;
+			if(helper.isFunction(this[fctName]))
+				return this[fctName]();
 		}
 		
 		this.callPluginsFct = function callPluginsFct(name) {
 		  this.before(name + "Plugins");
-		  var fireCallback = this.buildAfterCB(name + "Plugins");
 		  
 		  var promises = [];
       for(var i in this.plugins) {
@@ -187,7 +186,20 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder",
           promises.push(plugin[name].call(this));
       }
       
+		  var fireCallback = this.buildAfterCB(name + "Plugins");
       return Promise.all(promises).then(fireCallback);
+		};
+
+		function callPluginsFctSync(name) {
+		  this.before(name + "Plugins");
+		  
+      for(var i in this.plugins) {
+        var plugin = this.plugins[i].plugin;
+        if(helper.isFunction(plugin[name]))
+          plugin[name].call(this);
+      }
+      
+		  this.after(name + "Plugins");
 		};
 		
 		function callChildrenIfNeeded(name, overrideValue) {
@@ -196,6 +208,12 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder",
 	      if(needChildren)
 	        return this[name + "Children"]();
 			}.bind(this));
+		}
+
+		function callChildrenIfNeededSync(name, overrideValue) {
+		  var needChildren = isNeedChildren.call(this, name, overrideValue);
+      if(needChildren)
+        return this[name + "Children"]();
 		}
 		
 		function isNeedChildren(name, defaultValue) {
@@ -291,12 +309,12 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder",
 		}
 		
 		this.removeRenderChildren = function removeRender(skipEvent) {
-			return this.applyOnChildren("removeRender", undefined, skipEvent);
+			return this.applyOnChildrenSync("removeRender", undefined, skipEvent);
 		};
 		
 		this.renderChildren = function renderChildren(skipEvent) {
 			return this.applyOnChildren("render", function(child) {
-			  return child.render(undefined);
+			  return child.render();
 			}, skipEvent);
 		};
 
@@ -311,7 +329,7 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder",
 		};
 		
 		this.destroyChildren = function destroyChildren(skipEvent) {
-		  return this.applyOnChildren("destroy", undefined, skipEvent);
+		  return this.applyOnChildrenSync("destroy", undefined, skipEvent);
 		};
 		
 		this.applyOnChildren = function applyOnChildren(actionName, action, skipEvent) {
@@ -322,12 +340,26 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder",
 					return child[actionName]();
 				};
 			}
-			
+
 			var fireCallback = this.buildAfterCB(actionName + "Children", undefined, skipEvent);
 			var promises = [];
 			for(var key in this.children)
 				promises.push(action(this.children[key]));
  			return Promise.all(promises).then(fireCallback);
+		};
+
+		this.applyOnChildrenSync = function applyOnChildrenSync(actionName, action, skipEvent) {
+			this.before(actionName + "Children", skipEvent);
+			
+			if(!action) {
+				action = function(child) {
+					return child[actionName]();
+				};
+			}
+
+			for(var key in this.children)
+				action(this.children[key]);
+ 			this.after(actionName + "Children", skipEvent);
 		};
 		
 		function addChildrenActionByID(action) {
@@ -379,10 +411,11 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder",
     
     this.buildAfterCB = function buildAfterCB(functionName, callback, skipEvent) {
       var _this = this;
-      return function() {
+      return function(result) {
         _this.after(functionName, skipEvent);
         if(helper.isFunction(callback))
           callback.apply(_this, arguments);
+        return result;
       };
     };
     

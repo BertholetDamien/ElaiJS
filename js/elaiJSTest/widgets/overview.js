@@ -25,7 +25,7 @@ define([  "elaiJS/promise", "elaiJS/configuration",
     function createModulesWidget() {
       var promises = [];
       for(var i in this.modules)
-        createModuleWidget.call(this, this.modules[i]);
+        promises.push(createModuleWidget.call(this, this.modules[i]));
      	return Promise.all(promises);
     }
 		
