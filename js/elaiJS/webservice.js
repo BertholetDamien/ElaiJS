@@ -91,7 +91,9 @@ define(["elaiJS/configuration", "elaiJS/binder", "elaiJS/helper", "elaiJS/promis
 		
 		if(!promise) {
 			promise = new Promise(function(resolve, reject) {
-				context.service.execute(context.params, resolve, reject, context);
+				var result = context.service.execute(context.params, resolve, reject, context);
+				if(result && helper.isFunction(result.then))
+					result.then(resolve, reject);
 			});
 			
 			if(context.serviceParams.useCache)
@@ -148,6 +150,8 @@ define(["elaiJS/configuration", "elaiJS/binder", "elaiJS/helper", "elaiJS/promis
 		
 		promise.then(function(result) {
 			addToCache(context, params, result);
+			deleteCurrentObj(context.service, obj);
+		}, function() {
 			deleteCurrentObj(context.service, obj);
 		});
 	}
