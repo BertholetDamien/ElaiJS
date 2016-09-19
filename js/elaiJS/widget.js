@@ -26,7 +26,9 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/plugin",
 	
 	self.createAndRender = function createAndRender(widgetInfo, id, params, renderParams) {
 		return self.create(widgetInfo, id, params).then(function(widget) {
-			return widget.render(renderParams);
+			return widget.render(renderParams).then(function() {
+				return widget;
+			});
 		});
 	};
 
