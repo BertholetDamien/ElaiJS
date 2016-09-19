@@ -2,14 +2,14 @@ define(["elaiJS/helper", "elaiJS/promise"], function(helper, Promise) {
 	'use strict';
 	
 	return function(rendererInfo, pluginInfo, plugin) {
-	  var initializeVariablesBeforeWidget = plugin.initializeVariablesBeforeWidget;
-	  var renderBeforeWidget              = plugin.renderBeforeWidget;
-	  var removeRenderBeforeWidget        = plugin.removeRenderBeforeWidget;
+	  var initializeBeforeWidget 		= plugin.initializeBeforeWidget;
+	  var renderBeforeWidget 				= plugin.renderBeforeWidget;
+	  var removeRenderBeforeWidget 	= plugin.removeRenderBeforeWidget;
 	  
-		function initializeVariables() {
+		function initialize() {
 			this.elementDOM = undefined;
-			if(helper.isFunction(initializeVariablesBeforeWidget))
-		    initializeVariablesBeforeWidget.call(this);
+			if(helper.isFunction(initializeBeforeWidget))
+		    initializeBeforeWidget.call(this);
 		}
 		
     function render() {
@@ -92,9 +92,9 @@ define(["elaiJS/helper", "elaiJS/promise"], function(helper, Promise) {
       return helper.isFunction(this.mustAppendHTML) && this.mustAppendHTML() === true;
     }
     
-    plugin.initializeVariablesBeforeWidget  = initializeVariables;
-    plugin.renderBeforeWidget               = render;
-    plugin.removeRenderBeforeWidget         = removeRender;
+    plugin.initializeBeforeWidget 	= initialize;
+    plugin.renderBeforeWidget 			= render;
+    plugin.removeRenderBeforeWidget = removeRender;
     
     return plugin;
 	};

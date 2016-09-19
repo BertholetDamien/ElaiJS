@@ -6,7 +6,7 @@ define(["elaiJS/helper"], function(helper) {
     this.addEventFunctions = function() {
       this.cycleLife = [];
       
-      var names = [ "create", "initialize", "initializeVariables", "refresh", "refreshData", "fetchData",
+      var names = [ "create", "initialize", "refresh", "refreshData", "fetchData",
                     "setData", "processRowData", "refreshRender", "render", "removeRender", "reload",
                     "destroy", "remove"];
       for(var i in names) {

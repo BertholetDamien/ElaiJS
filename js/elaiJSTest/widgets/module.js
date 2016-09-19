@@ -34,8 +34,9 @@ define([  "elaiJS/promise", "elaiJS/mode"],
     };
 		
     function featuresChanged() {
-      this.destroyChildsByName("feature");
-      createFeaturesChild.call(this).then(this.render.bind(this));
+      this.destroyChildsByName("feature").then(function() {
+        createFeaturesChild.call(this).then(this.render.bind(this));
+      }.bind(this));
 
       var _this = this;
       this.render().then(function() {

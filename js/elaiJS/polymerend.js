@@ -10,10 +10,10 @@ define([  "elaiJS/configuration", "elaiJS/mode", "elaiJS/helper",
 	  };
 	  binder.addAllFunctions(rendererInfo);
 	  
-	  var plugin = {initializeVariablesBeforeWidget: initializeVariables};
+	  var plugin = {initializeBeforeWidget: initialize};
 	  plugin = rendererFactory(rendererInfo, pluginInfo, plugin);
 		
-		function initializeVariables() {
+		function initialize() {
 			this.viewData = undefined;
 		}
 		

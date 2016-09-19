@@ -21,10 +21,11 @@ define([  "elaiJS/promise", "elaiJS/navigator", "elaiJS/language"],
 		};
 		
 		function pageChanged() {
-		  this.destroyChildByID("page");
-		  createPageWidget.call(this).then(function(widget) {
-		    widget.render();
-		  });
+		  this.destroyChildByID("page").then(function() {
+			  createPageWidget.call(this).then(function(widget) {
+			    widget.render();
+			  });
+		  }.bind(this));
 		}
 		
 		function createPageWidget() {

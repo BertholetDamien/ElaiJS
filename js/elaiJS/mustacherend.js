@@ -17,11 +17,11 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/language",
       events: {
 	      beforeCreate: beforeCreate
       },
-      initializeVariablesBeforeWidget: initializeVariables
+      initializeBeforeWidget: initialize
 		};
 	  plugin = rendererFactory(rendererInfo, pluginInfo, plugin);
 	  
-		function initializeVariables() {
+		function initialize() {
 			this.templateData = undefined;
 		}
 		

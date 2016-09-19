@@ -7,7 +7,6 @@ define([], function() {
       this.created = true;
       this.count = {
         init: 0,
-        initVars: 0,
         render: 0,
         refreshRender: 0,
         processRowData: 0,
@@ -22,10 +21,6 @@ define([], function() {
     proto._initialize = function() {
       this.love = this.params.love;
       ++this.count.init;
-    };
-    
-    proto._initializeVariables = function() {
-      ++this.count.initVars;
     };
     
     proto._fetchData = function() {
