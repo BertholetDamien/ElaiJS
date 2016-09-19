@@ -1,6 +1,6 @@
 define([  "elaiJS/webservice", "elaiJS/ressources", "elaiJS/helper",
-          "elaiJS/configuration", "elaiJS/mode"],
-            function(webservice, res, helper, config, mode) {
+          "elaiJS/configuration", "elaiJS/mode", "elaiJS/promise"],
+            function(webservice, res, helper, config, mode, Promise) {
 	'use strict';
 
   var self = {};
@@ -34,7 +34,7 @@ define([  "elaiJS/webservice", "elaiJS/ressources", "elaiJS/helper",
     if(params.name.indexOf("/") === -1)
       url = mode.getRessource("widget", params);
     
-    webservice.loadJSFile(url).then(resolve, reject);
+  	return webservice.loadJSFile(url);
 	}
 
 	function loadPlugin(params, resolve, reject) {
@@ -44,16 +44,16 @@ define([  "elaiJS/webservice", "elaiJS/ressources", "elaiJS/helper",
     else if(params.name.indexOf("/") === -1)
       url = mode.getRessource("plugin", params);
 	  
-		webservice.loadJSFile(url).then(resolve, reject);
+		return webservice.loadJSFile(url);
 	}
 	
 	function loadWidgetCSS(params, resolve, reject) {
     var cssSettings = getCSSSettings(params);
     
-		for(var i in cssSettings) {
-			var setting = cssSettings[i];
-			webservice.loadCSS({url: setting.url}).then(resolve, reject);
-		}
+    var promises = [];
+		for(var i in cssSettings)
+			promises.push(webservice.loadCSS({url: cssSettings[i].url}));
+		return Promise.all(promises);
 	}
 	
 	function getCSSSettings(params) {
@@ -76,27 +76,27 @@ define([  "elaiJS/webservice", "elaiJS/ressources", "elaiJS/helper",
 	 ************************************************************************/
 	function loadLocalisationFile(name, resolve, reject) {
     var url = res.get("localisation", {name: name});
-    webservice.loadJSONFile(url).then(resolve, reject);
+    return webservice.loadJSONFile(url);
 	}
 	
 	function loadLanguageFile(name, resolve, reject) {
     var url = res.get("language", {name: name});
-    webservice.loadPropertiesFile(url).then(resolve, reject);
+    return webservice.loadPropertiesFile(url);
 	}
 	
 	function loadTemplate(params, resolve, reject) {
     var url = mode.getRessource("template", params);
-  	webservice.loadTextFile({url: url}).then(resolve, reject);
+  	return webservice.loadTextFile({url: url});
 	}
 	
 	function loadTheme(params, resolve, reject) {
     var url = res.get("theme", params);
-    webservice.loadCSS(url, {useCache: false}).then(resolve, reject);
+    return webservice.loadCSS(url, {useCache: false});
 	}
 	
 	function removeTheme(params, resolve, reject) {
     var url = res.get("theme", params);
-    webservice.removeDocument(url).then(resolve, reject);
+    return webservice.removeDocument(url);
 	}
 	
 	/************************************************************************
@@ -108,7 +108,7 @@ define([  "elaiJS/webservice", "elaiJS/ressources", "elaiJS/helper",
     params.rel = "stylesheet";
     params.type = "text/css";
     
-		webservice.loadDocument(params).then(resolve, reject);
+		return webservice.loadDocument(params);
 	}
 	
 	function loadDocument(params, resolve, reject) {
@@ -168,7 +168,7 @@ define([  "elaiJS/webservice", "elaiJS/ressources", "elaiJS/helper",
     params.url += getVersionURL(params.addVersion, true);
     
     params.method = "GET";
-		callHTTPRequest(params).then(function(response) {
+		webservice.call(params).then(function(response) {
       resolve((response.isSuccess) ? response.responseText : undefined);
     }, reject);
 	}
@@ -202,11 +202,13 @@ define([  "elaiJS/webservice", "elaiJS/ressources", "elaiJS/helper",
 	    };
 	
 	    var data = (params.data) ? JSON.stringify(params.data) : null;
-	    req.send(data);
+	    try {
+	    	req.send(data);
+	    } catch(e) {}
 		});
 	}
 	
-	function callAjaxHTTPRequest(params, resolve, reject) {
+	function callAjaxHTTPRequest(params) {
 	  if(!helper.isObject(params))
       params = {url: params};
     
@@ -215,7 +217,7 @@ define([  "elaiJS/webservice", "elaiJS/ressources", "elaiJS/helper",
     if(!params.requestHeader["Content-Type"])
       params.requestHeader["Content-Type"] = "application/json;charset=UTF-8";
     
-    callHTTPRequest(params).then(resolve, reject);
+    return webservice.call(params);
 	}
 
 	function getXMLHttpRequest() {
