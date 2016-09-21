@@ -1,5 +1,5 @@
-define(["elaiJS/webservice", "elaiJS/configuration", "elaiJS/helper"],
-				function(webservice, config, helper) {
+define(["elaiJS/webservice", "elaiJS/configuration", "elaiJS/helper", "elaiJS/promise"],
+				function(webservice, config, helper, Promise) {
 	'use strict';
 	var self = {};
 
