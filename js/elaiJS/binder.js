@@ -116,11 +116,11 @@ define(["elaiJS/helper"], function(helper) {
 	
 	self.addFunctions(globalEvent);
 	
-	self.bindGlobal = globalEvent.bind;
-	self.bindOneGlobal = globalEvent.bindOne;
-	self.unbindGlobal = globalEvent.unbind;
-	self.unbindAllGlobal = globalEvent.unbindAll;
-	self.fireGlobal = globalEvent.fire;
+	self.bindGlobal = globalEvent.bind.bind(globalEvent);
+	self.bindOneGlobal = globalEvent.bindOne.bind(globalEvent);
+	self.unbindGlobal = globalEvent.unbind.bind(globalEvent);
+	self.unbindAllGlobal = globalEvent.unbindAll.bind(globalEvent);
+	self.fireGlobal = globalEvent.fire.bind(globalEvent);
 	
 	self.buildGlobalFireCallBack = function buildGlobalFireCallBack(event, callback, data) {
     return buildFireCallBack(globalEvent, event, callback, data);
