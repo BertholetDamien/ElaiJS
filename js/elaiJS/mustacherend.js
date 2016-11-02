@@ -9,7 +9,8 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/language",
 	return function(widget, pluginInfo) {
     var rendererInfo = {
       loadLib: loadMustache,
-      getHTML: getDisplayContent
+      getHTML: getDisplayContent,
+      getRefreshHTML: getDisplayContent
     };
     binder.addAllFunctions(rendererInfo);
     
@@ -56,38 +57,57 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/language",
   /************************************************************************
 	 ************************** Render Template *****************************
 	 ************************************************************************/
-		function getDisplayContent(callback) {
-			var _this = this;
-      var params = getTemplateInfo.call(this);
+		function getDisplayContent(callback, refreshMode) {
+			var utilFuctions = getUtilFunctions.call(this, refreshMode);
+      var params = getTemplateInfo.call(this, utilFuctions);
       
-			getTemplate.call(this, params, function (template) {
+			getTemplate.call(this, params, utilFuctions, function (template) {
   			var templateData = {
-          widget: _this,
-          w: _this,
-          data: _this.templateData,
+          widget: this,
+          w: this,
+          data: refreshMode ? this.templateData : this.refreshTemplateData,
           config: config,
           lang: buildMustacheFct(getLanguageMustacheFct),
           loc: buildMustacheFct(getLocalisationMustacheFct),
           buildHash: buildMustacheFct(buildHashMustacheFct)
         };
-				
-				var html = mustache.render(template, templateData);
+        
+				var html = mustache.render(template, templateData, getSubTemplates.call(this, params, utilFuctions));
 				callback(html);
-			});
+			}.bind(this));
 		}
 
-		function getTemplate(params, callback) {
-			if(helper.isFunction(this.getTemplate))
-		    return this.getTemplate(params, callback);
+		function getUtilFunctions(refreshMode) {
+			if(refreshMode)
+				return {
+					getTemplate: this.getRefreshTemplate,
+					getSubTemplates: this.getRefreshSubTemplates,
+					getTemplateInfo: this.getRefreshTemplateInfo
+				};
+			return {
+				getTemplate: this.getTemplate,
+				getSubTemplates: this.getSubTemplates,
+				getTemplateInfo: this.getTemplateInfo
+			};
+		}
+
+		function getTemplate(params, utilFuctions, callback) {
+			if(helper.isFunction(utilFuctions.getTemplate))
+		    return utilFuctions.getTemplate.call(this, params, callback);
 
 			webservice.loadTemplate(params).then(callback);
 		}
+
+		function getSubTemplates(params, utilFuctions) {
+			if(helper.isFunction(utilFuctions.getSubTemplates))
+		    return utilFuctions.getSubTemplates.call(this, params);
+		}
 		
-		function getTemplateInfo() {
-		  if(!helper.isFunction(this.getTemplateInfo))
+		function getTemplateInfo(utilFuctions) {
+		  if(!helper.isFunction(utilFuctions.getTemplateInfo))
 		    return {name: this.name, mode: this.mode};
 		  
-      var info = this.getTemplateInfo();
+      var info = utilFuctions.getTemplateInfo.call(this);
       if(helper.isObject(info))
         return info;
       return {name: info, mode: this.mode};
