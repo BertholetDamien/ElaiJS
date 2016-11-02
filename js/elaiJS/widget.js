@@ -190,11 +190,8 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/plugin",
 	}
 	
 	function buildWidgetPrototypeInfoInstance(widgetProtoInfo) {
-    var protoInstance = {};
-    if(widgetProtoInfo.parent)
-      protoInstance = instanciateWidgetPrototypeRecursif(widgetProtoInfo.parent);
+    var protoInstance = instanciateWidgetPrototypeRecursif(widgetProtoInfo);
     
-    widgetProtoInfo.properties.builder.call(protoInstance, protoInstance);
     widgetProtoInfo = helper.clone(widgetProtoInfo);
     widgetProtoInfo.proto = protoInstance;
     
@@ -203,20 +200,18 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/plugin",
 	
 	function instanciateWidgetPrototypeRecursif(widgetProtoInfo) {
     if(!widgetProtoInfo.parent)
-      return instanciateWidgetPrototype(widgetProtoInfo, {});
+      return instanciateWidgetPrototype(widgetProtoInfo);
     
     var parentInstance = instanciateWidgetPrototypeRecursif(widgetProtoInfo.parent);
     return instanciateWidgetPrototype(widgetProtoInfo, parentInstance);
 	}
 	
 	function instanciateWidgetPrototype(widgetProtoInfo, parentInstance) {
-	  widgetProtoInfo.properties.builder.call(parentInstance, parentInstance);
-    return Object.create(parentInstance, {
-  		super: {
-		    value:      parentInstance,
-		    enumerable: true
-  		}
-    });
+		var protoInstance = {};
+		if(parentInstance)
+			protoInstance = Object.create(parentInstance);
+	  widgetProtoInfo.properties.builder.call(protoInstance, parentInstance);
+	  return protoInstance;
 	}
 
 	return self;
