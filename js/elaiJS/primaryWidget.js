@@ -1,6 +1,5 @@
-define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder",
-				"elaiJS/helper", "elaiJS/promise"],
-				function(widgetManager, multicallback, binder, helper, Promise) {
+define(["elaiJS/widget", "elaiJS/binder", "elaiJS/helper", "elaiJS/promise"],
+				function(widgetManager, binder, helper, Promise) {
 	'use strict';
 	var properties = {};
 	properties.parent = null;
@@ -34,8 +33,8 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder",
 			this.before("refreshData", skipEvent);
 			
 			var fireCallback = this.buildAfterCB("refreshData", undefined, skipEvent);
-			return this.fetchData().then(function(rowData) {
-				return this.setData(rowData, true).then(fireCallback);
+			return this.fetchData().then(function(rawData) {
+				return this.setData(rawData, true).then(fireCallback);
 			}.bind(this));
 		};
 		
@@ -49,13 +48,13 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder",
 			var promise;
 
 			if(needProcess) {
-				this.rowData = data;
-				promise = this.processRowData().then(function(result) {
+				this.rawData = data;
+				promise = this.processRawData().then(function(result) {
 					this.data = result;
 				}.bind(this));
 			}
 			else {
-				this.rowData = undefined;
+				this.rawData = undefined;
 				this.data = data;
 				promise = Promise.resolve();
 			}
@@ -64,8 +63,8 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder",
 			return promise.then(fireCallback);
 		};
 		
-		this.processRowData = function processRowData(skipEvent) {
-			return this.processAction("processRowData", false, undefined, skipEvent);
+		this.processRawData = function processRawData(skipEvent) {
+			return this.processAction("processRawData", false, undefined, skipEvent);
 		};
 		
 		this.refreshRender = function refreshRender(callChildren, skipEvent) {
@@ -132,19 +131,17 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder",
 		};
 
 		function executeAsynCycleLifeFcts(name, callChildren) {
-			var _this = this;
-			
 			return this.callPluginsFct(name + "BeforeWidget").then(function() {
-				return callInternalWidgetFctPromise.call(_this, name).then(function(result) {
-					return _this.callPluginsFct(name + "AfterWidget").then(function() {
+				return callInternalWidgetFctPromise.call(this, name).then(function(result) {
+					return this.callPluginsFct(name + "AfterWidget").then(function() {
 						if(!callChildren)
 							return result;
-						return callChildrenIfNeeded.call(_this, name).then(function() {
+						return callChildrenIfNeeded.call(this, name).then(function() {
 							return result;
-						});
-					});
-				});
-			});
+						}.bind(this));
+					}.bind(this));
+				}.bind(this));
+			}.bind(this));
 		}
 		
 		function callInternalWidgetFctPromise(name) {
@@ -249,13 +246,12 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder",
 			else if(widgetInfo.mode === undefined)
 				widgetInfo.mode = this.mode;
 			
-			var _this = this;
 			var fireCallback = this.buildAfterCB("createChild", undefined, skipEvent);
 			return widgetManager.create(widgetInfo, id, params).then(function (widget) {
-				_this.addChild(widget);
+				this.addChild(widget);
 				fireCallback(widget);
 				return widget;
-			});
+			}.bind(this));
 		};
 		
 		this.createChildAndRender = function (widgetInfo, id, params, renderParams) {
@@ -352,20 +348,18 @@ define(["elaiJS/widget", "elaiJS/multicallback", "elaiJS/binder",
 		}
 		
 		this.buildAfterCB = function buildAfterCB(functionName, callback, skipEvent) {
-			var _this = this;
 			return function(result) {
-				_this.after(functionName, skipEvent);
+				this.after(functionName, skipEvent);
 				if(helper.isFunction(callback))
-					callback.apply(_this, arguments);
+					callback.apply(this, arguments);
 				return result;
-			};
+			}.bind(this);
 		};
 		
 		this.async = function(callback, timeout, params) {
-			var _this = this;
 			setTimeout(function() {
-				callback.apply(_this, params);
-			}, timeout);
+				callback.apply(this, params);
+			}.bind(this), timeout);
 		};
 	};
 

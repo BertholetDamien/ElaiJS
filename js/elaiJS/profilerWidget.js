@@ -2,7 +2,7 @@ define(["elaiJS/helper"], function(helper) {
 	'use strict';
 	
 	return function(widget, pluginInfo) {
-		var names = ["create", "initialize", "refresh", "refreshData", "fetchData", "setData", "processRowData", "refreshRender", "render", "removeRender", "reload", "destroy", "remove"];
+		var names = ["create", "initialize", "refresh", "refreshData", "fetchData", "setData", "processRawData", "refreshRender", "render", "removeRender", "reload", "destroy", "remove"];
 
 		var plugin = {events: {}};
 		for(var i in names) {
