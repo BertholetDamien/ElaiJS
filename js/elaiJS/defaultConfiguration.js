@@ -9,15 +9,13 @@ define([	"elaiJS/configuration", "elaiJS/webservice",
     delete config.elaiJS;
 	};
 	
-	self.setDefaultConfiguration = function setDefaultConfiguration(callback) {
+	self.setDefaultConfiguration = function setDefaultConfiguration() {
     self.resetElaiJSConfiguration();
     
     setDefaultBasicConfiguration();
     
-    setAppConfigurationFile(function() {
+    return setAppConfigurationFile().then(function() {
       setDefaultConditionalConfiguration();
-      if(helper.isFunction(callback))
-        callback();
     });
 	};
 	
@@ -88,7 +86,6 @@ define([	"elaiJS/configuration", "elaiJS/webservice",
       "elaiJS/language":                  "lang",
       "elaiJS/localisation":              "localisation",
       "elaiJS/mode":                      "modeManager",
-      "elaiJS/multicallback":             "multicallback",
       "elaiJS/navigator":                 "navigatorElai",
       "elaiJS/plugin":                    "pluginManager",
       "elaiJS/propertiesManagerFactory":  "propertiesManagerFactory",
@@ -159,11 +156,10 @@ define([	"elaiJS/configuration", "elaiJS/webservice",
 	}
 	
 	function setAppConfigurationFile(callback) {
-    loadAppConfigurationFile().then(function(appConfig) {
+    return loadAppConfigurationFile().then(function(appConfig) {
       if(appConfig)
         config(appConfig);
-      callback();
-    }, callback);
+    });
   }
 	
 	function loadAppConfigurationFile() {
