@@ -89,11 +89,11 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/language",
 
 		function getTemplate(refreshMode, params) {
 			return getAction.call(this, "Template", refreshMode, params).then(function(tpl) {
-				if(tpl)
+				if(tpl != undefined)
 					return tpl;
-					
+				
 				return webservice.loadTemplate(params);
-			});
+			}.bind(this));
 		}
 
 		function getSubTemplates(refreshMode, params) {
@@ -115,9 +115,13 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/language",
 			var refreshName = refreshMode ? "Refresh" : "";
 			var actionName = "get" + refreshName + name;
 			
-			if(helper.isFunction(this[actionName]))
-		    return this[actionName](params);
-			return Promise.resolve();
+			var promise = Promise.resolve();
+			if(!helper.isFunction(this[actionName]))
+				return promise;
+
+	    return promise.then(function() {
+	    	return this[actionName](params);
+	    }.bind(this));
 		}
 		
 		function buildMustacheFct(fct) {
