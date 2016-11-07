@@ -1,17 +1,17 @@
 define(["elaiJS/helper", "elaiJS/binder", "elaiJS/promise",
-        "elaiJS/multicallback", "elaiJS/propertiesManagerFactory",
-        "elaiJS/configuration", "elaiJS/ressources", "elaiJS/mode",
-        "elaiJS/navigator", "elaiJS/webservice",
-        "elaiJS/defaultWebservices","elaiJS/defaultConfiguration",
-        "elaiJS/theme", "elaiJS/language", "elaiJS/localisation"],
-        function(helper, b, Promise, c, p, config, r, m, navigator,
+        "elaiJS/propertiesManagerFactory", "elaiJS/configuration",
+        "elaiJS/ressources", "elaiJS/mode", "elaiJS/navigator",
+        "elaiJS/webservice", "elaiJS/defaultWebservices",
+        "elaiJS/defaultConfiguration", "elaiJS/theme",
+        "elaiJS/language", "elaiJS/localisation"],
+        function(helper, b, Promise, p, config, r, m, navigator,
           w, defaultWebservices, defaultConfig, themeManager, lang, loc) {
   
 	function initialize() {
 	  loadWidgetModules();
 	  
     defaultWebservices.addDefaultWebservices();
-	  defaultConfig.setDefaultConfiguration(function() {
+	  defaultConfig.setDefaultConfiguration().then(function() {
 	    launchDebugMode();
 	    initalizeModules().then(start);
 	  });
