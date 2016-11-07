@@ -45,7 +45,7 @@ define([  "elaiJS/promise", "elaiJS/navigator",
 		}
 		
 		proto._destroy = function _destroy() {
-	    this.module.destroy();
+    	return this.module.destroy();
 		};
 
 		return proto;

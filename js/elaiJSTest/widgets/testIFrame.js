@@ -5,7 +5,7 @@ define(["elaiJS/promise", "elaiJS/defaultConfiguration"],
 	var properties = {};
 	properties.parent = "iframe";
 	
-	properties.builder = function() {
+	properties.builder = function(parent) {
 	  this._initialize = function _initialize() {
 	    this.params = {
 	        needDisplay: false,
@@ -14,8 +14,8 @@ define(["elaiJS/promise", "elaiJS/defaultConfiguration"],
 	    };
 	  };
 	  
-	  this._render = function _render(callback) {
-      this.super._render.call(this);
+	  this._render = function _render() {
+      parent._render.call(this);
       
       return new Promise(function(resolve, reject) {
       	this.elementDOM.contentWindow.callbackReady = resolve;

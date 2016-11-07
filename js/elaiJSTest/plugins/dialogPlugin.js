@@ -6,12 +6,15 @@ define([  "elaiJS/binder", "elaiJS/helper"],
 		  var cssRules = "";
 		  cssRules += "position: fixed;";
       cssRules += "top: 0;";
-      cssRules += "right: 0;";
-      cssRules += "bottom: 0;";
       cssRules += "left: 0;";
-      cssRules += "z-index: 99999999;";
+      cssRules += "z-index: 999;";
       cssRules += "background-color: rgba(0, 0, 0, .2);";
-      cssRules += "text-align: center;";
+      cssRules += "display: flex;";
+      cssRules += "flex-direction: column;";
+      cssRules += "justify-content: center;";
+      cssRules += "align-items: center;";
+      cssRules += "width: 100%;";
+      cssRules += "height: 100%;";
       
 		  return cssRules;
 		}
@@ -32,9 +35,6 @@ define([  "elaiJS/binder", "elaiJS/helper"],
     }
 	  
     binder.bindGlobal("body_keyUp", manageBodyKeyUp, undefined, widget);
-    widget.mustAppendHTML = function () {
-		  return true;
-		};
   	
 		return {
 		  removeRenderBeforeWidget: function() {
@@ -44,7 +44,7 @@ define([  "elaiJS/binder", "elaiJS/helper"],
 		  destroyBeforeWidget: function() {
         binder.unbindGlobal("body_keyUp", manageBodyKeyUp);
 		  },
-		  renderBeforeWidget: function(callback) {
+		  renderBeforeWidget: function() {
         this.elementDialog = document.createElement("div");
   		  this.elementDialog.classList.add("dialog");
   		  this.elementDialog.setAttribute("style", getCSSRules());
@@ -52,13 +52,10 @@ define([  "elaiJS/binder", "elaiJS/helper"],
   		  var parentDOM = findParentElement.call(this);
         parentDOM.appendChild(this.elementDialog);
         
-        var _this = this;
         this.elementDialog.onclick = function(event) {
-          if(_this.elementDialog === event.target)
-            _this.removeRender();
-        };
-        
-        callback();
+          if(this.elementDialog === event.target)
+            this.removeRender();
+        }.bind(this);
 		  }
 		};
 	};

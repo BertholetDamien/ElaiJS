@@ -7,7 +7,7 @@ define(["elaiJS/helper"], function(helper) {
       this.cycleLife = [];
       
       var names = [ "create", "initialize", "refresh", "refreshData", "fetchData",
-                    "setData", "processRowData", "refreshRender", "render", "removeRender", "reload",
+                    "setData", "processRawData", "refreshRender", "render", "removeRender", "reload",
                     "destroy", "remove"];
       for(var i in names) {
         var name = names[i];

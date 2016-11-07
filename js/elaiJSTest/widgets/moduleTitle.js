@@ -1,5 +1,4 @@
-define([  "elaiJS/multicallback"],
-          function(multicallback) {
+define([], function() {
 	var properties = {};
 	properties.plugins = {
     "elaiJS/mustacherend": {CSS: false}

@@ -44,7 +44,7 @@ define([], function() {
 		  if(this.wFeatureCode)
 		    this.wFeatureCode.render();
 		  else
-		    createFeatureCodeWidget.call(this).then(showFeatureCode);
+		    createFeatureCodeWidget.call(this).then(showFeatureCode.bind(this));
 		}
 		
 		function createFeatureCodeWidget() {

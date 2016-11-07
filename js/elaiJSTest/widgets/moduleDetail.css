@@ -1,14 +1,17 @@
 .moduleDetail {
   margin: 0 1em;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
 
 .moduleDetail .module,
 .moduleDetail .featureCode {
-  width: calc(50% - 4px - 0.8em);
-  display: inline-block;
+	flex-grow: 1;
+	flex-shrink: 1;
+	width: 50%;
   margin: 0;
   padding: 0 0.4em;
-  vertical-align: top;
 }
 
 .moduleDetail .module .moduleTitle {

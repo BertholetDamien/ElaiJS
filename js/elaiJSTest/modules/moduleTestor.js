@@ -1,15 +1,11 @@
 define([  "elaiJS/binder", "elaiJS/ressources", "elaiJS/widget",
-          "elaiJSTest/modules/featureTestor"],
-          function(binder, res, widgetManager, FeatureTestor) {
+          "elaiJSTest/modules/featureTestor", "elaiJS/promise"],
+          function(binder, res, widgetManager, FeatureTestor, Promise) {
 	return function (index, name) {
     var self = {index: index, name: name};
     binder.addFunctions(self);
     
     function initializeVariables() {
-      if(this.wTestIFrame)
-        this.wTestIFrame.destroy();
-      
-      this.wTestIFrame = undefined;
       this.features = [];
       
       this.featuresCount = 0;
@@ -25,24 +21,31 @@ define([  "elaiJS/binder", "elaiJS/ressources", "elaiJS/widget",
       this.succeed = false;
       this.loading = false;
       this.cancelled = false;
-    }
-    
-    function initialize(callback) {
-      initializeVariables.call(this);
-
-      var _this = this;
-      this.loading = true;
-      this.fire("test_module_loading");
       
-      widgetManager.create("testIFrame", this.name + "IFrame", this).then(function(widget) {
-        _this.wTestIFrame = widget;
-        _this.wTestIFrame.render(undefined).then(function() {
-          initializeElaiJSTestIFrame.call(_this, callback);
-        });
-      });
+      if(this.wTestIFrame)
+        return this.wTestIFrame.destroy().then(function() {
+	      	this.wTestIFrame = undefined;
+        }.bind(this));
+      else
+      	return Promise.resolve();
     }
     
-    function initializeElaiJSTestIFrame(callback) {
+    function initialize() {
+      return initializeVariables.call(this).then(function() {
+	      var _this = this;
+	      this.loading = true;
+	      this.fire("test_module_loading");
+	      
+	      return widgetManager.create("testIFrame", this.name + "IFrame", this).then(function(widget) {
+	        _this.wTestIFrame = widget;
+	        return _this.wTestIFrame.render(undefined).then(function() {
+	          initializeElaiJSTestIFrame.call(_this);
+	        });
+	      });
+      }.bind(this));
+    }
+    
+    function initializeElaiJSTestIFrame() {
       if(this.destroy === true)
         return;
     	
@@ -55,7 +58,6 @@ define([  "elaiJS/binder", "elaiJS/ressources", "elaiJS/widget",
       this.loading = false;
       this.waiting = true;
       this.fire("test_module_loaded");
-      callback.call(this);
     }
     
     function initializeFeatures(rawFeatures) {
@@ -71,7 +73,7 @@ define([  "elaiJS/binder", "elaiJS/ressources", "elaiJS/widget",
     }
     
     self.run = function run() {
-      initialize.call(this, runTest);
+      return initialize.call(this).then(runTest.bind(this));
     };
     
     function runTest() {
@@ -104,7 +106,7 @@ define([  "elaiJS/binder", "elaiJS/ressources", "elaiJS/widget",
     
     self.destroy = function destroy() {
       this.destroy = true;
-      initializeVariables.call(this);
+      return initializeVariables.call(this);
     };
     
     function endModuleTests() {

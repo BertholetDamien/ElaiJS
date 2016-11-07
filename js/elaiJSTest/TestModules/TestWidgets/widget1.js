@@ -9,7 +9,7 @@ define([], function() {
         init: 0,
         render: 0,
         refreshRender: 0,
-        processRowData: 0,
+        processRawData: 0,
         fetchData: 0,
         removeRender: 0,
         reload: 0,
@@ -27,9 +27,9 @@ define([], function() {
       ++this.count.fetchData;
     };
     
-    proto._processRowData = function(rowData) {
-      ++this.count.processRowData;
-      return rowData;
+    proto._processRawData = function() {
+      ++this.count.processRawData;
+      return this.rawData;
     };
     
     proto._refreshRender = function() {

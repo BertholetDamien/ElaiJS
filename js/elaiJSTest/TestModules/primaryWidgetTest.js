@@ -37,7 +37,7 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
           
           widget.refresh().then(function() {
             test.assertEq(1, widget.count.fetchData);
-            test.assertEq(1, widget.count.processRowData);
+            test.assertEq(1, widget.count.processRawData);
             test.assertEq(1, widget.count.refreshRender);
             
             widget.initialize().then(function() {
@@ -45,10 +45,10 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
               
               widget.refreshData().then(function() {
                 test.assertEq(2, widget.count.fetchData);
-                test.assertEq(2, widget.count.processRowData);
+                test.assertEq(2, widget.count.processRawData);
                 
-                widget.processRowData().then(function() {
-                  test.assertEq(3, widget.count.processRowData);
+                widget.processRawData().then(function() {
+                  test.assertEq(3, widget.count.processRawData);
                   
                   widget.fetchData().then(function() {
                     test.assertEq(3, widget.count.fetchData);
@@ -74,17 +74,17 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
       return {hope: "happy", love: 42};
     };
     
-    widget._processRowData = function() {
+    widget._processRawData = function() {
       var data = {};
-      data.love = this.rowData.love + 1;
-      data.hope = this.rowData.hope;
-      data.sun = this.rowData.love - 1;
+      data.love = this.rawData.love + 1;
+      data.hope = this.rawData.hope;
+      data.sun = this.rawData.love - 1;
       return data;
     };
     
     widget.refreshData().then(function() {
-      test.assertEq(42, widget.rowData.love);
-      test.assertEq("happy", widget.rowData.hope);
+      test.assertEq(42, widget.rawData.love);
+      test.assertEq("happy", widget.rawData.hope);
       
       test.assertEq(43, widget.data.love);
       test.assertEq("happy", widget.data.hope);
@@ -97,22 +97,22 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
   self.setData = function(test) {
     var widget = widgetManager.get("w1");
     widget.setData({hohope: "hahapy", love: 42}, false).then(function() {
-      test.assertUndefined(widget.rowData);
+      test.assertUndefined(widget.rawData);
         
       test.assertEq(42, widget.data.love);
       test.assertEq("hahapy", widget.data.hohope);
       
       widget.setData({hope: "veryhappy", love: 41}, true).then(function() {
       
-        test.assertEq(41, widget.rowData.love);
-        test.assertEq("veryhappy", widget.rowData.hope);
+        test.assertEq(41, widget.rawData.love);
+        test.assertEq("veryhappy", widget.rawData.hope);
           
         test.assertEq(42, widget.data.love);
         test.assertEq("veryhappy", widget.data.hope);
         test.assertEq(40, widget.data.sun);
         
         widget.setData({happy: "hope", biglove: 4242}).then(function() {
-          test.assertUndefined(widget.rowData);
+          test.assertUndefined(widget.rawData);
 
           test.assertEq(4242, widget.data.biglove);
           test.assertEq("hope", widget.data.happy);
@@ -260,12 +260,12 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
     });
   };
   
-  self.cycleLifeProcessRowData = function(test) {
+  self.cycleLifeProcessRawData = function(test) {
     var widget = widgetManager.get("cycleLife");
     widget.cycleLife = [];
     
-    widget.processRowData().then(function() {
-      checkCycleResult(test, widget.cycleLife, getCycleLife("processRowData"));
+    widget.processRawData().then(function() {
+      checkCycleResult(test, widget.cycleLife, getCycleLife("processRawData"));
     });
   };
   
@@ -275,7 +275,7 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
     
     widget.setData({}, true).then(function() {
       checkCycleResult(test, widget.cycleLife, ["beforeSetData"]
-                                                .concat(getCycleLife("processRowData"))
+                                                .concat(getCycleLife("processRawData"))
                                                 .concat(["afterSetData"]), false);
       
       widget.cycleLife = [];
@@ -365,7 +365,7 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
     return ["beforeRefreshData"]
             .concat(getCycleLife("fetchData"))
             .concat(["beforeSetData"])
-            .concat(getCycleLife("processRowData"))
+            .concat(getCycleLife("processRawData"))
             .concat(["afterSetData", "afterRefreshData"]);
   }
 
@@ -537,8 +537,6 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
       test.assertEq(2, widget.only2());
       test.assertUndefined(widget.only3);
       
-      test.assertEq(1, widget.super.all());
-      
       test.assertEq(2, widget.all());
       test.assertEq("21", widget.parent());
       
@@ -551,9 +549,6 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
       test.assertEq(1, widget.only1());
       test.assertEq(2, widget.only2());
       test.assertEq(3, widget.only3());
-      
-      test.assertEq(2, widget.super.all());
-      test.assertEq(1, widget.super.super.all());
       
       test.assertEq(3, widget.all());
       test.assertEq("321", widget.parent());
@@ -576,22 +571,10 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
     this.assertEq(2, widgetParent2.priv());
     this.assertEq(3, widgetParent2.priv());
     
-    this.assertEq(1, widgetParent2.super.priv());
-    this.assertEq(2, widgetParent2.super.priv());
-    this.assertEq(3, widgetParent2.super.priv());
-    
     
     this.assertEq(1, widgetParent3.priv());
     this.assertEq(2, widgetParent3.priv());
     this.assertEq(3, widgetParent3.priv());
-    
-    this.assertEq(1, widgetParent3.super.priv());
-    this.assertEq(2, widgetParent3.super.priv());
-    this.assertEq(3, widgetParent3.super.priv());
-    
-    this.assertEq(1, widgetParent3.super.super.priv());
-    this.assertEq(2, widgetParent3.super.super.priv());
-    this.assertEq(3, widgetParent3.super.super.priv());
     
     this.done();
   };
@@ -610,22 +593,10 @@ define(["elaiJS/configuration", "elaiJS/widget", "elaiJS/helper"],
     this.assertEq(2, widgetParent2.privStatic());
     this.assertEq(3, widgetParent2.privStatic());
     
-    this.assertEq(4, widgetParent2.super.privStatic());
-    this.assertEq(5, widgetParent2.super.privStatic());
-    this.assertEq(6, widgetParent2.super.privStatic());
-    
     
     this.assertEq(1, widgetParent3.privStatic());
     this.assertEq(2, widgetParent3.privStatic());
     this.assertEq(3, widgetParent3.privStatic());
-    
-    this.assertEq(4, widgetParent3.super.privStatic());
-    this.assertEq(5, widgetParent3.super.privStatic());
-    this.assertEq(6, widgetParent3.super.privStatic());
-    
-    this.assertEq(7, widgetParent3.super.super.privStatic());
-    this.assertEq(8, widgetParent3.super.super.privStatic());
-    this.assertEq(9, widgetParent3.super.super.privStatic());
     
     this.done();
   };

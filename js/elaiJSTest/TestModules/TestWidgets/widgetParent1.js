@@ -5,31 +5,29 @@ define([], function() {
   var num = 1;
   var privStatic = 0;
   
-  properties.builder = function(proto) {
+  properties.builder = function(parent) {
     var priv = 0;
-    proto.priv = function() {
+    this.priv = function() {
       ++priv;
       return priv;
     };
     
-    proto.privStatic = function() {
+    this.privStatic = function() {
       ++privStatic;
       return privStatic;
     };
 
-    proto["only" + num] = function() {
+    this["only" + num] = function() {
       return num;
     };
     
-    proto.all = function() {
+    this.all = function() {
       return num;
     };
     
-    proto.parent = function() {
+    this.parent = function() {
       return num + "";
     };
-    
-    return proto;
   };
   
   return properties;
