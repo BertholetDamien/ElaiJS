@@ -1,5 +1,4 @@
-define(["elaiJS/binder","elaiJS/multicallback"],
-            function(binder, multicallback) {
+define(["elaiJS/binder"], function(binder) {
 	'use strict';
   var self = {};
   

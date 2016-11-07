@@ -1,5 +1,5 @@
-define(["elaiJS/webservice", "elaiJS/multicallback"],
-            function(webservice, multicallback) {
+define(["elaiJS/webservice", "elaiJS/promise"],
+            function(webservice, Promise) {
 	'use strict';
   var self = {};
   
@@ -129,15 +129,19 @@ define(["elaiJS/webservice", "elaiJS/multicallback"],
   
   function callWebService(  name, params, count, callback, serviceParams,
                             test, resultValue) {
-    var checkResult = function(result) {
-      if(test && resultValue)
-        test.assertEq(resultValue, result);
-      multiCallBackFunction();
+    var checkResult = function(results) {
+      if(test && resultValue) {
+      	for(var i in results)
+        	test.assertEq(resultValue, results[i]);
+      }
+      callback();
     };
       
-    var multiCallBackFunction = multicallback(count, callback);
+    var promises = [];
     for(var i = 0 ; i < count ; ++i)
-      webservice[name](params, serviceParams).then(checkResult);
+      promises.push(webservice[name](params, serviceParams));
+      
+    return Promise.all(promises).then(checkResult);
   }
   
   self.withUseCache = function (test) {

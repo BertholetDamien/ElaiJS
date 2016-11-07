@@ -31,10 +31,9 @@
     "skipLocalisationInitialization": true
   },
   "testModules":  [
-    "binder", "configuration", "helper",
-    "language", "localisation", "localStorage", "mode",
-    "multicallback", "navigator", "primaryWidget",
-    "ressources", "webservice", "widget"
+    "binder", "configuration", "helper", "language",
+    "localisation", "localStorage", "mode", "navigator",
+    "primaryWidget", "ressources", "webservice", "widget"
   ],
   "themes": [
     {"label": "white"},

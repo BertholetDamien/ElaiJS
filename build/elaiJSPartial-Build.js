@@ -11,7 +11,6 @@
       'elaiJS/localisation',
       'elaiJS/localStorage',
       'elaiJS/mode',
-      'elaiJS/multicallback',
       'elaiJS/mustacherend',
       'elaiJS/navigator',
       'elaiJS/plugin',
