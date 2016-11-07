@@ -6,12 +6,12 @@ define([  "elaiJS/configuration", "elaiJS/mode", "elaiJS/helper",
 	return function(widget, pluginInfo) {
 	  var rendererInfo = {
 	    loadLib: loadPolymer,
-	    render: render
+	    render: render,
+	    initialize: initialize
 	  };
 	  binder.addAllFunctions(rendererInfo);
 	  
-	  var plugin = {initializeBeforeWidget: initialize};
-	  plugin = rendererFactory(rendererInfo, pluginInfo, plugin);
+	  var plugin = rendererFactory(rendererInfo, pluginInfo, {});
 		
 		function initialize() {
 			this.viewData = undefined;
@@ -41,31 +41,29 @@ define([  "elaiJS/configuration", "elaiJS/mode", "elaiJS/helper",
 	        this.elementPolymer.data = this.viewData;
 	      this.elementPolymer.widget = this;
 	        
-	      addAttachedEvent.call(this, resolve);
 	      addViewEvents.call(this);
 	      
 	      while(this.elementDOM.children.length > 0)
 	        this.elementDOM.removeChild(this.elementDOM.children[0]);
 	      
+	      addAttachedEvent.call(this, resolve);
 	      this.elementDOM.appendChild(this.elementPolymer);
       }.bind(this));
 		}
 		
 		function addViewEvents() {
-		  var _this = this;
 		  for(var key in this.viewEvents) {
         this.elementPolymer.addEventListener(key, function(e) {
-          _this.viewEvents[key].call(_this, e.detail, e);
-        });
+          this.viewEvents[key].call(this, e.detail, e);
+        }.bind(this));
       }
 		}
 		
 		function addAttachedEvent(callback) {
-		  var _this = this;
-      this.elementPolymer.addEventListener("attached", polyAttached);
+      this.elementPolymer.addEventListener("attached", polyAttached.bind(this));
       
       function polyAttached() {
-        _this.elementPolymer.removeEventListener("attached", polyAttached);
+        this.elementPolymer.removeEventListener("attached", polyAttached);
         callback();
       }
 		}

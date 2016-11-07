@@ -49,7 +49,6 @@ define([  "elaiJS/webservice", "elaiJS/ressources", "elaiJS/helper",
 	
 	function loadWidgetCSS(params, resolve, reject) {
     var cssSettings = getCSSSettings(params);
-    
     var promises = [];
 		for(var i in cssSettings)
 			promises.push(webservice.loadCSS({url: cssSettings[i].url}));
@@ -85,7 +84,8 @@ define([  "elaiJS/webservice", "elaiJS/ressources", "elaiJS/helper",
 	}
 	
 	function loadTemplate(params, resolve, reject) {
-    var url = mode.getRessource("template", params);
+		var resName = "template" + (params.refreshMode ? "Refresh" : "");
+    var url = mode.getRessource(resName, params);
   	return webservice.loadTextFile({url: url});
 	}
 	

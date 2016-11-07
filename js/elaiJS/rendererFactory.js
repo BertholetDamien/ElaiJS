@@ -2,13 +2,11 @@ define(["elaiJS/helper", "elaiJS/promise"], function(helper, Promise) {
 	'use strict';
 	
 	return function(rendererInfo, pluginInfo, plugin) {
-	  var initializeBeforeWidget 		= plugin.initializeBeforeWidget;
-	  var renderBeforeWidget 				= plugin.renderBeforeWidget;
-	  
 		function initialize() {
 			this.elementDOM = undefined;
-			if(helper.isFunction(initializeBeforeWidget))
-		    initializeBeforeWidget.call(this);
+			this.refreshElementDOM = undefined;
+			if(helper.isFunction(rendererInfo.initialize))
+		    return rendererInfo.initialize.call(this);
 		}
 		
 		function refreshRender() {
@@ -23,23 +21,25 @@ define(["elaiJS/helper", "elaiJS/promise"], function(helper, Promise) {
       initDOMELement.call(this);
       
       if(helper.isFunction(rendererInfo.render))
-        return rendererInfo.render.call(this, callback);
+        return rendererInfo.render.call(this);
       
       return Promise.resolve().then(function() {
-				rendererInfo.getHTML.call(this, function(html) {
+				return rendererInfo.getHTML.call(this).then(function(html) {
 					setElementDOMHTML.call(this, html, this.elementDOM);
 				}.bind(this));
       }.bind(this));
 		}
 
 		function _refreshRender() {
-      var _this = this;
       initRefreshDOMELement.call(this);
       
+      if(helper.isFunction(rendererInfo.refreshRender))
+        return rendererInfo.refreshRender.call(this);
+      
       return Promise.resolve().then(function() {
-				rendererInfo.getRefreshHTML.call(this, function(html) {
+				return rendererInfo.getRefreshHTML.call(this, true).then(function(html) {
 					setElementDOMHTML.call(this, html, this.refreshElementDOM, true);
-				}.bind(this), true);
+				}.bind(this));
       }.bind(this));
 		}
 		
@@ -55,7 +55,8 @@ define(["elaiJS/helper", "elaiJS/promise"], function(helper, Promise) {
 		  var elem;
 		  if(helper.isFunction(this.findDOMElement))
 		    elem = this.findDOMElement();
-			 return elem || document.getElementById(this.id);
+		  
+		 	return elem || document.getElementById(this.id);
 		}
 
 		function initRefreshDOMELement() {
@@ -80,9 +81,6 @@ define(["elaiJS/helper", "elaiJS/promise"], function(helper, Promise) {
 	 ******************************* Set HTML *******************************
 	 ************************************************************************/
 		function setElementDOMHTML(html, elementDOM, refreshMode) {
-      if(mustAppendHTML.call(this))
-        return elementDOM.insertAdjacentHTML("beforeend", html);
-      
 	    elementDOM.innerHTML = html;
 	    if(!refreshMode)
 				manageClass.call(this, true);
@@ -92,7 +90,7 @@ define(["elaiJS/helper", "elaiJS/promise"], function(helper, Promise) {
       if(helper.isFunction(rendererInfo.removeRender))
 			  return rendererInfo.removeRender.call(this);
 			  
-      if(!this.elementDOM || mustAppendHTML.call(this))
+      if(!this.elementDOM)
         return;
 	    
       this.elementDOM.innerHTML = "";
@@ -109,18 +107,14 @@ define(["elaiJS/helper", "elaiJS/promise"], function(helper, Promise) {
   		  this.elementDOM.classList[action]("mode-" + this.mode);
 	  }
     
-    function mustAppendHTML() {
-    	if(pluginInfo.mustAppendHTML)
-    		return pluginInfo.mustAppendHTML;
-    	
-      return helper.isFunction(this.mustAppendHTML) && this.mustAppendHTML() === true;
-    }
-    
     plugin.initializeBeforeWidget 	= initialize;
-    plugin.renderBeforeWidget 			= render;
-    plugin.removeRenderBeforeWidget = removeRender;
+    
+    if(pluginInfo.useForRender !== false) {
+    	plugin.removeRenderBeforeWidget = removeRender;
+  		plugin.renderBeforeWidget 			= render;
+    }
 
-    if(pluginInfo.needRefreshRender)
+    if(pluginInfo.useForRefreshRender)
     	plugin.refreshRenderBeforeWidget = refreshRender;
 
     return plugin;

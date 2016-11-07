@@ -10,15 +10,15 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/language",
     var rendererInfo = {
       loadLib: loadMustache,
       getHTML: getDisplayContent,
-      getRefreshHTML: getDisplayContent
+      getRefreshHTML: getDisplayContent,
+      initialize: initialize
     };
     binder.addAllFunctions(rendererInfo);
     
     var plugin = {
       events: {
 	      beforeCreate: beforeCreate
-      },
-      initializeBeforeWidget: initialize
+      }
 		};
 	  plugin = rendererFactory(rendererInfo, pluginInfo, plugin);
 	  
@@ -57,60 +57,67 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/language",
   /************************************************************************
 	 ************************** Render Template *****************************
 	 ************************************************************************/
-		function getDisplayContent(callback, refreshMode) {
-			var utilFuctions = getUtilFunctions.call(this, refreshMode);
-      var params = getTemplateInfo.call(this, utilFuctions);
-      
-			getTemplate.call(this, params, utilFuctions, function (template) {
-  			var templateData = {
-          widget: this,
-          w: this,
-          data: refreshMode ? this.templateData : this.refreshTemplateData,
-          config: config,
-          lang: buildMustacheFct(getLanguageMustacheFct),
-          loc: buildMustacheFct(getLocalisationMustacheFct),
-          buildHash: buildMustacheFct(buildHashMustacheFct)
-        };
-        
-				var html = mustache.render(template, templateData, getSubTemplates.call(this, params, utilFuctions));
-				callback(html);
+		function getDisplayContent(refreshMode) {
+	    return getTemplateStuff.call(this, refreshMode).then(function(tplStuff) {
+				var templateData = {
+	        widget: this,
+	        w: this,
+	        data: refreshMode ? this.templateData : this.refreshTemplateData,
+	        config: config,
+	        lang: buildMustacheFct(getLanguageMustacheFct),
+	        loc: buildMustacheFct(getLocalisationMustacheFct),
+	        buildHash: buildMustacheFct(buildHashMustacheFct)
+	      };
+	      
+				return mustache.render(tplStuff.template, templateData, tplStuff.subTpls);
+	    }.bind(this));
+		}
+		
+		function getTemplateStuff(refreshMode) {
+			return getTemplateInfo.call(this, refreshMode).then(function(params) {
+				return getSubTemplates.call(this, refreshMode, params).then(function(subTpls) {
+					return getTemplate.call(this, refreshMode, params).then(function(template) {
+						return {
+							info: params,
+							subTpls: subTpls,
+							template: template
+						};
+					}.bind(this));
+				}.bind(this));
 			}.bind(this));
 		}
 
-		function getUtilFunctions(refreshMode) {
-			if(refreshMode)
-				return {
-					getTemplate: this.getRefreshTemplate,
-					getSubTemplates: this.getRefreshSubTemplates,
-					getTemplateInfo: this.getRefreshTemplateInfo
-				};
-			return {
-				getTemplate: this.getTemplate,
-				getSubTemplates: this.getSubTemplates,
-				getTemplateInfo: this.getTemplateInfo
-			};
+		function getTemplate(refreshMode, params) {
+			return getAction.call(this, "Template", refreshMode, params).then(function(tpl) {
+				if(tpl)
+					return tpl;
+					
+				return webservice.loadTemplate(params);
+			});
 		}
 
-		function getTemplate(params, utilFuctions, callback) {
-			if(helper.isFunction(utilFuctions.getTemplate))
-		    return utilFuctions.getTemplate.call(this, params, callback);
-
-			webservice.loadTemplate(params).then(callback);
-		}
-
-		function getSubTemplates(params, utilFuctions) {
-			if(helper.isFunction(utilFuctions.getSubTemplates))
-		    return utilFuctions.getSubTemplates.call(this, params);
+		function getSubTemplates(refreshMode, params) {
+			return getAction.call(this, "SubTemplates", refreshMode, params);
 		}
 		
-		function getTemplateInfo(utilFuctions) {
-		  if(!helper.isFunction(utilFuctions.getTemplateInfo))
-		    return {name: this.name, mode: this.mode};
-		  
-      var info = utilFuctions.getTemplateInfo.call(this);
-      if(helper.isObject(info))
-        return info;
-      return {name: info, mode: this.mode};
+		function getTemplateInfo(refreshMode) {
+			return getAction.call(this, "TemplateInfo", refreshMode).then(function(info) {
+				if(!info)
+					return {name: this.name, mode: this.mode, refreshMode: refreshMode};
+				
+				if(helper.isObject(info))
+        	return info;
+      	return {name: info, mode: this.mode, refreshMode: refreshMode};
+			}.bind(this));
+		}
+		
+		function getAction(name, refreshMode, params) {
+			var refreshName = refreshMode ? "Refresh" : "";
+			var actionName = "get" + refreshName + name;
+			
+			if(helper.isFunction(this[actionName]))
+		    return this[actionName](params);
+			return Promise.resolve();
 		}
 		
 		function buildMustacheFct(fct) {
