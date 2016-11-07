@@ -90,6 +90,7 @@ define(["elaiJS/configuration", "elaiJS/binder", "elaiJS/helper", "elaiJS/promis
 			promise = searchInCacheOrFuturCache(context);
 		
 		if(!promise) {
+			var paramsClone = helper.clone(context.params);
 			promise = new Promise(function(resolve, reject) {
 				var result = context.service.execute(context.params, resolve, reject, context);
 				if(result && helper.isFunction(result.then))
@@ -97,7 +98,7 @@ define(["elaiJS/configuration", "elaiJS/binder", "elaiJS/helper", "elaiJS/promis
 			});
 			
 			if(context.serviceParams.useCache)
-				addToCurrent(context, promise, helper.clone(context.params));
+				addToCurrent(context, promise, paramsClone);
 		}
 		
 		return promise.then(function(result) {
