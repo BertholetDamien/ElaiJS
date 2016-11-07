@@ -31,7 +31,7 @@ define([  "elaiJS/webservice", "elaiJS/ressources", "elaiJS/helper",
 	 ************************************************************************/
 	function loadWidget(params, resolve, reject) {
     var url = params.name;
-    if(params.name.indexOf("/") === -1)
+    if(params.useAsRessource || params.name.indexOf("/") === -1)
       url = mode.getRessource("widget", params);
     
   	return webservice.loadJSFile(url);
@@ -41,7 +41,7 @@ define([  "elaiJS/webservice", "elaiJS/ressources", "elaiJS/helper",
     var url = params.name;
     if(params.url)
       url = params.url;
-    else if(params.name.indexOf("/") === -1)
+    else if(params.useAsRessource || params.name.indexOf("/") === -1)
       url = mode.getRessource("plugin", params);
 	  
 		return webservice.loadJSFile(url);
