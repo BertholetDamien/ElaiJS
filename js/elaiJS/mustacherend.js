@@ -62,7 +62,7 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/language",
 				var templateData = {
 	        widget: this,
 	        w: this,
-	        data: refreshMode ? this.templateData : this.refreshTemplateData,
+	        data: refreshMode ? this.refreshTemplateData : this.templateData,
 	        config: config,
 	        lang: buildMustacheFct(getLanguageMustacheFct),
 	        loc: buildMustacheFct(getLocalisationMustacheFct),
