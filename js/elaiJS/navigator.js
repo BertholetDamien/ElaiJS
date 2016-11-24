@@ -78,12 +78,12 @@ define(['elaiJS/configuration', 'elaiJS/binder'],
 		fire(EVENT.reload, currentPageInfo);
 	}
 	
-	self.getHistoryState = function getHistoryState(state) {
+	self.getHistoryState = function getHistoryState() {
     return window.history.state;
 	};
 	
 	self.saveHistoryState = function saveHistoryState(state) {
-    window.history.pushState(state, "");
+    window.history.replaceState(state, "");
 	};
 	
 	self.addToHistoryState = function addToHistoryState(params) {
