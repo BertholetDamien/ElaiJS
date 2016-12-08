@@ -24,6 +24,7 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/language",
 	  
 		function initialize() {
 			this.templateData = undefined;
+			this.refreshTemplateData = undefined;
 		}
 		
 		function beforeCreate() {
@@ -59,17 +60,7 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/language",
 	 ************************************************************************/
 		function getDisplayContent(refreshMode) {
 	    return getTemplateStuff.call(this, refreshMode).then(function(tplStuff) {
-				var templateData = {
-	        widget: this,
-	        w: this,
-	        data: refreshMode ? this.refreshTemplateData : this.templateData,
-	        config: config,
-	        lang: buildMustacheFct(getLanguageMustacheFct),
-	        loc: buildMustacheFct(getLocalisationMustacheFct),
-	        buildHash: buildMustacheFct(buildHashMustacheFct)
-	      };
-	      
-				return mustache.render(tplStuff.template, templateData, tplStuff.subTpls);
+				return mustache.render(tplStuff.template, tplStuff.tplData, tplStuff.subTpls);
 	    }.bind(this));
 		}
 		
@@ -77,11 +68,14 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/language",
 			return getTemplateInfo.call(this, refreshMode).then(function(params) {
 				return getSubTemplates.call(this, refreshMode, params).then(function(subTpls) {
 					return getTemplate.call(this, refreshMode, params).then(function(template) {
-						return {
-							info: params,
-							subTpls: subTpls,
-							template: template
-						};
+						return getTemplateData.call(this, refreshMode, params).then(function(tplData) {
+							return {
+								info: params,
+								tplData: tplData,
+								subTpls: subTpls,
+								template: template
+							};
+						}.bind(this));
 					}.bind(this));
 				}.bind(this));
 			}.bind(this));
@@ -108,6 +102,22 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/language",
 				if(helper.isObject(info))
         	return info;
       	return {name: info, mode: this.mode, refreshMode: refreshMode};
+			}.bind(this));
+		}
+
+		function getTemplateData(refreshMode) {
+			var defaultTplData = {
+				widget: this,
+				w: this,
+				data: refreshMode ? this.refreshTemplateData : this.templateData,
+				config: config,
+				lang: buildMustacheFct(getLanguageMustacheFct),
+				loc: buildMustacheFct(getLocalisationMustacheFct),
+				buildHash: buildMustacheFct(buildHashMustacheFct)
+			};
+
+			return getAction.call(this, "TemplateData", refreshMode, defaultTplData).then(function(templateData) {
+      	return templateData || defaultTplData;
 			}.bind(this));
 		}
 		
