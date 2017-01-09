@@ -150,8 +150,11 @@ define([	"elaiJS/configuration", "elaiJS/webservice",
       return pageInfo;
     };
     
-    elaiJS.showInternalBeforeUnloadMessage = function(message, callback) {
-      callback(confirm(message));
+    elaiJS.showInternalBeforeUnloadMessage = function(message) {
+      return Promise.resolve().then(function() {
+        if(!confirm(message))
+          throw "Cancel beforeUnload";
+      });
     };
 	}
 	

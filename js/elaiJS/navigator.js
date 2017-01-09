@@ -1,5 +1,5 @@
-define(['elaiJS/configuration', 'elaiJS/binder'],
-          function(config, binder) {
+define(['elaiJS/configuration', 'elaiJS/binder', "elaiJS/promise"],
+          function(config, binder, Promise) {
 	'use strict';
   
 	var self = {};
@@ -28,7 +28,7 @@ define(['elaiJS/configuration', 'elaiJS/binder'],
 		  if(beforeUnloadMessage) {
 		    fire(EVENT.beforeUnload);
 		    fire(EVENT.beforeUnloadInternal);
-		    setTimeout(showInternalBeforeUnloadMessage());
+		    setTimeout(showInternalBeforeUnloadMessage);
 		    return;
 		  }
 
@@ -121,16 +121,22 @@ define(['elaiJS/configuration', 'elaiJS/binder'],
     if(beforeUnloadShowMessage)
       action = beforeUnloadShowMessage;
     
-    action(message, function(continueNav) {
-      if(continueNav) {
-        changeCurrentPage();
-        self.removeBeforeUnloadMessage();
-      }
-      else {
-        ignoreHasChange = true;
-        self.back();
-      }
+    action(message).then(function() {
+      changeCurrentPage();
+      self.removeBeforeUnloadMessage();
+    }, function() {
+      ignoreHasChange = true;
+      self.back();
     });
+  }
+
+  self.showInternalBeforeUnloadMessage = function showInternalBeforeUnloadMessage() {
+		var message = getBeforeUnloadMessage(true);
+		if(!message)
+			return Promise.resolve();
+
+		var action = beforeUnloadShowMessage || config.elaiJS.showInternalBeforeUnloadMessage;
+		return action(message);
   }
 
 	self.setBeforeUnloadMessage = function setBeforeUnloadMessage(message, callback, showMessage) {
