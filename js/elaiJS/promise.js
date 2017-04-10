@@ -126,7 +126,8 @@ define(["elaiJS/helper"], function(helper) {
 
 		while(this.pendingThens.length > 0)
 			this.pendingThens.shift()();
-		
+
+		if(isRejected) console.error(value);
 		return value;
 	}
 
