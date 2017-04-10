@@ -45,7 +45,7 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/localStorage",
 	self.get = function get(keyPropertie, params, language) {
     var value = propertiesManager.get(keyPropertie, language);
     if(!value)
-      return value;
+      return config.elaiJS.returnLanguageKeyOnUndefined ? keyPropertie : value;
     
     for(var key in params) {
       var regex = new RegExp("\\{\\{" + key + "\\}\\}", "g");
