@@ -27,7 +27,7 @@ define(["elaiJS/configuration", "elaiJS/binder", "elaiJS/helper", "elaiJS/promis
 		service.cache = [];
 		service.currents = [];
 		service.removeCache = removeCache;
-		binder.addBindFunctions(service);
+		binder.addFunctions(service);
 		
 		return self[name] = service;
 	}
@@ -47,7 +47,7 @@ define(["elaiJS/configuration", "elaiJS/binder", "elaiJS/helper", "elaiJS/promis
 	}
 	
 	function execute(context) {
-		binder.fire.call(context.service, "before", context);
+		context.service.fire("before", context);
 		
 		var promise = Promise.resolve(context);
 		promise = chainInterceptors(context, promise, context.service.interceptors.before.list);
@@ -58,14 +58,14 @@ define(["elaiJS/configuration", "elaiJS/binder", "elaiJS/helper", "elaiJS/promis
 	}
 	
 	function finalizeExecute(context) {
-		binder.fire.call(context.service, "after", context);
-		binder.fire.call(context.service, "success", context);
+		context.service.fire("after", context);
+		context.service.fire("success", context);
 		return context.result;
 	}
 	
 	function finalizeExecuteWithError(context) {
-		binder.fire.call(context.service, "after", context);
-		binder.fire.call(context.service, "error", context);
+		context.service.fire("after", context);
+		context.service.fire("error", context);
 		throw context.error;
 	}
 	
