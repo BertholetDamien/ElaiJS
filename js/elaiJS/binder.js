@@ -5,18 +5,18 @@ define(["elaiJS/helper"], function(helper) {
 	var globalEvent = {};
 	
 	self.bindOne = function bindOne(type, callback, params, scope) {
-    return self.bind.call(this, type, callback, params, scope, true);
+		return self.bind.call(this, type, callback, params, scope, true);
 	};
 
 	self.bind = function bind(type, callback, params, scope, bindOne) {
-    if(!helper.isFunction(callback))
-      throw new Error("callback argument need to be a function.");
-    
+		if(!helper.isFunction(callback))
+			throw new Error("callback argument need to be a function.");
+
 		this.listeners = this.listeners || {};
 		this.listeners[type] = this.listeners[type] || [];
-    
-    var listener = {  callback: callback, params: params,
-                      scope: scope, bindOne: bindOne};
+
+		var listener = {callback: callback, params: params,
+										scope: scope, bindOne: bindOne};
 		this.listeners[type].push(listener);
 		
 		return this;
@@ -43,8 +43,8 @@ define(["elaiJS/helper"], function(helper) {
 	};
 	
 	self.unbindAll = function unbindAll() {
-    this.listeners = [];
-    return this;
+		this.listeners = [];
+		return this;
 	};
 
 	self.fire = function fire(event, data) {
@@ -55,8 +55,8 @@ define(["elaiJS/helper"], function(helper) {
 
 		var listeners = this.listeners[event.type];
 		for(var i in listeners) {
-		  var listener = listeners[i];
-		  var scope = listener.scope || this;
+			var listener = listeners[i];
+			var scope = listener.scope || this;
 			listener.callback.call(scope, event, listener.params, event.data);
 		}
 		
@@ -65,12 +65,12 @@ define(["elaiJS/helper"], function(helper) {
 	};
 	
 	function deleteBindOneListeners(listeners) {
-	  for(var i in listeners) {
-	    if(listeners[i].bindOne) {
-	      listeners.splice(i, 1);
-	      return deleteBindOneListeners(listeners);
-	    }
-	  }
+		for(var i in listeners) {
+			if(listeners[i].bindOne) {
+				listeners.splice(i, 1);
+				return deleteBindOneListeners(listeners);
+			}
+		}
 	}
 
 	self.buildEvent = function buildEvent(event, data) {
@@ -94,24 +94,21 @@ define(["elaiJS/helper"], function(helper) {
 		};
 	};
 	
-	self.addBindFunctions = function(scope) {
-	  scope.bind = self.bind;
-	  scope.bindOne = self.bindOne;
-	  scope.unbind = self.unbind;
-	  scope.unbindAll = self.unbindAll;
-	};
-	
 	self.addFunctions = function(scope) {
-	  self.addBindFunctions(scope);
-	  scope.fire = self.fire;
+		scope.bind = self.bind;
+		scope.bindOne = self.bindOne;
+		scope.unbind = self.unbind;
+		scope.unbindAll = self.unbindAll;
+		scope.fire = self.fire;
 	};
 	
 	self.addAllFunctions = function(scope) {
-	  self.addFunctions(scope);
-	  scope.fireGlobal = self.fireGlobal;
-	  scope.bindGlobal = self.bindGlobal;
-	  scope.unbindGlobal = self.unbindGlobal;
-	  scope.bindOneGlobal = self.bindOneGlobal;
+		self.addFunctions(scope);
+		scope.bindGlobal = self.bindGlobal;
+		scope.bindOneGlobal = self.bindOneGlobal;
+		scope.unbindGlobal = self.unbindGlobal;
+		scope.unbindAllGlobal = self.unbindAllGlobal;
+		scope.fireGlobal = self.fireGlobal;
 	};
 	
 	self.addFunctions(globalEvent);
@@ -123,7 +120,7 @@ define(["elaiJS/helper"], function(helper) {
 	self.fireGlobal = globalEvent.fire.bind(globalEvent);
 	
 	self.buildGlobalFireCallBack = function buildGlobalFireCallBack(event, callback, data) {
-    return buildFireCallBack(globalEvent, event, callback, data);
+		return buildFireCallBack(globalEvent, event, callback, data);
 	};
 
 	return self;
