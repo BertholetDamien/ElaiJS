@@ -50,6 +50,7 @@ define(["elaiJS/promise"], function(Promise) {
         properties[key] = propertie;
       }, function(e) {
         console.error("Loading error with properties '" + key + "' of " + definition.name);
+        throw e;
       });
   	}
   
