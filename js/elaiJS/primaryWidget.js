@@ -302,7 +302,7 @@ define(["elaiJS/widget", "elaiJS/binder", "elaiJS/helper", "elaiJS/promise"],
 			this[action + "ChildByID"] = function(id, args) {
 				var wChild = this.children[id];
 				if(!wChild)
-					return;
+					return Promise.resolve();
 					
 				return wChild[action].apply(wChild, args);
 			};
