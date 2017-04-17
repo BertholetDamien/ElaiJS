@@ -39,12 +39,13 @@ define([  "elaiJS/configuration", "elaiJS/webservice", "elaiJS/helper",
 	};
 	
 	self.setLocalisation = function setLocalisation(rawLocalisation) {
-    if(config.elaiJS.localisationStorageKey)
-      localStorage.set(config.elaiJS.localisationStorageKey, rawLocalisation);
-    
-    var fireCb = binder.buildFireCallBack(this, EVENT.localisationChanged);
-    var localisation = self.findDefaultLocalisation(rawLocalisation);
-    return propertiesManager.setKey(localisation).then(fireCb);
+		var localisation = self.findDefaultLocalisation(rawLocalisation);
+		
+		return propertiesManager.setKey(localisation).then(function() {
+			if(config.elaiJS.localisationStorageKey)
+				localStorage.set(config.elaiJS.localisationStorageKey, rawLocalisation);
+			binder.fire.call(this, EVENT.localisationChanged);
+		}.bind(this));
 	};
 	
 	self.findDefaultLocalisation = function findDefaultLocalisation(loc) {
