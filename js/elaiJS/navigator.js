@@ -1,10 +1,10 @@
 define(['elaiJS/configuration', 'elaiJS/binder', "elaiJS/promise"],
           function(config, binder, Promise) {
 	'use strict';
-  
+
 	var self = {};
 	binder.addFunctions(self);
-	
+
   var EVENT = {
     beforeUnload:           "beforeUnload",
     beforeUnloadInternal:   "beforeUnloadInternal",
@@ -14,17 +14,19 @@ define(['elaiJS/configuration', 'elaiJS/binder', "elaiJS/promise"],
   };
 	self.EVENT = EVENT;
 
+	var currentHistoryTime;
+
   var ignoreHasChange = false;
   var beforeUnloadCallback;
 	var beforeUnloadMessage;
 	var beforeUnloadShowMessage;
 	var currentPageInfo;
-  
+
 	self.initialize = function initialize() {
-		window.onhashchange = function() {
+    window.addEventListener("hashchange",  function() {
 		  if(ignoreHasChange)
 		    return ignoreHasChange = false;
-		  
+
 		  if(beforeUnloadMessage) {
 		    fire(EVENT.beforeUnload);
 		    fire(EVENT.beforeUnloadInternal);
@@ -33,11 +35,11 @@ define(['elaiJS/configuration', 'elaiJS/binder', "elaiJS/promise"],
 		  }
 
 		  changeCurrentPage();
-		};
-		
+		});
+
 		initializeCurrentPage();
 	};
-	
+
 	function changeCurrentPage() {
     var oldPageInfo = currentPageInfo;
     initializeCurrentPage();
@@ -53,9 +55,16 @@ define(['elaiJS/configuration', 'elaiJS/binder', "elaiJS/promise"],
 
 		self.fire(event);
 	}
-	
+
 	function initializeCurrentPage() {
     currentPageInfo = buidCurrentPageInfo();
+		var history = (self.getHistoryState() || {elaiJS: {}});
+		if(!history.elaiJS.history) {
+			history.elaiJS.history = new Date().getTime();
+			self.addToHistoryState(history);
+		}
+
+		currentHistoryTime = history.elaiJS.history;
 	}
 
 	self.getCurrentPageInfo = function getCurrentPageInfo() {
@@ -77,23 +86,23 @@ define(['elaiJS/configuration', 'elaiJS/binder', "elaiJS/promise"],
 	self.reload = function reload() {
 		fire(EVENT.reload, currentPageInfo);
 	}
-	
+
 	self.getHistoryState = function getHistoryState() {
     return window.history.state;
 	};
-	
+
 	self.saveHistoryState = function saveHistoryState(state) {
     window.history.replaceState(state, "");
 	};
-	
+
 	self.addToHistoryState = function addToHistoryState(params) {
     var state = self.getHistoryState();
 	  if(!state)
 	    state = {};
-    
+
     for(var key in params)
       state[key] = params[key];
-    
+
     self.saveHistoryState(state);
 	};
 
@@ -111,24 +120,34 @@ define(['elaiJS/configuration', 'elaiJS/binder', "elaiJS/promise"],
     var hash = location.hash.substring(1);
     return config.elaiJS.extractPageInfo(hash);
 	}
-	
+
 	function showInternalBeforeUnloadMessage() {
 	  var message = getBeforeUnloadMessage(true);
     if(!message)
       return changeCurrentPage();
-    
+
     var action = config.elaiJS.showInternalBeforeUnloadMessage;
     if(beforeUnloadShowMessage)
       action = beforeUnloadShowMessage;
-    
+
     action(message).then(function() {
       changeCurrentPage();
       self.removeBeforeUnloadMessage();
     }, function() {
       ignoreHasChange = true;
-      self.back();
+			if(isComesFromBack())
+      	self.forward();
+			else
+				self.back();
     });
   }
+
+	function isComesFromBack() {
+		var historyTime = (self.getHistoryState() || {elaiJS: {}}).elaiJS.history;
+		if(!historyTime)
+			return false;
+		return historyTime < currentHistoryTime;
+	}
 
   self.showInternalBeforeUnloadMessage = function showInternalBeforeUnloadMessage() {
 		var message = getBeforeUnloadMessage(true);
@@ -143,7 +162,7 @@ define(['elaiJS/configuration', 'elaiJS/binder', "elaiJS/promise"],
 	  beforeUnloadMessage = message;
 	  beforeUnloadCallback = callback;
 	  beforeUnloadShowMessage = showMessage;
-	  
+
 		window.onbeforeunload = function() {
 		  fire(EVENT.beforeUnload);
 		  fire(EVENT.beforeUnloadNavigator);
@@ -157,50 +176,50 @@ define(['elaiJS/configuration', 'elaiJS/binder', "elaiJS/promise"],
 		beforeUnloadMessage = undefined;
 		beforeUnloadShowMessage = undefined;
 	};
-	
+
 	function getBeforeUnloadMessage(isInternal) {
     if(beforeUnloadCallback)
       return beforeUnloadCallback(beforeUnloadMessage, isInternal);
-    
+
     if(config.elaiJS.beforeUnloadCallback)
       return config.elaiJS.beforeUnloadCallback(beforeUnloadMessage, isInternal);
-    
+
     return beforeUnloadMessage;
 	}
-	
+
 	self.addCookie = function(arg1, arg2) {
 	  var params = (arg2) ? {name: arg1, value: arg2} : arg1;
-	  
+
 	  if(params.remove !== false)
       self.removeCookie(params.name);
-    
+
     var date = params.expires;
     if(!date && params.days) {
       date = new Date();
       date.setTime(date.getTime() + (params.days*24*60*60*1000));
     }
-    
+
     var cookieStr = params.name + "=" + params.value + ";";
     if(date)
       cookieStr += "expires=" + date.toUTCString() + ";";
     if(params.path)
       cookieStr += "path=" + params.path + ";";
-    
+
     document.cookie = cookieStr;
     return self;
 	};
-	
+
 	self.getCookie = function(name) {
     return self.getCookies()[name];
 	};
-	
+
 	self.removeCookie = function(name) {
 	  var date = new Date();
 	  date.setTime(date.getTime() - 1);
-	  
+
     return self.addCookie({name: name, value: "", expires: date, remove: false});
 	};
-	
+
 	self.getCookies = function() {
 	  // It's better for health when it's raw !
     var rawCookies = document.cookie.split(';');
@@ -212,10 +231,10 @@ define(['elaiJS/configuration', 'elaiJS/binder', "elaiJS/promise"],
         cookies[rawCookie[0]] = rawCookie[1];
       }
     }
-    
+
     return cookies;
 	};
-	
+
 	self.removeAllCookies = function() {
     for(var name in self.getCookies())
       self.removeCookie(name);
