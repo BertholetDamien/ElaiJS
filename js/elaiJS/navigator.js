@@ -58,13 +58,15 @@ define(['elaiJS/configuration', 'elaiJS/binder', "elaiJS/promise"],
 
 	function initializeCurrentPage() {
     currentPageInfo = buidCurrentPageInfo();
-		var history = (self.getHistoryState() || {elaiJS: {}});
-		if(!history.elaiJS.history) {
-			history.elaiJS.history = new Date().getTime();
+
+		var history = self.getHistoryState() || {};
+    history.elaiJS = history.elaiJS || {};
+		if(!history.elaiJS.historyTime) {
+			history.elaiJS.historyTime = new Date().getTime();
 			self.addToHistoryState(history);
 		}
 
-		currentHistoryTime = history.elaiJS.history;
+		currentHistoryTime = history.elaiJS.historyTime;
 	}
 
 	self.getCurrentPageInfo = function getCurrentPageInfo() {
@@ -143,7 +145,8 @@ define(['elaiJS/configuration', 'elaiJS/binder', "elaiJS/promise"],
   }
 
 	function isComesFromBack() {
-		var historyTime = (self.getHistoryState() || {elaiJS: {}}).elaiJS.history;
+		var history = self.getHistoryState() || {};
+		var historyTime = history.elaiJS ? history.elaiJS.historyTime : undefined;
 		if(!historyTime)
 			return false;
 		return historyTime < currentHistoryTime;
